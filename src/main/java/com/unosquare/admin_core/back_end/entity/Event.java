@@ -1,9 +1,11 @@
 package com.unosquare.admin_core.back_end.entity;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -12,8 +14,8 @@ import java.time.LocalDate;
 public class Event {
 
     @Id
-    @SequenceGenerator(name="eventSeq",sequenceName="event_event_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="eventSeq")
+    @SequenceGenerator(name = "eventSeq", sequenceName = "event_event_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "eventSeq")
     @Column(name = "event_id", unique = true, nullable = false)
     private int eventId;
 
@@ -29,21 +31,21 @@ public class Event {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @OneToOne(cascade=CascadeType.DETACH)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "event_status_id")
     private EventStatus eventStatus;
 
-    @OneToOne(cascade=CascadeType.DETACH)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "event_type_id")
     private EventType eventType;
 
     private boolean isHalfDay;
 
     @Column(name = "last_modified")
-    private LocalDate lastModified;
+    private LocalDateTime lastModified;
 
     @Column(name = "date_created")
-    private LocalDate dateCreated;
+    private LocalDateTime dateCreated;
 
     public Event(int eventId) {
         this.eventId = eventId;

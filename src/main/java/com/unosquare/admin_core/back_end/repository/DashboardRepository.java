@@ -12,20 +12,21 @@ import java.util.List;
 
 public interface DashboardRepository extends JpaRepository<Event, Integer> {
     @Query(value = "SELECT e FROM Event e " +
-            "WHERE " +
+            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < NOW()- interval '36' hour) " +
+            "AND " +
             "((e.startDate BETWEEN :startDate AND :endDate) OR " +
             "(e.endDate BETWEEN :startDate AND :endDate) OR " +
             "(e.startDate > :startDate AND e.endDate < :endDate)) " +
             "AND " +
-            "e.employee.employeeId = :employeeId"
-    )
+            "e.employee.employeeId = :employeeId", nativeQuery = true)
     List<Event> findCalendarMonthEventsForEmployee(@Param("employeeId") int employeeId,
                                                    @Param("startDate") LocalDate startDate,
                                                    @Param("endDate") LocalDate endDate);
 
     @Query(value = "SELECT e FROM Event e " +
             "INNER JOIN Contract c on e.employee.employeeId = c.employee.employeeId " +
-            "WHERE " +
+            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < NOW()- interval '36' hour)" +
+            "AND " +
             "((e.startDate BETWEEN :startDate AND :endDate) OR " +
             "(e.endDate BETWEEN :startDate AND :endDate) OR " +
             "(e.startDate > :startDate AND e.endDate < :endDate)) " +
@@ -39,9 +40,8 @@ public interface DashboardRepository extends JpaRepository<Event, Integer> {
             "WHERE (c.employee.employeeId = :employeeId AND " +
             "(c.startDate BETWEEN :startDate AND :today) OR " +
             "(c.endDate BETWEEN :today AND :endDate) OR " +
-            "(c.startDate < :startDate AND (c.endDate IS NULL OR :endDate > :today)))" +
-            ")"
-    )
+            "(c.startDate < :startDate AND (c.endDate IS NULL OR :endDate > :today))))", nativeQuery = true)
+
     List<Event> findCalendarMonthEventsForTeam(@Param("employeeId") int employeeId,
                                                @Param("startDate") LocalDate startDate,
                                                @Param("endDate") LocalDate endDate,

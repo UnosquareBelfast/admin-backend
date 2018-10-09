@@ -3,7 +3,7 @@ package com.unosquare.admin_core.back_end.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -27,9 +27,9 @@ public class EventDTO {
 
     private boolean isHalfDay;
 
-    private LocalDate lastModified;
+    private LocalDateTime lastModified;
 
-    private LocalDate dateCreated;
+    private LocalDateTime dateCreated;
 
     private TeamDTO Team;
 
