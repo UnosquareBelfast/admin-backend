@@ -36,24 +36,15 @@ public class DashboardController {
 
     @GetMapping(value = "/getEmployeeEvents", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public EmployeeEventViewModel getDashboardEventsByEmployeeId(@RequestParam(value = "date")  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)  LocalDate date) {
+    public EmployeeEventViewModel getDashboardEventsByEmployeeId(@RequestParam(value = "date")
+                                                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                                             LocalDate date) {
             List<EventDTO> events = dashboardService.getEmployeeDashboardEvents(employeeCredentialsViewModel.getUserId(), date);
             List<DashboardEventViewModel> results = events.stream().map(event -> modelMapper.map(event, DashboardEventViewModel.class)).collect(Collectors.toList());
             EmployeeEventViewModel model = new EmployeeEventViewModel();
             model.setEvents(results);
             return model;
     }
-
-    @GetMapping(value = "/getTeamEvents", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public EmployeeEventViewModel getTeamEventsByEmployeeId(@RequestParam(value = "date")  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)  LocalDate date) {
-        List<EventDTO> events = dashboardService.getTeamDashboardEvents(employeeCredentialsViewModel.getUserId(), date);
-        List<DashboardEventViewModel> results = events.stream().map(event -> modelMapper.map(event, DashboardEventViewModel.class)).collect(Collectors.toList());
-        EmployeeEventViewModel model = new EmployeeEventViewModel();
-        model.setEvents(results);
-        return model;
-    }
-
 
     @GetMapping(value = "/getDashboardSnapshot", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -62,11 +53,16 @@ public class DashboardController {
         return mapTeamSummaryDtoToTeamSummaryViewModel(teamSummary);
     }
 
-    @GetMapping(value = "/getEmployeeTeamSnapshot", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/getTeamEvents", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<TeamSnapshotViewModel> getEmployeeTeamsSnapshot(){
-        Map<String, List<EmployeeSnapshotDto>> teamSummary = dashboardService.getEmployeeTeamSnapshot(employeeCredentialsViewModel.getUserId());
-        return mapTeamSummaryDtoToTeamSummaryViewModel(teamSummary);
+    public EmployeeEventViewModel getTeamEventsByEmployeeId(@RequestParam(value = "date")
+                                                                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                                        LocalDate date) {
+        List<EventDTO> events = dashboardService.getTeamDashboardEvents(employeeCredentialsViewModel.getUserId(), date);
+        List<DashboardEventViewModel> results = events.stream().map(event -> modelMapper.map(event, DashboardEventViewModel.class)).collect(Collectors.toList());
+        EmployeeEventViewModel model = new EmployeeEventViewModel();
+        model.setEvents(results);
+        return model;
     }
 
     @GetMapping(value = "/getMessagesByEventId/{eventId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -76,7 +72,16 @@ public class DashboardController {
         return messages.stream().map(message -> modelMapper.map(message, EventMessageViewModel.class)).collect(Collectors.toList());
     }
 
-    private  List<TeamSnapshotViewModel> mapTeamSummaryDtoToTeamSummaryViewModel(Map<String, List<EmployeeSnapshotDto>> teams) {
+    @GetMapping(value = "/getEmployeeTeamSnapshot", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<TeamSnapshotViewModel> getEmployeeTeamsSnapshot(){
+        Map<String, List<EmployeeSnapshotDto>> teamSummary = dashboardService.getEmployeeTeamSnapshot(
+                employeeCredentialsViewModel.getUserId());
+        return mapTeamSummaryDtoToTeamSummaryViewModel(teamSummary);
+    }
+
+    private  List<TeamSnapshotViewModel> mapTeamSummaryDtoToTeamSummaryViewModel(Map<String,
+            List<EmployeeSnapshotDto>> teams) {
         List<TeamSnapshotViewModel> model = new ArrayList<>();
         for (Map.Entry<String, List<EmployeeSnapshotDto>> team : teams.entrySet()) {
             TeamSnapshotViewModel membersModel = new TeamSnapshotViewModel();

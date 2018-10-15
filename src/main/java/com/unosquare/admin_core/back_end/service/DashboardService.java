@@ -1,7 +1,7 @@
 package com.unosquare.admin_core.back_end.service;
 
-import com.unosquare.admin_core.back_end.dto.EventDTO;
 import com.unosquare.admin_core.back_end.dto.EmployeeSnapshotDto;
+import com.unosquare.admin_core.back_end.dto.EventDTO;
 import com.unosquare.admin_core.back_end.dto.EventMessageDTO;
 import com.unosquare.admin_core.back_end.entity.Event;
 import com.unosquare.admin_core.back_end.entity.EventMessage;
@@ -37,7 +37,7 @@ public class DashboardService {
         LocalDate endDate = getMonthEndDate(date);
         List<Event> result = dashboardRepository.findCalendarMonthEventsForEmployee(employeeId, startDate, endDate);
         List<EventDTO> eventDTOS = result.stream().map(event -> modelMapper.map(event, EventDTO.class)).collect(Collectors.toList());
-        for (EventDTO event : eventDTOS){
+        for (EventDTO event : eventDTOS) {
             EventMessage message = eventMessageRepository.findLatestEventMessagesByEventId(event.getEventId());
             if (message != null) {
                 event.setLatestMessage(modelMapper.map(message, EventMessageDTO.class));
@@ -46,7 +46,7 @@ public class DashboardService {
         return eventDTOS;
     }
 
-    public List<EventDTO> getTeamDashboardEvents(int employeeId, LocalDate date){
+    public List<EventDTO> getTeamDashboardEvents(int employeeId, LocalDate date) {
         LocalDate startDate = getMonthStartDate(date);
         LocalDate endDate = getMonthEndDate(date);
         LocalDate today = LocalDate.now();
@@ -54,28 +54,28 @@ public class DashboardService {
         return result.stream().map(event -> modelMapper.map(event, EventDTO.class)).collect(Collectors.toList());
     }
 
-    public Map<String, List<EmployeeSnapshotDto>> getTeamSnapshotDashboardEvents(){
+    public Map<String, List<EmployeeSnapshotDto>> getTeamSnapshotDashboardEvents() {
         LocalDate today = LocalDate.now();
         List<EmployeeSnapshotDto> result = dashboardRepository.findDailySnapshotForTeamMobile(today);
         return result.stream().collect(Collectors.groupingBy(EmployeeSnapshotDto::getTeamName, Collectors.toList()));
     }
 
-    public Map<String, List<EmployeeSnapshotDto>> getEmployeeTeamSnapshot(int employeeId){
+    public Map<String, List<EmployeeSnapshotDto>> getEmployeeTeamSnapshot(int employeeId) {
         LocalDate today = LocalDate.now();
         List<EmployeeSnapshotDto> result = dashboardRepository.findEmployeeTeamsDailySnapshot(today, employeeId);
         return result.stream().collect(Collectors.groupingBy(EmployeeSnapshotDto::getTeamName, Collectors.toList()));
     }
 
-    public List<EventMessageDTO> getEventMessagesByEventId(int eventId){
+    public List<EventMessageDTO> getEventMessagesByEventId(int eventId) {
         List<EventMessage> messages = eventMessageRepository.findEventMessagesByEventId(eventId);
         return messages.stream().map(message -> modelMapper.map(message, EventMessageDTO.class)).collect(Collectors.toList());
     }
 
-    private LocalDate getMonthStartDate(LocalDate date){
+    private LocalDate getMonthStartDate(LocalDate date) {
         return date.withDayOfMonth(1);
     }
 
-    private LocalDate getMonthEndDate(LocalDate date){
+    private LocalDate getMonthEndDate(LocalDate date) {
         return date.withDayOfMonth(date.lengthOfMonth());
     }
 }
