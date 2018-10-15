@@ -357,7 +357,6 @@
       <option name="JAR_PATH" value="$PROJECT_DIR$/target/admin-core-0.0.1-SNAPSHOT.jar" />
       <option name="WORKING_DIRECTORY" value="C:\Users\Ryan McCleave\Documents\workspace\Unosquare\admin-backend" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <module name="admin-core" />
       <method v="2">
         <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="clean" />
         <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="package" />

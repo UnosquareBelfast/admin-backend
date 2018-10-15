@@ -143,6 +143,7 @@ coverage/
 dist/
 /BackEnd/target
 .idea/
+.idea/*
 .vscode/
 /BackEnd/*.iml
 /BackEnd/docs
