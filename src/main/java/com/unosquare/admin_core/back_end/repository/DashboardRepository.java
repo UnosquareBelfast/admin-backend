@@ -7,25 +7,27 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
 public interface DashboardRepository extends JpaRepository<Event, Integer> {
     @Query(value = "SELECT e FROM Event e " +
-            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < NOW()- interval '36' hour) " +
+            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < :cancelledFilteredTime) " +
             "AND " +
             "((e.startDate BETWEEN :startDate AND :endDate) OR " +
             "(e.endDate BETWEEN :startDate AND :endDate) OR " +
             "(e.startDate > :startDate AND e.endDate < :endDate)) " +
             "AND " +
-            "e.employee.employeeId = :employeeId", nativeQuery = true)
+            "e.employee.employeeId = :employeeId")
     List<Event> findCalendarMonthEventsForEmployee(@Param("employeeId") int employeeId,
                                                    @Param("startDate") LocalDate startDate,
-                                                   @Param("endDate") LocalDate endDate);
+                                                   @Param("endDate") LocalDate endDate,
+                                                   @Param("cancelledFilteredTime") LocalDateTime cancelledFilteredTime);
 
     @Query(value = "SELECT e FROM Event e " +
             "INNER JOIN Contract c on e.employee.employeeId = c.employee.employeeId " +
-            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < NOW()- interval '36' hour)" +
+            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < :cancelledFilteredTime)" +
             "AND " +
             "((e.startDate BETWEEN :startDate AND :endDate) OR " +
             "(e.endDate BETWEEN :startDate AND :endDate) OR " +
@@ -40,12 +42,12 @@ public interface DashboardRepository extends JpaRepository<Event, Integer> {
             "WHERE (c.employee.employeeId = :employeeId AND " +
             "(c.startDate BETWEEN :startDate AND :today) OR " +
             "(c.endDate BETWEEN :today AND :endDate) OR " +
-            "(c.startDate < :startDate AND (c.endDate IS NULL OR :endDate > :today))))", nativeQuery = true)
-
+            "(c.startDate < :startDate AND (c.endDate IS NULL OR :endDate > :today))))")
     List<Event> findCalendarMonthEventsForTeam(@Param("employeeId") int employeeId,
                                                @Param("startDate") LocalDate startDate,
                                                @Param("endDate") LocalDate endDate,
-                                               @Param("today") LocalDate today);
+                                               @Param("today") LocalDate today,
+                                               @Param("cancelledFilteredTime") LocalDateTime cancelledFilteredTime);
 
     @Query(value = "SELECT new com.unosquare.admin_core.back_end.dto.EmployeeSnapshotDto(" +
             "t.teamId ," +
@@ -67,7 +69,6 @@ public interface DashboardRepository extends JpaRepository<Event, Integer> {
             "AND " +
             "(ev is NULL OR :today BETWEEN ev.startDate AND ev.endDate)"
     )
-
     List<EmployeeSnapshotDto> findDailySnapshotForTeamMobile(@Param("today") LocalDate today);
 
 
@@ -93,7 +94,6 @@ public interface DashboardRepository extends JpaRepository<Event, Integer> {
             "SELECT c.team.teamId FROM Contract c " +
             "WHERE c.employee.employeeId = :employeeId AND " +
             "c.startDate <= :today AND (c.endDate >= :today OR c.endDate IS NULL))")
-
     List<EmployeeSnapshotDto> findEmployeeTeamsDailySnapshot(@Param("today") LocalDate today,
                                                              @Param("employeeId") int employeeId);
 }
