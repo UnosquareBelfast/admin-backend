@@ -1,0 +1,19 @@
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://{AWS_RDS_POSTGRES_HOST}:{AWS_RDS_POSTGRES_PORT}/{AWS_RDS_POSTGRES_DB}?user={AWS_RDS_POSTGRES_USERNAME}&amp;password={AWS_RDS_POSTGRES_PWD}
+spring.datasource.username={AWS_RDS_POSTGRES_USERNAME}
+spring.datasource.password={AWS_RDS_POSTGRES_PWD}
+spring.jpa.database-platform=postgres
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.hibernate.ddl-auto=validate
+spring.mvc.dispatch-options-request=true
+server.port=8081
+## App Properties
+app.jwtSecret=JWTSuperSecretKey
+app.jwtExpirationInMs=604800000
+
+spring.mvc.view.prefix=/WEB-INF/views/
+spring.mvc.view.suffix=.jsp
+
+
