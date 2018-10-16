@@ -8,14 +8,8 @@ import java.time.LocalDate;
 public class ContractDTO {
 
     private int contractId;
-
     private int teamId;
-
     private int employeeId;
-
     private LocalDate startDate;
-
     private LocalDate endDate;
 }
-
-

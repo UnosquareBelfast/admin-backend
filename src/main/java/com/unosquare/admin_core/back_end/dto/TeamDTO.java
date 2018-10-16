@@ -6,8 +6,6 @@ import lombok.Data;
 public class TeamDTO {
 
     private int clientId;
-
     private int teamId;
-
     private String teamName;
 }

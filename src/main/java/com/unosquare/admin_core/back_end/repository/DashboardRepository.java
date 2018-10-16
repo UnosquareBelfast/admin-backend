@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-
 public interface DashboardRepository extends JpaRepository<Event, Integer> {
     @Query(value = "SELECT e FROM Event e " +
             "WHERE " +

@@ -9,6 +9,7 @@ import java.util.List;
 
 @Data
 public class DashboardEventViewModel {
+
     private int eventId;
     private String startDate;
     private String endDate;

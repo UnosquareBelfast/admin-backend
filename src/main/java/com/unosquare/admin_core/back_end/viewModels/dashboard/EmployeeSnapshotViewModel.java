@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class EmployeeSnapshotViewModel {
+
     private int employeeId;
     private String name;
     private String state;

@@ -11,20 +11,12 @@ import java.time.LocalDate;
 public class HolidayViewModel {
 
         private int eventId;
-
         private LocalDate startDate;
-
         private LocalDate endDate;
-
         private EmployeeViewModel employee;
-
         private EventStatus eventStatus;
-
         private EventType eventType;
-
         private boolean isHalfDay;
-
         private LocalDate lastModified;
-
         private LocalDate dateCreated;
 }

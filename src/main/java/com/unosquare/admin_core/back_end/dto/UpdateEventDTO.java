@@ -8,16 +8,10 @@ import java.time.LocalDate;
 public class UpdateEventDTO {
 
     private int eventId;
-
     private int eventTypeId;
-
     private LocalDate startDate;
-
     private LocalDate endDate;
-
     private boolean isHalfDay;
-
     private LocalDate lastModified;
-
     private String message;
 }
