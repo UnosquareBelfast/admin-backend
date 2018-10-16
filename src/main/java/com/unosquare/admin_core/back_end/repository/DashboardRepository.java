@@ -29,7 +29,7 @@ public interface DashboardRepository extends JpaRepository<Event, Integer> {
             "(e.endDate BETWEEN :startDate AND :endDate) OR " +
             "(e.startDate > :startDate AND e.endDate < :endDate)) " +
             "AND " +
-            "(e.eventStatus = '1') AND (e.eventType = '1') OR (e.eventType = '2') " +
+            "(e.eventStatus = '1') AND ((e.eventType = '1') OR (e.eventType = '2')) " +
             "AND " +
             "e.employee.employeeId = :employeeId"
     )
