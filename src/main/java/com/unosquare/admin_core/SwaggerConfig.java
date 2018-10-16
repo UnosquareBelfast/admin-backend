@@ -30,7 +30,7 @@ public class SwaggerConfig {
     //String title, String description, String version, String termsOfServiceUrl, Contact contact, String license, String licenseUrl
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Admin Core Documentation #0.0.1",
+                "Admin Core Documentation #0.0.2",
                 "Use authorization controller to generate token, default USER login is username: superuser@unosquare.com, password: un05qu@r3_@dm1n   . 401 will be returned when trying out other controllers, use postman to test other controllers. When entering dates use the format YYYY-MM-DD",
                 "",
                 "W",
