@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface DashboardRepository extends JpaRepository<Event, Integer> {
     @Query(value = "SELECT e FROM Event e " +
-            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < :cancelledFilteredTime) " +
+            "WHERE NOT( e.eventStatus = '4' AND e.lastModified < :cancelledFilteredTime) " +
             "AND " +
             "((e.startDate BETWEEN :startDate AND :endDate) OR " +
             "(e.endDate BETWEEN :startDate AND :endDate) OR " +
@@ -27,7 +27,7 @@ public interface DashboardRepository extends JpaRepository<Event, Integer> {
 
     @Query(value = "SELECT e FROM Event e " +
             "INNER JOIN Contract c on e.employee.employeeId = c.employee.employeeId " +
-            "WHERE NOT( e.event_status_id = '4' AND e.last_modified < :cancelledFilteredTime)" +
+            "WHERE NOT( e.eventStatus = '4' AND e.lastModified < :cancelledFilteredTime)" +
             "AND " +
             "((e.startDate BETWEEN :startDate AND :endDate) OR " +
             "(e.endDate BETWEEN :startDate AND :endDate) OR " +
