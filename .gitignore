@@ -139,10 +139,10 @@ $RECYCLE.BIN/
  # End of https://www.gitignore.io/api/java,maven,windows,intellij
  coverage/
 dist/
-/BackEnd/target
+/admin-backend/target
 .idea/
 .idea/**
 .vscode/
-/BackEnd/*.iml
-/BackEnd/docs
+/admin-backend/*.iml
+/admin-backend/docs
 .DS_Store
