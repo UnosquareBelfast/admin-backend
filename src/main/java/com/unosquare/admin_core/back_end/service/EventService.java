@@ -182,5 +182,15 @@ public class EventService {
         }
         return null;
     }
+
+    public List<EventDTO> findALByEmployee(int employeeId) {
+        List<Event> events = eventRepository.findALByEmployee(employeeId);
+        return mapEventsToDtos(events);
+    }
+
+    public List<EventDTO> findWFHByEmployee(int employeeId) {
+        List<Event> events = eventRepository.findWFHByEmployee(employeeId);
+        return mapEventsToDtos(events);
+    }
 }
 

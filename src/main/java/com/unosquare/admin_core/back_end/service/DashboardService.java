@@ -51,6 +51,20 @@ public class DashboardService {
         return eventDTOS;
     }
 
+    public List<EventDTO> getPendingEmployeeDashboardEvents(int employeeId, LocalDate date) {
+        LocalDate startDate = getMonthStartDate(date);
+        LocalDate endDate = getMonthEndDate(date);
+        List<Event> result = dashboardRepository.findCalendarMonthPendingEventsForEmployee(employeeId, startDate, endDate);
+        List<EventDTO> eventDTOS = result.stream().map(event -> modelMapper.map(event, EventDTO.class)).collect(Collectors.toList());
+        for (EventDTO event : eventDTOS){
+            EventMessage message = eventMessageRepository.findLatestEventMessagesByEventId(event.getEventId());
+            if (message != null) {
+                event.setLatestMessage(modelMapper.map(message, EventMessageDTO.class));
+            }
+        }
+        return eventDTOS;
+    }
+
     public List<EventDTO> getTeamDashboardEvents(int employeeId, LocalDate date) {
         LocalDate startDate = getMonthStartDate(date);
         LocalDate endDate = getMonthEndDate(date);
