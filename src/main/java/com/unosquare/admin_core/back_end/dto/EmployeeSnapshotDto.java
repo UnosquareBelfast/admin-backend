@@ -14,4 +14,5 @@ public class EmployeeSnapshotDto {
     private int employeeId;
     private String email;
     private String clientName;
+    private int eventStatusId;
 }

@@ -147,8 +147,11 @@ $RECYCLE.BIN/
  coverage/
 dist/
 /BackEnd/target
+/admin-backend/target
 .idea/*
 .vscode/
 /BackEnd/*.iml
+/admin-backend/*.iml
 /BackEnd/docs
+/admin-backend/docs
 .DS_Store
