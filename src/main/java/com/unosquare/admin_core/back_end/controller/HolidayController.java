@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,17 @@ public class HolidayController extends BaseController {
     public List<HolidayViewModel> findHolidaysByEmployeeId(@PathVariable("employeeId") int employeeId) {
         List<EventDTO> holidays = eventService.findByEmployee(employeeId);
         return mapEventDtosToHolidays(holidays);
+    }
+
+    @GetMapping(value = "findEventsByEmployeeId/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<List<HolidayViewModel>> findEventsByEmployeeId(@PathVariable("employeeId") int employeeId) {
+        List<List<HolidayViewModel>> events = new ArrayList<>();
+        List<EventDTO> annualLeave = eventService.findALByEmployee(employeeId);
+        List<EventDTO> workFromHome = eventService.findWFHByEmployee(employeeId);
+        events.add(mapEventDtosToHolidays(annualLeave));
+        events.add(mapEventDtosToHolidays(workFromHome));
+        return events;
     }
 
     @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
