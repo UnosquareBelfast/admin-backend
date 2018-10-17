@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.modelmapper.PropertyMap;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 public class SaveEventMappings implements BaseMappings<EventDTO, CreateEventViewModel> {
@@ -32,8 +33,8 @@ public class SaveEventMappings implements BaseMappings<EventDTO, CreateEventView
                 skip().setStartDate(null);
                 skip().setEndDate(null);
                 skip().setEventId(0);
-                map().setDateCreated(LocalDate.now());
-                map().setLastModified(LocalDate.now());
+                map().setDateCreated(LocalDateTime.now());
+                map().setLastModified(LocalDateTime.now());
                 }
         };
     }

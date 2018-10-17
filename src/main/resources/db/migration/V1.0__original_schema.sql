@@ -270,11 +270,11 @@ CREATE TABLE IF NOT EXISTS public.event
   employee_id       integer,
   start_date         date,
   end_date           date,
-  date_created      date,
+  date_created      timestamp ,
   event_status_id integer,
   event_type_id integer,
   is_half_day       boolean NOT NULL,
-  last_modified     date,
+  last_modified     timestamp ,
   CONSTRAINT event_pkey PRIMARY KEY (event_id),
   CONSTRAINT event_employee_id_fkey FOREIGN KEY (employee_id)
         REFERENCES public.employee (employee_id) MATCH SIMPLE
