@@ -6,6 +6,7 @@ import com.unosquare.admin_core.back_end.entity.EventType;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class HolidayViewModel {
@@ -17,6 +18,6 @@ public class HolidayViewModel {
         private EventStatus eventStatus;
         private EventType eventType;
         private boolean isHalfDay;
-        private LocalDate lastModified;
-        private LocalDate dateCreated;
+        private LocalDateTime lastModified;
+        private LocalDateTime dateCreated;
 }

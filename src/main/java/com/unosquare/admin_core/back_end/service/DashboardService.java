@@ -1,7 +1,7 @@
 package com.unosquare.admin_core.back_end.service;
 
-import com.unosquare.admin_core.back_end.dto.EventDTO;
 import com.unosquare.admin_core.back_end.dto.EmployeeSnapshotDto;
+import com.unosquare.admin_core.back_end.dto.EventDTO;
 import com.unosquare.admin_core.back_end.dto.EventMessageDTO;
 import com.unosquare.admin_core.back_end.entity.Event;
 import com.unosquare.admin_core.back_end.entity.EventMessage;
@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,9 +37,12 @@ public class DashboardService {
     public List<EventDTO> getEmployeeDashboardEvents(int employeeId, LocalDate date) {
         LocalDate startDate = getMonthStartDate(date);
         LocalDate endDate = getMonthEndDate(date);
-        List<Event> result = dashboardRepository.findCalendarMonthEventsForEmployee(employeeId, startDate, endDate);
+
+        LocalDateTime cancelledFilteredTime = thirtySixHoursFromToday();
+
+        List<Event> result = dashboardRepository.findCalendarMonthEventsForEmployee(employeeId, startDate, endDate, cancelledFilteredTime);
         List<EventDTO> eventDTOS = result.stream().map(event -> modelMapper.map(event, EventDTO.class)).collect(Collectors.toList());
-        for (EventDTO event : eventDTOS){
+        for (EventDTO event : eventDTOS) {
             EventMessage message = eventMessageRepository.findLatestEventMessagesByEventId(event.getEventId());
             if (message != null) {
                 event.setLatestMessage(modelMapper.map(message, EventMessageDTO.class));
@@ -60,12 +65,20 @@ public class DashboardService {
         return eventDTOS;
     }
 
-    public List<EventDTO> getTeamDashboardEvents(int employeeId, LocalDate date){
+    public List<EventDTO> getTeamDashboardEvents(int employeeId, LocalDate date) {
         LocalDate startDate = getMonthStartDate(date);
         LocalDate endDate = getMonthEndDate(date);
         LocalDate today = LocalDate.now();
-        List<Event> result = dashboardRepository.findCalendarMonthEventsForTeam(employeeId, startDate, endDate, today);
+
+        LocalDateTime cancelledFilteredTime = thirtySixHoursFromToday();
+
+        List<Event> result = dashboardRepository.findCalendarMonthEventsForTeam(employeeId, startDate, endDate, today, cancelledFilteredTime);
         return result.stream().map(event -> modelMapper.map(event, EventDTO.class)).collect(Collectors.toList());
+    }
+
+    private LocalDateTime thirtySixHoursFromToday() {
+        LocalDateTime today = LocalDateTime.now();
+        return today.minus(36, ChronoUnit.HOURS);
     }
 
     public Map<String, List<EmployeeSnapshotDto>> getTeamSnapshotDashboardEvents() {
@@ -74,7 +87,7 @@ public class DashboardService {
         return result.stream().collect(Collectors.groupingBy(EmployeeSnapshotDto::getTeamName, Collectors.toList()));
     }
 
-    public Map<String, List<EmployeeSnapshotDto>> getEmployeeTeamSnapshot(int employeeId){
+    public Map<String, List<EmployeeSnapshotDto>> getEmployeeTeamSnapshot(int employeeId) {
         LocalDate today = LocalDate.now();
         List<EmployeeSnapshotDto> result = dashboardRepository.findEmployeeTeamsDailySnapshot(today, employeeId);
         return result.stream().collect(Collectors.groupingBy(EmployeeSnapshotDto::getTeamName, Collectors.toList()));
