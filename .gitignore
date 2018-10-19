@@ -143,5 +143,6 @@ dist/
 .idea/**
 .vscode/
 /admin-backend/*.iml
-/admin-backend/docs
+/admin-backend/admin-core.iml
+/admin-backend/docs/
 .DS_Store
