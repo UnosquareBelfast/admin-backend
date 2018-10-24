@@ -5,29 +5,50 @@ pipeline {
         }
     }
     environment {
-        ECR_REPO = '575178181231.dkr.ecr.eu-west-1.amazonaws.com'
-        ECR_VERSION = '0.0.0' // SEMVAR [MAJOR][MINOR][PATCH]
+    	// AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+		// AWS_SECRET_ACCESS_KEY = credentials('	AWS_SECRET_ACCESS_KEY')
+		ECR_VERSION = '0.0.0' // SEMVAR [MAJOR][MINOR][PA
     }
-    // parameters {
-    //     string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
-    //     text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
-    //     booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
-    //     choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
-    //     password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
-    //     file(name: "FILE", description: "Choose a file to upload")
-    // }
-    // triggers {
-    //     cron('40 17 * * *')
-    // }
+
     stages {
         // stage('Get Repo') {
         //     steps {
         //         checkout([
         //             $class: 'GitSCM', 
-        //             branches: [[name: 'ops/jenkins']], 
+        //             branches: [[name: 'ops/deploy']], 
         //             userRemoteConfigs: [[url: 'https://github.com/UnosquareBelfast/admin-backend']]])
         //     }
         // }
+        
+        stage('Set ENV Vars'){
+            steps {
+                withAWSParameterStore(credentialsId: 'uno-aws-global-creds', naming: 'relative', path: '/unosquare/project/internal', recursive: true, regionName: 'eu-west-1', namePrefixes:'') {
+                    script {
+                        env.AWS_RDS_POSTGRES_PORT = "${env.PROD_PARAM_RDS_RDSDATABASEPORT}"
+                        env.AWS_RDS_POSTGRES_HOST = "${env.PROD_PARAM_RDS_RDSDATABASEENDPOINT}"
+                        env.AWS_RDS_POSTGRES_DB = "${env.PROD_PARAM_RDS_RDSDATABASENAME}"
+                        env.AWS_RDS_POSTGRES_USERNAME = "${env.PROD_PARAM_RDS_RDSDATABASEMASTERUSERNAME}"
+                        env.AWS_RDS_POSTGRES_PWD = "${env.PROD_PARAM_RDS_RDSDATABASEMASTERUSERPWD}"
+                        env.AWS_RDS_POSTGRES_PWD = "${env.PROD_PARAM_RDS_RDSDATABASEMASTERUSERPWD}"
+                        
+                        env.AWS_REPOSITORY_URI = "${env.PROD_PARAM_ECR_REPOSITORYURI}"
+                        env.AWS_REPOSITORY_NAME = "${env.PROD_PARAM_ECR_REPONAME}"
+                    }
+                }
+            }
+        }
+        stage('Setup props deploy file'){
+            steps {
+                sh "cat src/main/resources/application.properties.docker.aws.deploy.skel > src/main/resources/application.properties.docker"
+                sh "sed -ie 's/{AWS_RDS_POSTGRES_HOST}/'\"${AWS_RDS_POSTGRES_HOST}\"'/' src/main/resources/application.properties.docker"
+                sh "sed -ie 's/{AWS_RDS_POSTGRES_PORT}/'\"${AWS_RDS_POSTGRES_PORT}\"'/' src/main/resources/application.properties.docker"
+                sh "sed -ie 's/{AWS_RDS_POSTGRES_DB}/'\"${AWS_RDS_POSTGRES_DB}\"'/' src/main/resources/application.properties.docker"
+                sh "sed -ie 's/{AWS_RDS_POSTGRES_USERNAME}/'\"${AWS_RDS_POSTGRES_USERNAME}\"'/' src/main/resources/application.properties.docker"
+                sh "sed -ie 's/{AWS_RDS_POSTGRES_PWD}/'\"${AWS_RDS_POSTGRES_PWD}\"'/' src/main/resources/application.properties.docker"
+                sh "cat src/main/resources/application.properties.docker"
+                // sh "exit 1"
+            }
+        }
         stage('Put Dockerfile into useable place'){
             steps {
                 sh "cat ./docker/admin.core.Dockerfile > ./Dockerfile"
@@ -35,25 +56,20 @@ pipeline {
         }
         stage('Docker build the image') {
             steps {
-                sh "docker build -t ${env.ECR_REPO}/admincore:${env.ECR_VERSION}.${env.BUILD_ID} ."
-                sh "docker tag ${env.ECR_REPO}/admincore:${env.ECR_VERSION}.${env.BUILD_ID} ${env.ECR_REPO}/admincore:latest"
-                // script
-                // {
-                //     // // Build the docker image using a Dockerfile
-                //     // // docker.build("${env.ECR_REPO}/admincore:${env.ECR_VERSION}.${env.BUILD_ID}","-f admin.core.Dockerfile ./docker")
-                //     docker.build("${env.ECR_REPO}/admincore:${env.ECR_VERSION}.${env.BUILD_ID}")
-                //     docker.build("${env.ECR_REPO}/admincore:latest")
-                // }
+                sh "docker build -t ${env.AWS_REPOSITORY_URI}/${env.AWS_REPOSITORY_NAME}:${env.ECR_VERSION}.${env.BUILD_ID} ."
+                sh "docker tag ${env.AWS_REPOSITORY_URI}/${env.AWS_REPOSITORY_NAME}:${env.ECR_VERSION}.${env.BUILD_ID} ${env.AWS_REPOSITORY_URI}/${env.AWS_REPOSITORY_NAME}:latest"
             }
         }
         stage('Docker push repo') {
+            input {
+                message "Should we deploy this docker container?"
+            }
             steps {
-                echo 'docker push unosquare.aws.repo/admincore:0.0.0'
                 script {
-                    docker.withRegistry('https://575178181231.dkr.ecr.eu-west-1.amazonaws.com','ecr:eu-west-1:uno-aws-global-creds')
+                    docker.withRegistry("https://${env.AWS_REPOSITORY_URI}", 'ecr:eu-west-1:uno-aws-global-creds')
                     {
-                        docker.image("${env.ECR_REPO}/admincore:${env.ECR_VERSION}.${env.BUILD_ID}").push()
-                        docker.image("${env.ECR_REPO}/admincore:latest").push()
+                        docker.image("${env.AWS_REPOSITORY_URI}/${env.AWS_REPOSITORY_NAME}:${env.ECR_VERSION}.${env.BUILD_ID}").push()
+                        docker.image("${env.AWS_REPOSITORY_URI}/${env.AWS_REPOSITORY_NAME}:latest").push()
                     }
                 }
             }
@@ -62,13 +78,7 @@ pipeline {
 
     post {
         always {
-            // Maybe cleanup -- 
-            // sh "if [[ `docker images | grep 'dkr.ecr' | wc -l` -gt 2 ]]; then echo \"GT\"; fi"
-            // sh "docker images | grep 'dkr.ecr' | sed -n '2p' | awk '{print $3}'"
-            // docker rmi -f "${env.ECR_REPO}/admincore:${env.ECR_VERSION}.${env.BUILD_ID}"
-            // docker rmi -f `docker images | grep 'ecr' | awk '{print $3}'`
-            // docker rmi -f `docker images | grep '<none>' | awk '{print $3}'`
-            echo "Done ${BUILD_ID - 1}"
+            echo "Done ${BUILD_ID}"
         }
     }
 }
