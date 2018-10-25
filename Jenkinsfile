@@ -8,6 +8,7 @@ pipeline {
     	// AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
 		// AWS_SECRET_ACCESS_KEY = credentials('	AWS_SECRET_ACCESS_KEY')
 		ECR_VERSION = '0.0.0' // SEMVAR [MAJOR][MINOR][PA
+        ENV_TYPE = "prod" // [prod,dev,test]
     }
 
     stages {
@@ -22,17 +23,17 @@ pipeline {
         
         stage('Set ENV Vars'){
             steps {
-                withAWSParameterStore(credentialsId: 'uno-aws-global-creds', naming: 'relative', path: '/unosquare/project/internal', recursive: true, regionName: 'eu-west-1', namePrefixes:'') {
+                withAWSParameterStore(credentialsId: 'uno-aws-global-creds', naming: 'relative', path: "/unosquare/project/internal/${env.ENV_TYPE}/", recursive: true, regionName: 'eu-west-1', namePrefixes:'') {
                     script {
-                        env.AWS_RDS_POSTGRES_PORT = "${env.PROD_PARAM_RDS_RDSDATABASEPORT}"
-                        env.AWS_RDS_POSTGRES_HOST = "${env.PROD_PARAM_RDS_RDSDATABASEENDPOINT}"
-                        env.AWS_RDS_POSTGRES_DB = "${env.PROD_PARAM_RDS_RDSDATABASENAME}"
-                        env.AWS_RDS_POSTGRES_USERNAME = "${env.PROD_PARAM_RDS_RDSDATABASEMASTERUSERNAME}"
-                        env.AWS_RDS_POSTGRES_PWD = "${env.PROD_PARAM_RDS_RDSDATABASEMASTERUSERPWD}"
-                        env.AWS_RDS_POSTGRES_PWD = "${env.PROD_PARAM_RDS_RDSDATABASEMASTERUSERPWD}"
+                        env.AWS_RDS_POSTGRES_PORT = "${env.PARAM_RDS_RDSDATABASEPORT}"
+                        env.AWS_RDS_POSTGRES_HOST = "${env.PARAM_RDS_RDSDATABASEENDPOINT}"
+                        env.AWS_RDS_POSTGRES_DB = "${env.PARAM_RDS_RDSDATABASENAME}"
+                        env.AWS_RDS_POSTGRES_USERNAME = "${env.PARAM_RDS_RDSDATABASEMASTERUSERNAME}"
+                        env.AWS_RDS_POSTGRES_PWD = "${env.PARAM_RDS_RDSDATABASEMASTERUSERPWD}"
+                        env.AWS_RDS_POSTGRES_PWD = "${env.PARAM_RDS_RDSDATABASEMASTERUSERPWD}"
                         
-                        env.AWS_REPOSITORY_URI = "${env.PROD_PARAM_ECR_REPOSITORYURI}"
-                        env.AWS_REPOSITORY_NAME = "${env.PROD_PARAM_ECR_REPONAME}"
+                        env.AWS_REPOSITORY_URI = "${env.PARAM_ECR_REPOSITORYURI}"
+                        env.AWS_REPOSITORY_NAME = "${env.PARAM_ECR_REPONAME}"
                     }
                 }
             }
