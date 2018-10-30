@@ -10,6 +10,7 @@ import com.unosquare.admin_core.back_end.enums.EventTypes;
 import org.modelmapper.PropertyMap;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class CancelHolidayMappings implements BaseMappings<EventDTO, CancelHolidayViewModel> {
 
@@ -32,7 +33,7 @@ public class CancelHolidayMappings implements BaseMappings<EventDTO, CancelHolid
                 using(eventTypesConverter.MapFromSourceToTarget()).map(EventTypes.ANNUAL_LEAVE, destination.getEventTypeId());
                 using(eventStatusConverter.MapFromSourceToTarget()).map(EventStatuses.CANCELLED, destination.getEventStatusId());
                 map().setEventId(source.getEventId());
-                map().setLastModified(LocalDate.now());
+                map().setLastModified(LocalDateTime.now());
                 skip().setEmployee(null);
             }
         };

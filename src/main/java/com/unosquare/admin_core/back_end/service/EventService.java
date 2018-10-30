@@ -10,13 +10,11 @@ import com.unosquare.admin_core.back_end.enums.EventTypes;
 import com.unosquare.admin_core.back_end.repository.EmployeeRepository;
 import com.unosquare.admin_core.back_end.repository.EventMessageRepository;
 import com.unosquare.admin_core.back_end.repository.EventRepository;
-import org.apache.tomcat.jni.Local;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.TransactionScoped;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -112,7 +110,7 @@ public class EventService {
             Event event = retrievedEvent.get();
             event.setEventStatus(new EventStatus(EventStatuses.REJECTED.getEventStatusId()));
             Employee employee = getEmployeeFromEmployeeId(employeeId);
-            if (employee != null ) {
+            if (employee != null) {
                 EventMessage eventMessage = mapToEventMessage(message, event, employee, EventMessageTypes.REJECTED.getEventStatusId());
                 saveEventMessage(eventMessage);
                 if (event.getEventStatus().getEventStatusId() != EventStatuses.REJECTED.getEventStatusId()) {
@@ -160,9 +158,9 @@ public class EventService {
         Preconditions.checkNotNull(event);
 
         if (event.getEventId() > 0) {
-            event.setDateCreated(LocalDate.now());
+            event.setDateCreated(LocalDateTime.now());
         }
-        event.setLastModified(LocalDate.now());
+        event.setLastModified(LocalDateTime.now());
         eventRepository.save(event);
     }
 
@@ -177,12 +175,22 @@ public class EventService {
     }
 
 
-    private Employee getEmployeeFromEmployeeId(int employeeId){
+    private Employee getEmployeeFromEmployeeId(int employeeId) {
         Optional<Employee> employee = employeeRepository.findById(employeeId);
         if (employee.isPresent()) {
             return employee.get();
         }
         return null;
+    }
+
+    public List<EventDTO> findALByEmployee(int employeeId) {
+        List<Event> events = eventRepository.findALByEmployee(employeeId);
+        return mapEventsToDtos(events);
+    }
+
+    public List<EventDTO> findWFHByEmployee(int employeeId) {
+        List<Event> events = eventRepository.findWFHByEmployee(employeeId);
+        return mapEventsToDtos(events);
     }
 }
 

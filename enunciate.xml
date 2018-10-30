@@ -7,5 +7,4 @@
     <modules>
         <docs docsDir="docs" title="Admin Core Documents"/>
     </modules>
-
 </enunciate>
