@@ -8,10 +8,25 @@ pipeline {
     	// AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
 		// AWS_SECRET_ACCESS_KEY = credentials('	AWS_SECRET_ACCESS_KEY')
 		ECR_VERSION = '0.0.0' // SEMVAR [MAJOR][MINOR][PA
-        ENV_TYPE = "prod" // [prod,dev,test]
+        // ENV_TYPE = "prod" // [prod,dev,test]
     }
 
     stages {
+        stage("Set env Type"){
+            steps {
+                script {
+                    if(env.BRANCH_NAME=='branch/production'){
+                        env.ENV_TYPE='prod'
+                    }
+                    if(env.BRANCH_NAME=='branch/develop'){
+                        env.ENV_TYPE='dev'
+                    }
+                    if(env.BRANCH_NAME=='branch/testing'){
+                        env.ENV_TYPE='test'
+                    }
+                }
+            }
+        }
         // stage('Get Repo') {
         //     steps {
         //         checkout([
