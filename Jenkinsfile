@@ -15,13 +15,13 @@ pipeline {
         stage("Set env Type"){
             steps {
                 script {
-                    if(env.BRANCH_NAME=='branch/production'){
+                    if(env.BRANCH_NAME=='jenkins/master'){
                         env.ENV_TYPE='prod'
                     }
-                    if(env.BRANCH_NAME=='branch/develop'){
+                    if(env.BRANCH_NAME=='jenkins/develop'){
                         env.ENV_TYPE='dev'
                     }
-                    if(env.BRANCH_NAME=='branch/testing'){
+                    if(env.BRANCH_NAME=='jenkins/testing'){
                         env.ENV_TYPE='test'
                     }
                 }
