@@ -1,9 +1,0 @@
-{
-  "expo": {
-    "name": "Admin core app",
-    "slug": "admin-core-app",
-    "description": "Administrative tool",
-    "sdkVersion": "27.0.0",
-    "version": "v1.0.0"
-}
-}
