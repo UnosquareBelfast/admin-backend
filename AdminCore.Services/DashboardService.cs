@@ -81,7 +81,7 @@ namespace AdminCore.Services
 
     public IList<ClientSnapshotDto> GetTeamDashboardEvents(int employeeId, DateTime date)
     {
-      var teamsForEmployee = DatabaseContext.TeamRepository.Get(team => team.Contracts.Any(contract => contract.EmployeeId == employeeId && DateService.ContractIsActiveDuringDate(contract, date))).Select(team => team.TeamId).ToList();
+      var teamsForEmployee = GetTeamIdsForEmployee(employeeId, date);
       var clientList = DatabaseContext.ClientRepository
         .GetAsQueryable(QueryClientsWithContractsForEmployeeId(teamsForEmployee, date))
         .Include(client => client.Teams)
@@ -107,6 +107,29 @@ namespace AdminCore.Services
       return contract.EmployeeId == employeeId &&
              DateService.ContractIsActiveDuringDate(contract, date) &&
              contract.Employee.Events.Any(evnt => DateService.EventContainsEventDatesThatHappenDuringMonth(evnt.EventDates, date));
+    }
+
+    public IList<EventDto> GetEmployeeTeamEvents(int employeeId, DateTime date)
+    {
+      var cancelled = (int) EventStatuses.Cancelled;
+      var employeeTeams = GetTeamIdsForEmployee(employeeId, date);
+      var eventsForTeams = DatabaseContext.EventRepository.Get(@event =>
+        @event.Employee.Contracts.Any(contract => employeeTeams.Contains(contract.TeamId)) && 
+        @event.EventStatusId != cancelled &&
+        DateService.EventContainsEventDatesThatHappenDuringMonth(@event.EventDates, date),
+        null,
+        @event => @event.Employee,
+        @event => @event.EventDates,
+        @event => @event.EventStatus,
+        @event => @event.EventType,
+        @event => @event.EventMessages
+        );
+      return _mapper.Map<IList<EventDto>>(eventsForTeams);
+    }
+
+    private List<int> GetTeamIdsForEmployee(int employeeId, DateTime date)
+    {
+      return DatabaseContext.TeamRepository.Get(team => team.Contracts.Any(contract => contract.EmployeeId == employeeId && DateService.ContractIsActiveDuringDate(contract, date))).Select(team => team.TeamId).ToList();
     }
 
     private static bool EmployeeDashboardEvents(Event evnt, int employeeId, int cancelled, DateTime startOfMonth, DateTime endOfMonth)
