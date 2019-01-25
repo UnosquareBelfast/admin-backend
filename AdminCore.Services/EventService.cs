@@ -74,10 +74,12 @@ namespace AdminCore.Services
 
     public IList<EventDateDto> GetEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
     {
-      var eventDates = DatabaseContext.EventDatesRepository.Get(x => x.StartDate >= startDate
-                                                                     && x.EndDate <= endDate.AddDays(1)
-                                                                     && x.Event.EmployeeId == employeeId,
+      var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date
+                                                                         && x.EndDate.Date <= endDate.Date
+                                                                         || x.EndDate.Date == startDate.Date)
+                                                                         && x.Event.EmployeeId == employeeId,
                                                               null, x => x.Event);
+
       return _mapper.Map<IList<EventDateDto>>(eventDates);
     }
 
@@ -148,7 +150,7 @@ namespace AdminCore.Services
 
       UpdateEventDates(dates, newEvent);
 
-      return ValidateRemainingHolidaysAndCreate(newEvent);
+      return ValidateRemainingHolidaysAndCreate(newEvent, dates);
     }
 
     public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
@@ -188,9 +190,6 @@ namespace AdminCore.Services
 
     public void IsEventValid(EventDateDto eventDates, bool modelIsHalfDay, int employeeId)
     {
-      if (IsEventDatesAlreadyBooked(eventDates, employeeId))
-        throw new Exception("Holiday Dates have already been booked");
-
       if (!IsDateRangeLessThanTotalHolidaysRemaining(eventDates, employeeId))
         throw new Exception("Not enough holidays remaining.");
 
@@ -294,8 +293,13 @@ namespace AdminCore.Services
 
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
     {
-      var employeeEvents = GetEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId);
-      return employeeEvents.Any();
+      var employeeEvents =
+        GetEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId);
+      if (employeeEvents.Any())
+      {
+        throw new Exception("Holiday dates already booked.");
+      }
+      return false;
     }
 
     private bool EmployeeHasEnoughHolidays(Event newEvent)
@@ -393,9 +397,9 @@ namespace AdminCore.Services
       }
     }
 
-    private EventDto ValidateRemainingHolidaysAndCreate(Event newEvent)
+    private EventDto ValidateRemainingHolidaysAndCreate(Event newEvent, EventDateDto dates)
     {
-      if (EmployeeHasEnoughHolidays(newEvent))
+      if (EmployeeHasEnoughHolidays(newEvent) && !IsEventDatesAlreadyBooked(dates, newEvent.EmployeeId))
       {
         var insertedEvent = DatabaseContext.EventRepository.Insert(newEvent);
         DatabaseContext.SaveChanges();
