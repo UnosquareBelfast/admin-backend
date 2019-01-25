@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Evolve;
 
 namespace AdminCore.Services
 {
@@ -439,9 +440,13 @@ namespace AdminCore.Services
 
     private Event AddEventMessage(Event eventToUpdate, EventMessageTypes eventMessageTypes, string message)
     {
-      if (eventToUpdate.EventMessages == null)
+      if (eventToUpdate.EventMessages == null && !message.IsNullOrWhiteSpace())
       {
         eventToUpdate.EventMessages = new List<EventMessage>();
+      }
+      else
+      {
+        return eventToUpdate;
       }
 
       eventToUpdate.EventMessages.Add(AddEventMessageToEvent(eventToUpdate, eventMessageTypes, message));
