@@ -94,7 +94,7 @@ namespace AdminCore.Services
     public static bool ContractIsActiveDuringDate(Contract contract, DateTime date)
     {
       return (contract.EndDate.HasValue && DateIsBetweenRangeOfDates(date, contract.StartDate, contract.EndDate.Value)) ||
-             (!contract.EndDate.HasValue && contract.StartDate < date);
+             (!contract.EndDate.HasValue && contract.StartDate <= date);
     }
 
     public static bool ContractIsActiveDuringRangeOfDates(Contract contract, DateTime startOfRange, DateTime endOfRange)
