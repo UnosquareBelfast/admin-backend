@@ -72,7 +72,7 @@ namespace AdminCore.WebApi.Controllers
     [HttpGet("getTeamEvents/{date}")]
     public IActionResult GetTeamEvents(DateTime date)
     {
-      var teamEvents = _dashboardService.GetTeamDashboardEvents(_employee.EmployeeId, date);
+      var teamEvents = _dashboardService.GetEmployeeTeamEvents(_employee.EmployeeId, date);
       if (teamEvents.Any())
       {
         return Ok(Mapper.Map<IList<EventViewModel>>(teamEvents));
