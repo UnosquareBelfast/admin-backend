@@ -440,11 +440,11 @@ namespace AdminCore.Services
 
     private Event AddEventMessage(Event eventToUpdate, EventMessageTypes eventMessageTypes, string message)
     {
-      if (eventToUpdate.EventMessages == null && !message.IsNullOrWhiteSpace())
+      if (eventToUpdate.EventMessages == null)
       {
         eventToUpdate.EventMessages = new List<EventMessage>();
       }
-      else
+      if (!message.IsNullOrWhiteSpace())
       {
         return eventToUpdate;
       }
