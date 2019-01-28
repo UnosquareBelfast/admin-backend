@@ -51,6 +51,20 @@ namespace AdminCore.WebApi.Controllers
 
     }
 
+    [HttpGet("checkAuthenticatedUserExists")]
+    public IActionResult CheckAuthenticatedUserExists()
+    {
+      try
+      {
+        _authenticatedUser.RetrieveLoggedInUser();
+        return Ok();
+      }
+      catch (UserNotRegisteredException)
+      {
+        return NoContent();
+      }
+    }
+
     private IActionResult RegisterNewUser(UserDetailsHelper userDetails, RegisterEmployeeViewModel newEmployee)
     {
       var newEmployeeDto = Mapper.Map<EmployeeDto>(newEmployee);
