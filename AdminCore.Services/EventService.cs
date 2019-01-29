@@ -28,18 +28,7 @@ namespace AdminCore.Services
 
     public IList<EventDto> GetEmployeeEvents(EventTypes eventType, int employeeId)
     {
-      var eventTypeId = (int)eventType;
-      var annualLeave = DatabaseContext.EventRepository.Get(x =>
-                                                            x.EventType.EventTypeId == eventTypeId
-                                                            && x.Employee.EmployeeId == employeeId,
-                                                            null,
-                                                            x => x.EventDates,
-                                                            x => x.Employee,
-                                                            x => x.EventType,
-                                                            x => x.EventStatus,
-                                                            x => x.EventMessages);
-
-      return _mapper.Map<IList<EventDto>>(annualLeave);
+      return _mapper.Map<IList<EventDto>>(QueryEmployeeEvents(eventType, employeeId));
     }
 
     public IList<EventDto> GetByDateBetween(DateTime startDate, DateTime endDate, EventTypes eventType)
@@ -465,6 +454,52 @@ namespace AdminCore.Services
       };
 
       return eventMessage;
+    }
+
+    private IList<Event> QueryHolidays(int employeeId)
+    {
+      var annualLeaveId = (int)EventTypes.AnnualLeave;
+      var publicHolidayId = (int)EventTypes.PublicHoliday;
+      var events = DatabaseContext.EventRepository.Get(x =>
+          (x.EventType.EventTypeId == annualLeaveId || x.EventType.EventTypeId == publicHolidayId)
+          && x.Employee.EmployeeId == employeeId,
+        null,
+        x => x.EventDates,
+        x => x.Employee,
+        x => x.EventType,
+        x => x.EventStatus,
+        x => x.EventMessages);
+      return events;
+    }
+
+    private IList<Event> QueryOtherEvents(int employeeId, int eventTypeId)
+    {
+      var annualLeave = DatabaseContext.EventRepository.Get(x =>
+          x.EventType.EventTypeId == eventTypeId
+          && x.Employee.EmployeeId == employeeId,
+        null,
+        x => x.EventDates,
+        x => x.Employee,
+        x => x.EventType,
+        x => x.EventStatus,
+        x => x.EventMessages);
+      return annualLeave;
+    }
+
+    private IList<Event> QueryEmployeeEvents(EventTypes eventType, int employeeId)
+    {
+      IList<Event> events;
+      var eventTypeId = (int)eventType;
+      if (eventTypeId == (int)EventTypes.AnnualLeave)
+      {
+        events = QueryHolidays(employeeId);
+      }
+      else
+      {
+        events = QueryOtherEvents(employeeId, eventTypeId);
+      }
+
+      return events;
     }
   }
 }
