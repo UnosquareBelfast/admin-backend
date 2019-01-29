@@ -73,7 +73,14 @@ namespace AdminCore.WebApi
           .AllowCredentials());
       }
       else
+      {
+        app.UseCors(x => x
+          .AllowAnyOrigin()
+          .AllowAnyMethod()
+          .AllowAnyHeader()
+          .AllowCredentials());
         app.UseHsts();
+      }
 
       app.UseAuthentication();
 
