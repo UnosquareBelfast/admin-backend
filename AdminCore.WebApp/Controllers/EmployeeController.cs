@@ -26,6 +26,7 @@ namespace AdminCore.WebApi.Controllers
       _signedInEmployee = authenticatedUser.RetrieveLoggedInUser();
     }
 
+    [Authorize("Admin")]
     [HttpGet]
     public IActionResult GetAllEmployees()
     {
@@ -50,6 +51,7 @@ namespace AdminCore.WebApi.Controllers
       return StatusCode((int)HttpStatusCode.InternalServerError, $"No employee found with an ID of { employeeId.ToString() }");
     }
 
+    [Authorize("Admin")]
     [HttpPut]
     public IActionResult UpdateEmployee(UpdateEmployeeViewModel viewModel)
     {
@@ -66,6 +68,7 @@ namespace AdminCore.WebApi.Controllers
       return Ok();
     }
 
+    [Authorize("Admin")]
     [HttpDelete("{employeeId}")]
     public IActionResult DeleteEmployee(int employeeId)
     {
@@ -108,6 +111,5 @@ namespace AdminCore.WebApi.Controllers
     {
       return Ok(Mapper.Map<EmployeeViewModel>(_signedInEmployee));
     }
-
   }
 }

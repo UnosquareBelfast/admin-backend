@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using AdminCore.Services.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +29,12 @@ namespace AdminCore.WebApi
           Newtonsoft.Json.ReferenceLoopHandling.Ignore;
       });
 
+      services.AddAuthorization(options =>
+        options.AddPolicy("Admin", policy =>
+        {
+          policy.RequireClaim(ClaimTypes.Role, "Admin");
+        }));
+
       services
         .AddAuthentication(sharedOptions =>
         {
@@ -53,7 +60,7 @@ namespace AdminCore.WebApi
 
       DependencyInjection.RegisterDependencyInjection(services);
     }
-    
+
     public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     {
       if (env.IsDevelopment())
