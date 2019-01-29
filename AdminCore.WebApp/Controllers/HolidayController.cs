@@ -116,13 +116,19 @@ namespace AdminCore.WebApi.Controllers
       }
     }
 
+    [Authorize("Admin")]
     [HttpPut("approveHoliday")]
     public IActionResult ApproveHoliday(ApproveEventViewModel approveHoliday)
     {
       try
       {
-        _eventService.UpdateEventStatus(approveHoliday.EventId, EventStatuses.Approved);
-        return Ok("Successfully Approved");
+        var eventToApprove = _eventService.GetEvent(approveHoliday.EventId);
+        if (eventToApprove.EmployeeId != _employee.EmployeeId)
+        {
+          _eventService.UpdateEventStatus(approveHoliday.EventId, EventStatuses.Approved);
+          return Ok("Successfully Approved");
+        }
+        return StatusCode((int)HttpStatusCode.Forbidden, "You may not approve your own holidays");
       }
       catch (Exception ex)
       {
@@ -146,6 +152,7 @@ namespace AdminCore.WebApi.Controllers
       }
     }
 
+    [Authorize("Admin")]
     [HttpPut("rejectHoliday")]
     public IActionResult RejectHoliday(RejectEventViewModel rejectHoliday)
     {
