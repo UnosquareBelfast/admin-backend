@@ -28,18 +28,7 @@ namespace AdminCore.Services
 
     public IList<EventDto> GetEmployeeEvents(EventTypes eventType, int employeeId)
     {
-      IList<Event> events;
-      var eventTypeId = (int)eventType;
-      if (eventTypeId == (int)EventTypes.AnnualLeave)
-      {
-        events = QueryHolidays(employeeId);
-      }
-      else
-      {
-        events = QueryOtherEvents(employeeId, eventTypeId);
-      }
-
-      return _mapper.Map<IList<EventDto>>(events);
+      return _mapper.Map<IList<EventDto>>(QueryEmployeeEvents(eventType, employeeId));
     }
 
     public IList<EventDto> GetByDateBetween(DateTime startDate, DateTime endDate, EventTypes eventType)
@@ -495,6 +484,22 @@ namespace AdminCore.Services
         x => x.EventStatus,
         x => x.EventMessages);
       return annualLeave;
+    }
+
+    private IList<Event> QueryEmployeeEvents(EventTypes eventType, int employeeId)
+    {
+      IList<Event> events;
+      var eventTypeId = (int)eventType;
+      if (eventTypeId == (int)EventTypes.AnnualLeave)
+      {
+        events = QueryHolidays(employeeId);
+      }
+      else
+      {
+        events = QueryOtherEvents(employeeId, eventTypeId);
+      }
+
+      return events;
     }
   }
 }
