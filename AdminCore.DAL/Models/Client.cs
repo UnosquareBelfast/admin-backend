@@ -16,7 +16,6 @@ namespace AdminCore.DAL.Models
     [Column("client_name")]
     public string ClientName { get; set; }
 
-    [ForeignKey("TeamId")]
     public virtual ICollection<Team> Teams { get; set; }
   }
 }
