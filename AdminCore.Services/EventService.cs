@@ -6,11 +6,11 @@ using AdminCore.DTOs.Event;
 using AdminCore.Extensions;
 using AdminCore.Services.Base;
 using AutoMapper;
+using Evolve;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Evolve;
 
 namespace AdminCore.Services
 {
@@ -418,13 +418,14 @@ namespace AdminCore.Services
 
     private Event AddEventMessage(Event eventToUpdate, EventMessageTypes eventMessageTypes, string message)
     {
+      if (message.IsNullOrWhiteSpace())
+      {
+        return eventToUpdate;
+      }
+
       if (eventToUpdate.EventMessages == null)
       {
         eventToUpdate.EventMessages = new List<EventMessage>();
-      }
-      if (!message.IsNullOrWhiteSpace())
-      {
-        return eventToUpdate;
       }
 
       eventToUpdate.EventMessages.Add(AddEventMessageToEvent(eventToUpdate, eventMessageTypes, message));
