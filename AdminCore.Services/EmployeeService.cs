@@ -226,8 +226,8 @@ namespace AdminCore.Services
 
       var newYearsDay = new EventDateDto
       {
-        StartDate = new DateTime((DateTime.Now.Year) + 1, (int)Months.January, 1),
-        EndDate = new DateTime((DateTime.Now.Year) + 1, (int)Months.January, 1),
+        StartDate = new DateTime(DateTime.Now.Year, (int)Months.January, 1),
+        EndDate = new DateTime(DateTime.Now.Year, (int)Months.January, 1),
         IsHalfDay = false
       };
       northernIrishPublicHolidays.Add(newYearsDay);
