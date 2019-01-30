@@ -7,7 +7,7 @@ namespace AdminCore.Common.Interfaces
 {
   public interface IEventService
   {
-    IList<EventDto> GetEmployeeEvents(EventTypes eventType, int employeeId);
+    IList<EventDto> GetEmployeeEvents(EventTypes eventType);
 
     IList<EventDto> GetByDateBetween(DateTime startDate, DateTime endDate, EventTypes eventType);
 

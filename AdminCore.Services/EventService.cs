@@ -26,9 +26,9 @@ namespace AdminCore.Services
       _dateService = dateService;
     }
 
-    public IList<EventDto> GetEmployeeEvents(EventTypes eventType, int employeeId)
+    public IList<EventDto> GetEmployeeEvents(EventTypes eventType)
     {
-      return _mapper.Map<IList<EventDto>>(QueryEmployeeEvents(eventType, employeeId));
+      return _mapper.Map<IList<EventDto>>(QueryEmployeeEvents(eventType));
     }
 
     public IList<EventDto> GetByDateBetween(DateTime startDate, DateTime endDate, EventTypes eventType)
@@ -447,13 +447,12 @@ namespace AdminCore.Services
       return eventMessage;
     }
 
-    private IList<Event> QueryHolidays(int employeeId)
+    private IList<Event> QueryHolidays()
     {
       var annualLeaveId = (int)EventTypes.AnnualLeave;
       var publicHolidayId = (int)EventTypes.PublicHoliday;
       var events = DatabaseContext.EventRepository.Get(x =>
-          (x.EventType.EventTypeId == annualLeaveId || x.EventType.EventTypeId == publicHolidayId)
-          && x.Employee.EmployeeId == employeeId,
+          (x.EventType.EventTypeId == annualLeaveId || x.EventType.EventTypeId == publicHolidayId),
         null,
         x => x.EventDates,
         x => x.Employee,
@@ -463,11 +462,10 @@ namespace AdminCore.Services
       return events;
     }
 
-    private IList<Event> QueryOtherEvents(int employeeId, int eventTypeId)
+    private IList<Event> QueryOtherEvents(int eventTypeId)
     {
       var annualLeave = DatabaseContext.EventRepository.Get(x =>
-          x.EventType.EventTypeId == eventTypeId
-          && x.Employee.EmployeeId == employeeId,
+          x.EventType.EventTypeId == eventTypeId,
         null,
         x => x.EventDates,
         x => x.Employee,
@@ -477,17 +475,17 @@ namespace AdminCore.Services
       return annualLeave;
     }
 
-    private IList<Event> QueryEmployeeEvents(EventTypes eventType, int employeeId)
+    private IList<Event> QueryEmployeeEvents(EventTypes eventType)
     {
       IList<Event> events;
       var eventTypeId = (int)eventType;
       if (eventTypeId == (int)EventTypes.AnnualLeave)
       {
-        events = QueryHolidays(employeeId);
+        events = QueryHolidays();
       }
       else
       {
-        events = QueryOtherEvents(employeeId, eventTypeId);
+        events = QueryOtherEvents(eventTypeId);
       }
 
       return events;

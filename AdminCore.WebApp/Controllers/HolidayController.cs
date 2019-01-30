@@ -36,7 +36,7 @@ namespace AdminCore.WebApi.Controllers
     [HttpGet]
     public IActionResult GetAllHolidays()
     {
-      var holidays = _eventService.GetEmployeeEvents(EventTypes.AnnualLeave, _employee.EmployeeId);
+      var holidays = _eventService.GetEmployeeEvents(EventTypes.AnnualLeave);
       if (holidays != null)
       {
         return Ok(_mapper.Map<IList<EventViewModel>>(holidays));
