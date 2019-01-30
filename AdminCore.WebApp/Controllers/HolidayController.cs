@@ -81,6 +81,18 @@ namespace AdminCore.WebApi.Controllers
       return StatusCode((int)HttpStatusCode.NoContent, "No Holiday exists");
     }
 
+    [HttpGet("findEmployeeHolidayStats/{employeeId}")]
+    public IActionResult GetEmployeeHolidayStats(int employeeId)
+    {
+      var holidayStats = _eventService.GetHolidayStatsForUser(employeeId);
+      if (holidayStats != null)
+      {
+        return Ok(_mapper.Map<HolidayStatsViewModel>(holidayStats));
+      }
+
+      return StatusCode((int)HttpStatusCode.NoContent, "No Holiday exists");
+    }
+
     [HttpPost]
     public IActionResult CreateHoliday(CreateEventViewModel model)
     {
