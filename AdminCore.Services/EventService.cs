@@ -267,9 +267,7 @@ namespace AdminCore.Services
 
     private bool IsDateRangeLessThanTotalHolidaysRemaining(EventDateDto eventDates, int employeeId)
     {
-      var employee = GetEmployeeFromEmployeeId(employeeId);
-
-      return !(employee.TotalHolidays < (eventDates.EndDate - eventDates.StartDate).TotalDays);
+      return !(GetHolidayStatsForUser(employeeId).AvailableHolidays < ((eventDates.EndDate - eventDates.StartDate).TotalDays) + 1);
     }
 
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
@@ -311,7 +309,7 @@ namespace AdminCore.Services
       }
       else
       {
-        totalDays += eventDate.EndDate.Day - eventDate.StartDate.Day;
+        totalDays += (eventDate.EndDate.Day - eventDate.StartDate.Day) + 1;
       }
 
       return totalDays;
