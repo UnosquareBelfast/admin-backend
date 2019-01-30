@@ -343,6 +343,7 @@ namespace AdminCore.Services
       {
         eventToUpdate = AddEventMessage(eventToUpdate, EventMessageTypes.Update, message);
         eventToUpdate.LastModified = _dateService.GetCurrentDateTime();
+        eventToUpdate.EventStatusId = (int)EventStatuses.AwaitingApproval;
         UpdateEventDatesInDb(eventToUpdate);
       }
       else
