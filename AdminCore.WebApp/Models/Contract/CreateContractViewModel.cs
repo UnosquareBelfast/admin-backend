@@ -10,6 +10,6 @@ namespace AdminCore.WebApi.Models.Contract
 
     public DateTime StartDate { get; set; }
 
-    public DateTime EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
   }
 }
