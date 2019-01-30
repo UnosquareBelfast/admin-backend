@@ -50,16 +50,7 @@ namespace AdminCore.Services
         .GetAsQueryable(RetrieveEventsWithinRange(startOfYearDate, endOfYearDate))
         .Where(x => x.Event.Employee.EmployeeId == employeeId).Select(x => x.EventId).ToList();
 
-      var events = DatabaseContext.EventRepository.Get(x => eventIds.Contains(x.EventId)
-                                                            && x.EventTypeId == eventTypeId,
-                                                            null,
-                                                            x => x.EventDates,
-                                                            x => x.Employee,
-                                                            x => x.EventType,
-                                                            x => x.EventStatus,
-                                                            x => x.EventMessages);
-
-      return _mapper.Map<IList<EventDto>>(events);
+      return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
     public IList<EventDateDto> GetEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
@@ -499,6 +490,50 @@ namespace AdminCore.Services
         events = QueryOtherEvents(employeeId, eventTypeId);
       }
 
+      return events;
+    }
+
+    private IList<Event> QueryEventsByEmployeeId(int eventTypeId, List<int> eventIds)
+    {
+      IList<Event> events;
+      if (eventTypeId == (int)EventTypes.AnnualLeave)
+      {
+        events = QueryEmployeeHolidayEvents(eventIds);
+      }
+      else
+      {
+        events = QueryOtherEmployeeEvents(eventIds, eventTypeId);
+      }
+
+      return events;
+    }
+
+    private IList<Event> QueryEmployeeHolidayEvents(List<int> eventIds)
+    {
+      var annualLeaveId = (int)EventTypes.AnnualLeave;
+      var publicHolidayId = (int)EventTypes.PublicHoliday;
+      var events = DatabaseContext.EventRepository.Get(x => eventIds.Contains(x.EventId)
+                                                            && (x.EventType.EventTypeId == annualLeaveId
+                                                                || x.EventType.EventTypeId == publicHolidayId),
+        null,
+        x => x.EventDates,
+        x => x.Employee,
+        x => x.EventType,
+        x => x.EventStatus,
+        x => x.EventMessages);
+      return events;
+    }
+
+    private IList<Event> QueryOtherEmployeeEvents(List<int> eventIds, int eventTypeId)
+    {
+      var events = DatabaseContext.EventRepository.Get(x => eventIds.Contains(x.EventId)
+                                                            && x.EventTypeId == eventTypeId,
+        null,
+        x => x.EventDates,
+        x => x.Employee,
+        x => x.EventType,
+        x => x.EventStatus,
+        x => x.EventMessages);
       return events;
     }
   }
