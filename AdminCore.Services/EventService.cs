@@ -103,7 +103,8 @@ namespace AdminCore.Services
     public void RejectEvent(int eventId, string message)
     {
       var eventToReject = GetEventById(eventId);
-      if (eventToReject != null && eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval)
+      if (eventToReject != null && eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval
+                                && IsNotPublicHoliday(eventToReject))
       {
         eventToReject.EventStatusId = (int)EventStatuses.Rejected;
         AddEventMessage(eventToReject, EventMessageTypes.Reject, message);
@@ -118,7 +119,7 @@ namespace AdminCore.Services
     public void UpdateEventStatus(int eventId, EventStatuses status)
     {
       var eventToUpdate = GetEventById(eventId);
-      if (eventToUpdate != null)
+      if (eventToUpdate != null && IsNotPublicHoliday(eventToUpdate))
       {
         eventToUpdate.EventStatusId = (int)status;
         DatabaseContext.SaveChanges();
@@ -148,7 +149,7 @@ namespace AdminCore.Services
     public void UpdateEvent(EventDateDto eventDateDto, string message, int employeeId)
     {
       var eventToUpdate = GetEventById(eventDateDto.EventId);
-      if (eventToUpdate != null)
+      if (eventToUpdate != null && IsNotPublicHoliday(eventToUpdate))
       {
         eventToUpdate.EventDates.Clear();
         UpdateEventDates(eventDateDto, eventToUpdate);
@@ -533,6 +534,11 @@ namespace AdminCore.Services
         x => x.EventStatus,
         x => x.EventMessages);
       return events;
+    }
+
+    private static bool IsNotPublicHoliday(Event eventToUpdate)
+    {
+      return eventToUpdate.EventTypeId != (int)EventTypes.PublicHoliday;
     }
   }
 }
