@@ -43,7 +43,6 @@ namespace AdminCore.WebApi.Tests.Controllers
       var createViewModel = _fixture.Create<CreateEventViewModel>();
       const int employeeId = 1;
 
-
       // Act
       var result = _controller.CreateHoliday(createViewModel);
 
@@ -73,17 +72,16 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       const int numOfHolidays = 9;
-      const int employeeId = 1;
       var holidayEvents = _fixture.CreateMany<EventDto>(numOfHolidays).ToList();
 
-      _eventService.GetEmployeeEvents(EventTypes.AnnualLeave, employeeId).Returns(holidayEvents);
+      _eventService.GetEmployeeEvents(EventTypes.AnnualLeave).Returns(holidayEvents);
       _mapper.Map<List<EventViewModel>>(holidayEvents);
 
       // Act
       var result = _controller.GetAllHolidays();
 
       // Assert
-      _eventService.Received(1).GetEmployeeEvents(EventTypes.AnnualLeave, employeeId);
+      _eventService.Received(1).GetEmployeeEvents(EventTypes.AnnualLeave);
       var returnedHolidayEvents = RetrieveValueFromActionResult<List<EventViewModel>>(result);
       Assert.Equal(numOfHolidays, returnedHolidayEvents.Count);
     }
