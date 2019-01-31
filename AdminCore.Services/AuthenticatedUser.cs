@@ -54,7 +54,7 @@ namespace AdminCore.Services
 
     private static bool UserIsAdmin(UserDetailsHelper userDetails)
     {
-      return userDetails[UserDetailsConstants.Role].Equals(Admin);
+      return userDetails.ContainsKey(UserDetailsConstants.Role) && userDetails[UserDetailsConstants.Role].Equals(Admin);
     }
 
     public UserDetailsHelper GetLoggedInUserDetails()
