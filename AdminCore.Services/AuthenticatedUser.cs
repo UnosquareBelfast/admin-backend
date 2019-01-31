@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using AdminCore.Common;
 using AdminCore.Constants;
+using AdminCore.Constants.Enums;
+using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
 using AdminCore.WebApi.Exceptions;
 
@@ -13,6 +15,8 @@ namespace AdminCore.Services
   {
     private readonly IHttpContextAccessor _httpContentAccessor;
     private readonly IEmployeeService _employeeService;
+
+    private const string Admin = "Admin";
 
     public AuthenticatedUser(IHttpContextAccessor httpContextAccessor, IEmployeeService employeeService)
     {
@@ -24,7 +28,33 @@ namespace AdminCore.Services
     {
       var userDetails = GetLoggedInUserDetails();
       var employee = _employeeService.GetEmployeeByEmail(userDetails[UserDetailsConstants.UserEmail]);
+      GetRoleFromAzure(employee, userDetails);
       return employee ?? throw new UserNotRegisteredException($"User with email {userDetails[UserDetailsConstants.UserEmail]} is not registered. Log in first.");
+    }
+
+    private static void GetRoleFromAzure(EmployeeDto employee, UserDetailsHelper userDetails)
+    {
+      if (employee != null)
+      {
+        AddRoleToEmployee(employee, userDetails);
+      }
+    }
+
+    private static void AddRoleToEmployee(EmployeeDto employee, UserDetailsHelper userDetails)
+    {
+      if (UserIsAdmin(userDetails))
+      {
+        employee.EmployeeRoleId = (int) EmployeeRoles.SystemAdministrator;
+      }
+      else
+      {
+        employee.EmployeeRoleId = (int) EmployeeRoles.User;
+      }
+    }
+
+    private static bool UserIsAdmin(UserDetailsHelper userDetails)
+    {
+      return userDetails[UserDetailsConstants.Role].Equals(Admin);
     }
 
     public UserDetailsHelper GetLoggedInUserDetails()
