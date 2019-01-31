@@ -19,5 +19,7 @@ namespace AdminCore.WebApi.Models.Employee
     public DateTime StartDate { get; set; }
 
     public string Surname { get; set; }
+
+    public double TotalHolidays { get; set; }
   }
 }
