@@ -34,6 +34,14 @@ namespace AdminCore.Services
 
     private static void GetRoleFromAzure(EmployeeDto employee, UserDetailsHelper userDetails)
     {
+      if (employee != null)
+      {
+        AddRoleToEmployee(employee, userDetails);
+      }
+    }
+
+    private static void AddRoleToEmployee(EmployeeDto employee, UserDetailsHelper userDetails)
+    {
       if (UserIsAdmin(userDetails))
       {
         employee.EmployeeRoleId = (int) EmployeeRoles.SystemAdministrator;
