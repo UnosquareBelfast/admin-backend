@@ -207,7 +207,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       // Assert
       VerifyActionResult(result);
 
-      _eventService.Received(1).RejectEvent(rejectedViewModel.EventId, rejectedViewModel.Message);
+      _eventService.Received(1).RejectEvent(rejectedViewModel.EventId, rejectedViewModel.Message, 1);
     }
 
     [Fact]
