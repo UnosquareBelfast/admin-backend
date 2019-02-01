@@ -100,14 +100,14 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(events);
     }
 
-    public void RejectEvent(int eventId, string message)
+    public void RejectEvent(int eventId, string message, int employeeId)
     {
       var eventToReject = GetEventById(eventId);
       if (eventToReject != null && eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval
                                 && IsNotPublicHoliday(eventToReject))
       {
         eventToReject.EventStatusId = (int)EventStatuses.Rejected;
-        AddEventMessage(eventToReject, EventMessageTypes.Reject, message);
+        AddEventMessageToReject(eventToReject, EventMessageTypes.Reject, message, employeeId);
         DatabaseContext.SaveChanges();
       }
       else
@@ -441,6 +441,36 @@ namespace AdminCore.Services
         EventId = eventToAddMessageTo.EventId,
         EventMessageTypeId = (int)eventMessageType,
         EmployeeId = eventToAddMessageTo.EmployeeId,
+        LastModified = _dateService.GetCurrentDateTime(),
+        Message = message,
+      };
+
+      return eventMessage;
+    }
+
+    private Event AddEventMessageToReject(Event eventToUpdate, EventMessageTypes eventMessageTypes, string message, int employeeId)
+    {
+      if (message.IsNullOrWhiteSpace())
+      {
+        return eventToUpdate;
+      }
+
+      if (eventToUpdate.EventMessages == null)
+      {
+        eventToUpdate.EventMessages = new List<EventMessage>();
+      }
+
+      eventToUpdate.EventMessages.Add(AddEventMessageToRejectEvent(eventToUpdate, eventMessageTypes, message, employeeId));
+      return eventToUpdate;
+    }
+
+    private EventMessage AddEventMessageToRejectEvent(Event eventToAddMessageTo, EventMessageTypes eventMessageType, string message, int employeeId)
+    {
+      EventMessage eventMessage = new EventMessage
+      {
+        EventId = eventToAddMessageTo.EventId,
+        EventMessageTypeId = (int)eventMessageType,
+        EmployeeId = employeeId,
         LastModified = _dateService.GetCurrentDateTime(),
         Message = message,
       };
