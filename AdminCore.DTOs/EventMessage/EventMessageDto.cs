@@ -14,5 +14,7 @@ namespace AdminCore.DTOs.EventMessage
     public string Message { get; set; }
 
     public DateTime LastModified { get; set; }
+
+    public int EventMessageTypeId { get; set; }
   }
 }
