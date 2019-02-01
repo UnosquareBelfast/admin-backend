@@ -111,10 +111,10 @@ namespace AdminCore.Services
 
     public IList<EventDto> GetEmployeeTeamEvents(int employeeId, DateTime date)
     {
-      var cancelled = (int) EventStatuses.Cancelled;
+      var cancelled = (int)EventStatuses.Cancelled;
       var employeeTeams = GetTeamIdsForEmployee(employeeId, date);
       var eventsForTeams = DatabaseContext.EventRepository.Get(@event =>
-        @event.Employee.Contracts.Any(contract => employeeTeams.Contains(contract.TeamId)) && 
+        @event.Employee.Contracts.Any(contract => employeeTeams.Contains(contract.TeamId)) &&
         @event.EventStatusId != cancelled &&
         DateService.EventContainsEventDatesThatHappenDuringMonth(@event.EventDates, date),
         null,
@@ -227,7 +227,8 @@ namespace AdminCore.Services
     private string GetLocationFromEmployee(Employee employee, DateTime date)
     {
       var employeeEvents = employee.Events.Where(evnt =>
-        DateService.EventContainsEventDatesThatHappenDuringAGivenDay(evnt.EventDates, date)).ToList();
+        DateService.EventContainsEventDatesThatHappenDuringAGivenDay(evnt.EventDates, date)
+        && evnt.EventStatusId == (int)EventStatuses.Approved).ToList();
       return employeeEvents.Any() ? GetLocationFromEvent(employeeEvents.First()) : EmployeeLocationConstants.InOffice;
     }
 
@@ -237,12 +238,16 @@ namespace AdminCore.Services
       {
         case 1:
           return EmployeeLocationConstants.OnHoliday;
+
         case 2:
           return EmployeeLocationConstants.WorkingFromHome;
+
         case 3:
           return EmployeeLocationConstants.SickLeave;
+
         case 4:
           return EmployeeLocationConstants.WorkRelatedTravel;
+
         default:
           throw new Exception($"There is no employee location mapping for event type id {@event.EventTypeId}");
       }
