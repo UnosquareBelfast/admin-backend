@@ -13,6 +13,10 @@ namespace AdminCore.DTOs.EventMessage
 
     public string Message { get; set; }
 
+    public string MessageSenderFirstName { get; set; }
+
+    public string MessageSenderSurname { get; set; }
+
     public DateTime LastModified { get; set; }
   }
 }

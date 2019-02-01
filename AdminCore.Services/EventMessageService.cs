@@ -29,7 +29,8 @@ namespace AdminCore.Services
       var eventMessages = DatabaseContext.EventMessageRepository.GetAsQueryable(x => x.EventId == eventId, null,
                                                                                 x => x.Employee)
                                                                                 .OrderByDescending(x => x.LastModified).ToList();
-      return _mapper.Map<IList<EventMessageDto>>(eventMessages);
+
+      return MapSenderNamesToEventMessage(eventMessages);
     }
 
     public void CreateGeneralEventMessage(int eventId, string message, int employeeId)
@@ -77,6 +78,18 @@ namespace AdminCore.Services
     {
       DatabaseContext.EventMessageRepository.Insert(eventMessage);
       DatabaseContext.SaveChanges();
+    }
+
+    private IList<EventMessageDto> MapSenderNamesToEventMessage(List<EventMessage> eventMessages)
+    {
+      var eventMessagesDto = _mapper.Map<IList<EventMessageDto>>(eventMessages);
+      foreach (var eventMessage in eventMessagesDto)
+      {
+        eventMessage.MessageSenderFirstName = eventMessage.Employee.Forename;
+        eventMessage.MessageSenderSurname = eventMessage.Employee.Surname;
+      }
+
+      return eventMessagesDto;
     }
   }
 }
