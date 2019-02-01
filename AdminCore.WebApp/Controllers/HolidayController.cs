@@ -170,7 +170,7 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        _eventService.RejectEvent(rejectHoliday.EventId, rejectHoliday.Message);
+        _eventService.RejectEvent(rejectHoliday.EventId, rejectHoliday.Message, _employee.EmployeeId);
         return Ok("Successfully Rejected");
       }
       catch (Exception ex)
