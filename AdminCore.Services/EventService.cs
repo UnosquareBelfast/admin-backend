@@ -171,12 +171,12 @@ namespace AdminCore.Services
       return holidayStatsDto;
     }
 
-    public void IsEventValid(EventDateDto eventDates, bool modelIsHalfDay, int employeeId)
+    public void IsEventValid(EventDateDto eventDates, int employeeId)
     {
       if (!IsDateRangeLessThanTotalHolidaysRemaining(eventDates, employeeId))
         throw new Exception("Not enough holidays remaining.");
 
-      if (modelIsHalfDay && !IsSameDay(_mapper.Map<EventDate>(eventDates)))
+      if (IsHalfDay(eventDates) && !IsSameDay(_mapper.Map<EventDate>(eventDates)))
         throw new Exception("Holiday booked contains a half day whilst being more than one day.");
     }
 

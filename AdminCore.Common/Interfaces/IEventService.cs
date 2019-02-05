@@ -31,6 +31,6 @@ namespace AdminCore.Common.Interfaces
 
     void RejectEvent(int eventId, string message, int employeeId);
 
-    void IsEventValid(EventDateDto eventDates, bool modelIsHalfDay, int employeeId);
+    void IsEventValid(EventDateDto eventDates, int employeeId);
   }
 }
