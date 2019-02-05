@@ -1,6 +1,8 @@
+using AdminCore.WebApi.Models.Base;
+
 namespace AdminCore.WebApi.Models.Client
 {
-  public class ClientViewModel
+  public class ClientViewModel : ViewModel
   {
     public int ClientId { get; set; }
 

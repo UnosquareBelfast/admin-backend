@@ -2,10 +2,11 @@
 using AdminCore.WebApi.Models.EventMessage;
 using System;
 using System.Collections.Generic;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Event
 {
-  public class EventViewModel
+  public class EventViewModel : ViewModel
   {
     public int EventId { get; set; }
 

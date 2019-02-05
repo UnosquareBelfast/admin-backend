@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Dashboard
 {
-  public class TeamSnapshotViewModel
+  public class TeamSnapshotViewModel : ViewModel
   {
     public int TeamId { get; set; }
 

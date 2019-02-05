@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdminCore.WebApi.Validators;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -77,14 +78,21 @@ namespace AdminCore.WebApi.Controllers
       var contractDto = Mapper.Map<ContractDto>(contract);
       try
       {
+        ValidateCreateContract(contract);
         _contractService.SaveContract(contractDto);
         return Ok("Contract successfully created.");
       }
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode(500, "Something went wrong. Contract was not created.");
+        return StatusCode(500, $"Something went wrong. Contract was not created: {ex.Message}");
       }
+    }
+
+    private void ValidateCreateContract(CreateContractViewModel contract)
+    {
+      var createContractValidator = new CreateContractValidator(_contractService, Mapper);
+      createContractValidator.Validate(contract);
     }
 
     [HttpPut]

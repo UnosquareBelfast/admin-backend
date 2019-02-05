@@ -6,6 +6,7 @@ using AdminCore.Services.Base;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AdminCore.Services
 {
@@ -74,6 +75,18 @@ namespace AdminCore.Services
       return DatabaseContext.ContractRepository.GetSingle(x => x.ContractId == id,
                                                    x => x.Team,
                                                                 x => x.Team.Client);
+    }
+
+    public bool ContractAlreadyExists(ContractDto newContract)
+    {
+      var identicalContracts = DatabaseContext.ContractRepository.Get
+      (
+        existingContract =>
+          existingContract.EmployeeId == newContract.EmployeeId &&
+          existingContract.TeamId == newContract.TeamId &&
+          DateService.ContractDatesOverlap(_mapper.Map<Contract>(newContract), existingContract)
+      );
+      return identicalContracts.Any();
     }
 
     private void UpdateExistingContract(ContractDto contractToBeSaved)
