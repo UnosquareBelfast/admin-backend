@@ -392,11 +392,13 @@ namespace AdminCore.Services
 
     private Event BuildNewEvent(int employeeId, EventTypes eventTypes)
     {
+      var eventStatusId = AutoApproveEventsNotNeedingAdminApproval(eventTypes);
+
       var newEvent = new Event
       {
         DateCreated = DateTime.Now,
         EmployeeId = employeeId,
-        EventStatusId = (int)EventStatuses.AwaitingApproval,
+        EventStatusId = eventStatusId,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
         LastModified = _dateService.GetCurrentDateTime()
@@ -569,6 +571,17 @@ namespace AdminCore.Services
     private static bool IsNotPublicHoliday(Event eventToUpdate)
     {
       return eventToUpdate.EventTypeId != (int)EventTypes.PublicHoliday;
+    }
+
+    private static int AutoApproveEventsNotNeedingAdminApproval(EventTypes eventTypes)
+    {
+      var eventStatusId = (int)EventStatuses.AwaitingApproval;
+      if (eventTypes == EventTypes.WorkingFromHome)
+      {
+        eventStatusId = (int)EventStatuses.Approved;
+      }
+
+      return eventStatusId;
     }
   }
 }

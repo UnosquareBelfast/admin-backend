@@ -7,5 +7,6 @@ namespace AdminCore.WebApi.Models.Event
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public bool IsHalfDay { get; set; }
+    public int EventTypeId { get; set; }
   }
 }
