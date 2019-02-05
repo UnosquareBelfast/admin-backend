@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Authentication\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

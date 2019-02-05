@@ -136,7 +136,6 @@ CREATE TABLE IF NOT EXISTS public.employee
     employee_role_id integer NOT NULL,
     employee_status_id integer NOT NULL,
     forename character varying(255) COLLATE pg_catalog."default",
-    password character varying(255) COLLATE pg_catalog."default",
     start_date date NOT NULL,
     surname character varying(255) COLLATE pg_catalog."default",
     total_holidays decimal NOT NULL,

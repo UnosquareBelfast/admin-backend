@@ -29,10 +29,6 @@ namespace AdminCore.DAL.Models
     [Column("forename")]
     public string Forename { get; set; }
 
-    [StringLength(50)]
-    [Column("password")]
-    public string Password { get; set; }
-
     [Column("start_date")]
     public DateTime StartDate { get; set; }
 
