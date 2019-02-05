@@ -1,9 +1,10 @@
 ﻿using AdminCore.WebApi.Models.Employee;
 using System;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.EventMessage
 {
-  public class EventMessageViewModel
+  public class EventMessageViewModel : ViewModel
   {
     public int EventMessageId { get; set; }
 

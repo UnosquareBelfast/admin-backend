@@ -2,10 +2,11 @@
 using AdminCore.DTOs.EventMessage;
 using System;
 using System.Collections.Generic;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Dashboard
 {
-  public class DashboardEventViewModel
+  public class DashboardEventViewModel : ViewModel
   {
     public int EventId { get; set; }
 

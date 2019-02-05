@@ -1,6 +1,8 @@
-﻿namespace AdminCore.WebApi.Models.Event
+﻿using AdminCore.WebApi.Models.Base;
+
+namespace AdminCore.WebApi.Models.Event
 {
-  public class ApproveEventViewModel
+  public class ApproveEventViewModel : ViewModel
   {
     public int EventId { get; set; }
   }

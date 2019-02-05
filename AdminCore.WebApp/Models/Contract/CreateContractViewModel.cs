@@ -1,8 +1,9 @@
 ﻿using System;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Contract
 {
-  public class CreateContractViewModel
+  public class CreateContractViewModel : ViewModel
   {
     public int TeamId { get; set; }
 

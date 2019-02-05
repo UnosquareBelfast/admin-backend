@@ -1,6 +1,8 @@
-﻿namespace AdminCore.WebApi.Models.Event
+﻿using AdminCore.WebApi.Models.Base;
+
+namespace AdminCore.WebApi.Models.Event
 {
-  public class HolidayStatsViewModel
+  public class HolidayStatsViewModel : ViewModel
   {
     public double AvailableHolidays { get; set; }
 
