@@ -12,8 +12,6 @@ namespace AdminCore.DTOs.Employee
 
     public string Forename { get; set; }
 
-    public string Password { get; set; }
-
     public int EmployeeRoleId { get; set; }
 
     public DateTime StartDate { get; set; }

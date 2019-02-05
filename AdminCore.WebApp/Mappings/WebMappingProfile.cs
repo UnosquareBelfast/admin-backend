@@ -6,7 +6,6 @@ using AdminCore.DTOs.Event;
 using AdminCore.DTOs.EventMessage;
 using AdminCore.DTOs.Team;
 using AdminCore.WebApi.Models;
-using AdminCore.WebApi.Models.Authentication;
 using AdminCore.WebApi.Models.Client;
 using AdminCore.WebApi.Models.Contract;
 using AdminCore.WebApi.Models.Dashboard;
@@ -24,8 +23,6 @@ namespace AdminCore.WebApi.Mappings
     {
       CreateMap<ClientDto, ClientViewModel>();
       CreateMap<ClientDto, CreateClientViewModel>();
-
-      CreateMap<EmployeeDto, LoginRequestModel>();
 
       CreateMap<RegisterEmployeeViewModel, EmployeeDto>();
 

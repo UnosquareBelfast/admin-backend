@@ -27,7 +27,6 @@ namespace AdminCore.Services
     public string Create(EmployeeDto newEmployeeDto)
     {
       var employee = _mapper.Map<Employee>(newEmployeeDto);
-      employee.Password = EncodePasswordToBase64(employee.Password);
       employee.TotalHolidays = CalculateTotalHolidaysFromStartDate(employee, newEmployeeDto.StartDate);
 
       DatabaseContext.EmployeeRepository.Insert(employee);
@@ -119,13 +118,6 @@ namespace AdminCore.Services
       var holidays = IsNorthernIrishEmployee(employee) ? GetNorthernIrishHolidays(startDate) : GetMexicanHolidays(startDate);
 
       return holidays;
-    }
-
-    private static string EncodePasswordToBase64(string password)
-    {
-      var bytes = Encoding.Unicode.GetBytes(password);
-      var inArray = HashAlgorithm.Create("SHA1")?.ComputeHash(bytes);
-      return Convert.ToBase64String(inArray);
     }
 
     private static short GetMexicanHolidays(DateTime startDate)
