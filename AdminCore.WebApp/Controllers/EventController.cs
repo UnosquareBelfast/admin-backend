@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using AdminCore.Common.Exceptions;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -33,7 +34,7 @@ namespace AdminCore.WebApi.Controllers
       _employee = authenticatedUser.RetrieveLoggedInUser();
     }
 
-    [HttpGet()]
+    [HttpGet]
     public IActionResult GetAllHolidays()
     {
       var returnedEvents = _eventService.GetEmployeeEvents(EventTypes.AnnualLeave);
@@ -78,7 +79,7 @@ namespace AdminCore.WebApi.Controllers
         return Ok(_mapper.Map<IList<EventViewModel>>(events));
       }
 
-      return StatusCode((int)HttpStatusCode.NoContent, $"No event found for employee ID: { _employee.EmployeeId }");
+      return StatusCode((int)HttpStatusCode.NoContent, $"No event found for employee ID: {employeeId}");
     }
 
     [HttpGet("findEmployeeHolidayStats")]
@@ -141,17 +142,10 @@ namespace AdminCore.WebApi.Controllers
     [HttpPost]
     public IActionResult CreateEvent(CreateEventViewModel createEventViewModel)
     {
-      if (createEventViewModel.EventTypeId == 0)
-      {
-        return StatusCode((int)HttpStatusCode.InternalServerError, "You may not create new public holidays");
-      }
       var eventDates = _mapper.Map<EventDateDto>(createEventViewModel);
       try
       {
-        if (IsHolidayEvent(createEventViewModel.EventTypeId))
-        {
-          _eventService.IsEventValid(eventDates, createEventViewModel.IsHalfDay, _employee.EmployeeId);
-        }
+        ValidateIfHolidayEvent(createEventViewModel, eventDates);
         _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
         return Ok($"Event has been created successfully");
       }
@@ -162,13 +156,21 @@ namespace AdminCore.WebApi.Controllers
       }
     }
 
+    private static void PublicHolidayValidation(CreateEventViewModel createEventViewModel)
+    {
+      if (IsPublicHoliday(createEventViewModel))
+      {
+        throw new ValidationException("You may not create new public holidays");
+      }
+    }
+
     [HttpPut]
     public IActionResult UpdateEvent(UpdateEventViewModel updateEventViewModel)
     {
       var eventDatesToUpdate = _mapper.Map<EventDateDto>(updateEventViewModel);
       try
       {
-        _eventService.IsEventValid(eventDatesToUpdate, updateEventViewModel.IsHalfDay, _employee.EmployeeId);
+        _eventService.IsEventValid(eventDatesToUpdate, _employee.EmployeeId);
         _eventService.UpdateEvent(eventDatesToUpdate, updateEventViewModel.Message, _employee.EmployeeId);
         return Ok("Holiday has been successfully updated");
       }
@@ -186,12 +188,7 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         var eventToApprove = _eventService.GetEvent(approveEventViewModel.EventId);
-        if (eventToApprove.EmployeeId != _employee.EmployeeId)
-        {
-          _eventService.UpdateEventStatus(approveEventViewModel.EventId, EventStatuses.Approved);
-          return Ok("Successfully Approved");
-        }
-        return StatusCode((int)HttpStatusCode.Forbidden, "You may not approve your own Events");
+        return ApproveIfEventDoesNotBelongToTheAdmin(approveEventViewModel, eventToApprove);
       }
       catch (Exception ex)
       {
@@ -271,6 +268,37 @@ namespace AdminCore.WebApi.Controllers
     private static bool IsHolidayEvent(int eventTypeId)
     {
       return eventTypeId != (int)EventTypes.WorkingFromHome;
+    }
+
+    private IActionResult ApproveIfEventDoesNotBelongToTheAdmin(ApproveEventViewModel approveEventViewModel,
+      EventDto eventToApprove)
+    {
+      if (!EventIsBookedByCurrentAdmin(eventToApprove))
+      {
+        _eventService.UpdateEventStatus(approveEventViewModel.EventId, EventStatuses.Approved);
+        return Ok("Successfully Approved");
+      }
+
+      return StatusCode((int)HttpStatusCode.Forbidden, "You may not approve your own Events");
+    }
+
+    private bool EventIsBookedByCurrentAdmin(EventDto eventToApprove)
+    {
+      return eventToApprove.EmployeeId == _employee.EmployeeId;
+    }
+
+    private void ValidateIfHolidayEvent(CreateEventViewModel createEventViewModel, EventDateDto eventDates)
+    {
+      PublicHolidayValidation(createEventViewModel);
+      if (IsHolidayEvent(createEventViewModel.EventTypeId))
+      {
+        _eventService.IsEventValid(eventDates, _employee.EmployeeId);
+      }
+    }
+
+    private static bool IsPublicHoliday(CreateEventViewModel createEventViewModel)
+    {
+      return createEventViewModel.EventTypeId == (int)EventTypes.PublicHoliday;
     }
   }
 }
