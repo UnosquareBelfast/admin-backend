@@ -18,8 +18,6 @@ namespace AdminCore.WebApi.Models.Event
 
     public EventTypeViewModel EventType { get; set; }
 
-    public bool IsHalfDay { get; set; }
-
     public ICollection<EventMessageViewModel> EventMessages { get; set; }
 
     public string LatestMessage { get; set; }
