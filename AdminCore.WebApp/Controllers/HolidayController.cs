@@ -100,7 +100,7 @@ namespace AdminCore.WebApi.Controllers
 
       try
       {
-        _eventService.IsEventValid(eventDates, model.IsHalfDay, _employee.EmployeeId);
+        _eventService.IsEventValid(eventDates, _employee.EmployeeId);
         _eventService.CreateEvent(eventDates, EventTypes.AnnualLeave, _employee.EmployeeId);
         return Ok($"Holiday has been created successfully");
       }
@@ -117,7 +117,7 @@ namespace AdminCore.WebApi.Controllers
       var eventDatesToUpdate = _mapper.Map<EventDateDto>(updateHoliday);
       try
       {
-        _eventService.IsEventValid(eventDatesToUpdate, updateHoliday.IsHalfDay, _employee.EmployeeId);
+        _eventService.IsEventValid(eventDatesToUpdate, _employee.EmployeeId);
         _eventService.UpdateEvent(eventDatesToUpdate, updateHoliday.Message, _employee.EmployeeId);
         return Ok("Holiday has been successfully updated");
       }
