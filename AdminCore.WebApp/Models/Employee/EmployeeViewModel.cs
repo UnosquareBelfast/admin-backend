@@ -1,8 +1,9 @@
 ﻿using System;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Employee
 {
-  public class EmployeeViewModel
+  public class EmployeeViewModel : ViewModel
   {
     public string CountryDescription { get; set; }
 

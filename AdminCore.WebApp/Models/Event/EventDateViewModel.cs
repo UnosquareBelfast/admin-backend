@@ -1,8 +1,9 @@
 ﻿using System;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Event
 {
-  public class EventDateViewModel
+  public class EventDateViewModel : ViewModel
   {
     public int EventDateId { get; set; }
 

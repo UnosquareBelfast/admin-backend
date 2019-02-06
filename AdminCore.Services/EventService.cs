@@ -53,12 +53,13 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDateDto> GetEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
+    public IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
     {
       var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date
                                                                          && x.EndDate.Date <= endDate.Date
                                                                          || x.EndDate.Date == startDate.Date)
-                                                                         && x.Event.EmployeeId == employeeId,
+                                                                         && x.Event.EmployeeId == employeeId
+                                                                         && x.Event.EventStatusId == (int)EventStatuses.Approved,
                                                               null, x => x.Event);
 
       return _mapper.Map<IList<EventDateDto>>(eventDates);
@@ -274,7 +275,7 @@ namespace AdminCore.Services
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
     {
       var employeeEvents =
-        GetEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId);
+        GetApprovedEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId);
       if (employeeEvents.Any())
       {
         throw new Exception("Holiday dates already booked.");

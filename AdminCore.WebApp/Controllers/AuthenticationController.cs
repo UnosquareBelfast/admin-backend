@@ -85,7 +85,6 @@ namespace AdminCore.WebApi.Controllers
       newEmployeeDto.Email = userDetails[UserDetailsConstants.UserEmail];
       newEmployeeDto.Forename = GetWordFromString(userDetails[UserDetailsConstants.Name], 0);
       newEmployeeDto.Surname = GetWordFromString(userDetails[UserDetailsConstants.Name], 1);
-      newEmployeeDto.Password = "";
     }
 
     private static string GetWordFromString(string fullString, int wordIndex)

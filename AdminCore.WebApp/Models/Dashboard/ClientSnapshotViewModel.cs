@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Dashboard
 {
-  public class ClientSnapshotViewModel
+  public class ClientSnapshotViewModel : ViewModel
   {
     public int ClientId { get; set; }
 

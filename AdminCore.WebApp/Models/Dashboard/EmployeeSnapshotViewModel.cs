@@ -1,8 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using AdminCore.WebApi.Models.Base;
 
 namespace AdminCore.WebApi.Models.Dashboard
 {
-  public class EmployeeSnapshotViewModel
+  public class EmployeeSnapshotViewModel : ViewModel
   {
     public int EmployeeId { get; set; }
 

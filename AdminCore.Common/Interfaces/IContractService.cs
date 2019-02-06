@@ -16,5 +16,7 @@ namespace AdminCore.Common.Interfaces
     void SaveContract(ContractDto contractToBeSaved);
 
     void DeleteContract(int contractId);
+
+    bool ContractAlreadyExists(ContractDto newContract);
   }
 }

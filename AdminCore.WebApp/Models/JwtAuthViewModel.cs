@@ -1,6 +1,8 @@
-﻿namespace AdminCore.WebApi.Models
+﻿using AdminCore.WebApi.Models.Base;
+
+namespace AdminCore.WebApi.Models
 {
-  public class JwtAuthViewModel
+  public class JwtAuthViewModel : ViewModel
   {
     public string AccessToken { get; set; }
 

@@ -3,6 +3,7 @@ using AdminCore.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdminCore.DTOs;
 
 namespace AdminCore.Services
 {
@@ -101,6 +102,15 @@ namespace AdminCore.Services
     {
       return (contract.EndDate.HasValue && DateRangesOverlap(contract.StartDate, contract.EndDate.Value, startOfRange, endOfRange)) ||
              (!contract.EndDate.HasValue && contract.StartDate < endOfRange);
+    }
+
+    public static bool ContractDatesOverlap(Contract newContract, Contract existingContract)
+    {
+      return
+        (newContract.EndDate.HasValue && existingContract.EndDate.HasValue && DateRangesOverlap(newContract.StartDate, newContract.EndDate.Value, existingContract.StartDate, existingContract.EndDate.Value)) ||
+        (!newContract.EndDate.HasValue && existingContract.EndDate.HasValue && ContractIsActiveDuringDate(existingContract, newContract.StartDate)) ||
+        (newContract.EndDate.HasValue && !existingContract.EndDate.HasValue && ContractIsActiveDuringDate(newContract, existingContract.StartDate)) ||
+        (!newContract.EndDate.HasValue && !existingContract.EndDate.HasValue && newContract.StartDate >= existingContract.StartDate);
     }
   }
 }
