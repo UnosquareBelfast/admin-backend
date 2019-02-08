@@ -3,14 +3,12 @@ using AdminCore.Constants.Enums;
 using AdminCore.DAL;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
+using AdminCore.DTOs.Event;
 using AdminCore.Services.Base;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using AdminCore.DTOs.Event;
 
 namespace AdminCore.Services
 {
@@ -38,8 +36,8 @@ namespace AdminCore.Services
 
     private void AddPublicHolidays(Employee employee)
     {
-      //TODO Add Mexican Holidays
-      AddNorthernIrishPublicHolidays(employee);
+      var publicHolidays = DatabaseContext.PublicHolidayRepository.Get(x => x.CountryId == employee.CountryId);
+      CreatePublicHolidays(employee, publicHolidays);
     }
 
     public bool VerifyEmailExists(string email)
@@ -111,6 +109,27 @@ namespace AdminCore.Services
     {
       var employee = DatabaseContext.EmployeeRepository.Get(x => x.EmployeeId == id);
       return employee.Any() ? employee.First() : null;
+    }
+
+    private void CreatePublicHolidays(Employee employee, IList<PublicHoliday> publicHolidays)
+    {
+      var eventService = new EventService(DatabaseContext, _mapper, new DateService());
+      foreach (var holiday in publicHolidays)
+      {
+        eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,
+          employee);
+      }
+    }
+
+    private static EventDateDto ConvertHolidayToEventDate(PublicHoliday holiday)
+    {
+      var eventDateDto = new EventDateDto
+      {
+        StartDate = holiday.PublicHolidayDate,
+        EndDate = holiday.PublicHolidayDate,
+        IsHalfDay = false
+      };
+      return eventDateDto;
     }
 
     private short CalculateTotalHolidaysFromStartDate(Employee employee, DateTime startDate)
@@ -191,63 +210,6 @@ namespace AdminCore.Services
     private static bool IsNorthernIrishEmployee(Employee employee)
     {
       return employee.CountryId == 1;
-    }
-
-    private void AddNorthernIrishPublicHolidays(Employee employee)
-    {
-      var eventService = new EventService(DatabaseContext, _mapper, new DateService());
-      var northernIrishPublicHolidays = BuildNorthernIrishPublicHolidays();
-      foreach (var holiday in northernIrishPublicHolidays)
-      {
-        eventService.CreateEvent(holiday, EventTypes.PublicHoliday,
-          employee);
-      }
-    }
-
-    private static IList<EventDateDto> BuildNorthernIrishPublicHolidays()
-    {
-      IList<EventDateDto> northernIrishPublicHolidays = new List<EventDateDto>();
-
-      var christmasDay = new EventDateDto
-      {
-        StartDate = new DateTime(DateTime.Now.Year, (int)Months.December, 25),
-        EndDate = new DateTime(DateTime.Now.Year, (int)Months.December, 25),
-        IsHalfDay = false
-      };
-      northernIrishPublicHolidays.Add(christmasDay);
-
-      var newYearsDay = new EventDateDto
-      {
-        StartDate = new DateTime(DateTime.Now.Year, (int)Months.January, 1),
-        EndDate = new DateTime(DateTime.Now.Year, (int)Months.January, 1),
-        IsHalfDay = false
-      };
-      northernIrishPublicHolidays.Add(newYearsDay);
-
-      var lastMondayInMay = GetLastMondayInMay();
-      var lastMondayOfMay = new EventDateDto
-      {
-        StartDate = new DateTime(DateTime.Now.Year, (int)Months.May, lastMondayInMay),
-        EndDate = new DateTime(DateTime.Now.Year, (int)Months.May, lastMondayInMay),
-        IsHalfDay = false
-      };
-      northernIrishPublicHolidays.Add(lastMondayOfMay);
-
-      return northernIrishPublicHolidays;
-    }
-
-    private static int GetLastMondayInMay()
-    {
-      var daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, (int)Months.May);
-
-      for (var day = daysInMonth; day > 0; day--)
-      {
-        var currentDateTime = new DateTime(DateTime.Now.Year, (int)Months.May, day);
-        if (currentDateTime.DayOfWeek == DayOfWeek.Monday)
-          return currentDateTime.Day;
-      }
-
-      throw new Exception("Error finding last Monday in May.");
     }
   }
 }
