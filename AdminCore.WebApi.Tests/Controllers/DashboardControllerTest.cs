@@ -35,7 +35,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       _dashboardService = Substitute.For<IDashboardService>();
       IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new WebMappingProfile())));
       var authenticatedUser = Substitute.For<IAuthenticatedUser>();
-      authenticatedUser.RetrieveLoggedInUser().Returns(BuildTestEmployee());
+      authenticatedUser.RetrieveLoggedInUser().Returns(Builder.BuildTestEmployee(TestEmployeeId));
       _dashboardController = new DashboardController(_dashboardService, mapper, authenticatedUser);
     }
 
@@ -44,7 +44,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       const int numberOfEvents = 4;
-      var eventsReturnedFromService = BuildListOfEvents(numberOfEvents);
+      var eventsReturnedFromService = Builder.BuildListOfEvents(numberOfEvents, TestDate, TestEmployeeId);
       _dashboardService.GetEmployeeDashboardEvents(TestEmployeeId, Arg.Any<DateTime>()).Returns(eventsReturnedFromService);
 
       // Act
@@ -75,7 +75,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       const int numberOfEvents = 5;
-      var eventsReturnedFromService = BuildListOfEvents(numberOfEvents);
+      var eventsReturnedFromService = Builder.BuildListOfEvents(numberOfEvents, TestDate, TestEmployeeId);
       _dashboardService.GetEmployeeEventsForMonth(TestEmployeeId, TestDate).Returns(eventsReturnedFromService);
 
       // Act
@@ -139,7 +139,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       const int numberOfEvents = 22;
-      var eventsReturnedFromService = BuildListOfEvents(numberOfEvents);
+      var eventsReturnedFromService = Builder.BuildListOfEvents(numberOfEvents, TestDate, TestEmployeeId);
       _dashboardService.GetEmployeeTeamEvents(TestEmployeeId, TestDate).Returns(eventsReturnedFromService);
 
       // Act
@@ -165,33 +165,5 @@ namespace AdminCore.WebApi.Tests.Controllers
       _dashboardService.Received(1).GetEmployeeTeamEvents(TestEmployeeId, TestDate);
     }
 
-    private static EmployeeDto BuildTestEmployee()
-    {
-      return new EmployeeDto()
-      {
-        EmployeeId = TestEmployeeId
-      };
-    }
-
-    private static IList<EventDto> BuildListOfEvents(int numberOfEvents)
-    {
-      var listOfEvents = new List<EventDto>();
-      for (var i = 1; i <= numberOfEvents; i++)
-      {
-        listOfEvents.Add(BuildTestEvent(i));
-      }
-
-      return listOfEvents;
-    }
-
-    private static EventDto BuildTestEvent(int eventId)
-    {
-      return new EventDto()
-      {
-        EventId = eventId,
-        DateCreated = TestDate,
-        EmployeeId = TestEmployeeId
-      };
-    }
   }
 }
