@@ -57,18 +57,6 @@ namespace AdminCore.WebApi.Controllers
       return NoContent();
     }
 
-    [HttpGet("{id}")]
-    public IActionResult GetMessagesByEventId(int id)
-    {
-      var messages = _dashboardService.GetEventMessagesByEventId(id);
-      if (messages.Any())
-      {
-        return Ok(Mapper.Map<IList<EventMessageViewModel>>(messages));
-      }
-
-      return NoContent();
-    }
-
     [HttpGet("getTeamEvents/{date}")]
     public IActionResult GetTeamEvents(DateTime date)
     {
