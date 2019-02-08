@@ -8,6 +8,7 @@ using AdminCore.DTOs.Team;
 using AdminCore.WebApi.Controllers;
 using AdminCore.WebApi.Mappings;
 using AdminCore.WebApi.Models.Contract;
+using AdminCore.WebApi.Tests.Exceptions;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -20,12 +21,14 @@ namespace AdminCore.WebApi.Tests.Controllers
   {
     private readonly ContractController _contractController;
     private readonly IContractService _contractService;
+    private readonly TestException _testException;
 
     public ContractControllerTests()
     {
       _contractService = Substitute.For<IContractService>();
       IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new WebMappingProfile())));
       _contractController = new ContractController(mapper, _contractService);
+      _testException = new TestException("Test Exception");
     }
 
     [Fact]
@@ -156,10 +159,10 @@ namespace AdminCore.WebApi.Tests.Controllers
     public void TestCreateContractReturnsStatusCode500ResultWhenServiceThrowsException()
     {
       var createContractViewModel = BuildCreateContractViewModel();
-      _contractService.When(x => x.SaveContract(Arg.Any<ContractDto>())).Throw(new Exception("Test Exception"));
+      _contractService.When(x => x.SaveContract(Arg.Any<ContractDto>())).Throw(_testException);
       var result = _contractController.CreateContract(createContractViewModel);
       var resultValue = RetrieveValueFromActionResult<string>(result, HttpStatusCode.InternalServerError);
-      Assert.Equal("Something went wrong. Contract was not created.", resultValue);
+      Assert.Equal($"Something went wrong. Contract was not created: {_testException.Message}", resultValue);
     }
 
     [Fact]
