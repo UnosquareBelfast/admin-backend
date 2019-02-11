@@ -139,11 +139,30 @@ namespace AdminCore.Services
       return holidays;
     }
 
-    private static short GetMexicanHolidays(DateTime startDate)
+    private short GetMexicanHolidays(DateTime startDate)
     {
-      short mexicanYearOfIndependence = 1810;
+      if (IsInFirstThreeMonths(startDate, DateTime.Now))
+      {
+        return 0;
+      }
+      return (short)GetHolidaysByYearsWithCompany(startDate); //TODO Add Mexican Public Holidays
+    }
 
-      return mexicanYearOfIndependence;
+    private int GetHolidaysByYearsWithCompany(DateTime startDate)
+    {
+      return DatabaseContext.MexicanHolidayRepository.GetSingle(x => x.YearsWithCompany == GetYearsWithCompany(startDate)).EntitledHolidays;
+    }
+
+    private static int GetYearsWithCompany(DateTime startDate)
+    {
+      var totalDays = (DateTime.Today - startDate).Days;
+      var years = totalDays / 365.25m;
+      return (int)Math.Floor(years);
+    }
+
+    private static bool IsInFirstThreeMonths(DateTime startDate, DateTime currentDate)
+    {
+      return startDate.Year == currentDate.Year && ((currentDate.DayOfYear - startDate.DayOfYear) < 91);
     }
 
     private static short GetNorthernIrishHolidays(DateTime startDate)

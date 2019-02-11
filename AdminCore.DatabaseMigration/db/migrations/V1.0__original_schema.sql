@@ -406,3 +406,22 @@ TABLESPACE pg_default;
 
 ALTER SEQUENCE public_holiday_public_holiday_id_seq
     OWNED BY public_holiday.public_holiday_id;
+
+				  ----------------------------------------------------------------------------------------
+
+/*
+                                   MEXICAN HOLIDAY TABLE
+*/
+
+  ----------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.mexican_holiday
+(
+    mexican_holiday_id integer,
+    years_with_company integer,
+    entitled_holidays integer,
+    CONSTRAINT mexican_holiday_pkey PRIMARY KEY (mexican_holiday_id)
+)
+WITH (
+OIDS = FALSE
+)
+TABLESPACE pg_default;

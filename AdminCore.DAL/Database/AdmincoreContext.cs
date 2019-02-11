@@ -52,6 +52,8 @@ namespace AdminCore.DAL.Database
 
     public DbSet<PublicHoliday> PublicHolidays { get; set; }
 
+    public DbSet<MexicanHoliday> MexicanHoliday { get; set; }
+
     public DbSet<Team> Teams { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
