@@ -11,9 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-    <None Update="db\migrations\V1.9__add_entitled_holidays.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="db\migrations\V1.0__original_schema.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
