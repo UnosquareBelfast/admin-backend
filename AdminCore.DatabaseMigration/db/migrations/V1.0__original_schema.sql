@@ -406,3 +406,22 @@ TABLESPACE pg_default;
 
 ALTER SEQUENCE public_holiday_public_holiday_id_seq
     OWNED BY public_holiday.public_holiday_id;
+
+				  ----------------------------------------------------------------------------------------
+
+ /*
+                                   NORTHERN IRISH HOLIDAY TABLE
+*/
+
+   ----------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.northern_irish_holiday
+(
+    northern_irish_holiday_id integer,
+    month integer,
+    entitled_holidays integer,
+    CONSTRAINT northern_irish_holiday_pkey PRIMARY KEY (northern_irish_holiday_id)
+)
+WITH (
+OIDS = FALSE
+)
+TABLESPACE pg_default; 

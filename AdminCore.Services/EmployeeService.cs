@@ -146,65 +146,14 @@ namespace AdminCore.Services
       return mexicanYearOfIndependence;
     }
 
-    private static short GetNorthernIrishHolidays(DateTime startDate)
+    private short GetNorthernIrishHolidays(DateTime startDate)
     {
-      short holidays = 0;
       if (startDate.Year == DateTime.Now.Year)
       {
-        switch (startDate.Month)
-        {
-          case (int)Months.January:
-            holidays = 30;
-            break;
-
-          case (int)Months.February:
-            holidays = 28;
-            break;
-
-          case (int)Months.March:
-            holidays = 25;
-            break;
-
-          case (int)Months.April:
-            holidays = 23;
-            break;
-
-          case (int)Months.May:
-            holidays = 20;
-            break;
-
-          case (int)Months.June:
-            holidays = 18;
-            break;
-
-          case (int)Months.July:
-            holidays = 15;
-            break;
-
-          case (int)Months.August:
-            holidays = 13;
-            break;
-
-          case (int)Months.September:
-            holidays = 10;
-            break;
-
-          case (int)Months.October:
-            holidays = 8;
-            break;
-
-          case (int)Months.November:
-            holidays = 5;
-            break;
-
-          case (int)Months.December:
-            holidays = 3;
-            break;
-        }
+        var northernIrishHolidays = DatabaseContext.NorthernIrishHolidayRepository.GetSingle(x => x.Month == startDate.Month).EntitledHolidays;
+        return (short)(northernIrishHolidays + 3); //TODO Add public holidays from DB
       }
-
-      holidays += 3;
-      return holidays;
+      return 33; //TODO Get Public holidays from DB
     }
 
     private static bool IsNorthernIrishEmployee(Employee employee)
