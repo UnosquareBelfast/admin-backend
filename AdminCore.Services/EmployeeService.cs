@@ -139,71 +139,42 @@ namespace AdminCore.Services
       return holidays;
     }
 
-    private static short GetMexicanHolidays(DateTime startDate)
+    private short GetMexicanHolidays(DateTime startDate)
     {
-      short mexicanYearOfIndependence = 1810;
-
-      return mexicanYearOfIndependence;
+      if (IsInFirstThreeMonths(startDate, DateTime.Now))
+      {
+        return 0;
+      }
+      return (short)GetHolidaysByYearsWithCompany(startDate); //TODO Add Mexican Public Holidays From DB
     }
 
-    private static short GetNorthernIrishHolidays(DateTime startDate)
+    private static int GetYearsWithCompany(DateTime startDate)
+    {
+      var totalDays = (DateTime.Today - startDate).Days;
+      var years = totalDays / 365.25m;
+      return (int)Math.Floor(years);
+    }
+
+    private static bool IsInFirstThreeMonths(DateTime startDate, DateTime currentDate)
+    {
+      return startDate.Year == currentDate.Year && ((currentDate.DayOfYear - startDate.DayOfYear) < 91);
+    }
+
+    private int GetHolidaysByYearsWithCompany(DateTime startDate)
+    {
+      return DatabaseContext.EntitledHolidayRepository.GetSingle(x => x.YearsWithCompany == GetYearsWithCompany(startDate)).EntitledHolidays;
+    }
+
+    private short GetNorthernIrishHolidays(DateTime startDate)
     {
       short holidays = 0;
       if (startDate.Year == DateTime.Now.Year)
       {
-        switch (startDate.Month)
-        {
-          case (int)Months.January:
-            holidays = 30;
-            break;
-
-          case (int)Months.February:
-            holidays = 28;
-            break;
-
-          case (int)Months.March:
-            holidays = 25;
-            break;
-
-          case (int)Months.April:
-            holidays = 23;
-            break;
-
-          case (int)Months.May:
-            holidays = 20;
-            break;
-
-          case (int)Months.June:
-            holidays = 18;
-            break;
-
-          case (int)Months.July:
-            holidays = 15;
-            break;
-
-          case (int)Months.August:
-            holidays = 13;
-            break;
-
-          case (int)Months.September:
-            holidays = 10;
-            break;
-
-          case (int)Months.October:
-            holidays = 8;
-            break;
-
-          case (int)Months.November:
-            holidays = 5;
-            break;
-
-          case (int)Months.December:
-            holidays = 3;
-            break;
-        }
+        var northernIrishHolidays = DatabaseContext.EntitledHolidayRepository
+          .GetSingle(x => x.Month == startDate.Month, null).EntitledHolidays;
+        return (short)(northernIrishHolidays + 3); //TODO Add public holidays from DB
       }
-
-      holidays += 3;
+      holidays += 3; //TODO Add public holidays from DB
       return holidays;
     }
 
