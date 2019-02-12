@@ -113,7 +113,12 @@ CREATE TABLE IF NOT EXISTS public.event_type
 (
     event_type_id        integer,
     description character varying(255) COLLATE pg_catalog."default",
-    CONSTRAINT event_type_pkey PRIMARY KEY (event_type_id)
+		employee_role_id integer NOT NULL,
+    CONSTRAINT event_type_pkey PRIMARY KEY (event_type_id),
+		CONSTRAINT employee_employee_role_id_fkey FOREIGN KEY (employee_role_id)
+    REFERENCES public.employee_role (employee_role_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
 )
 WITH (
 OIDS = FALSE

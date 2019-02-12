@@ -129,10 +129,9 @@ namespace AdminCore.Services
 
     public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId)
     {
+      CheckEventTypeAdminLevel(eventTypes, employeeId);
       var newEvent = BuildNewEvent(employeeId, eventTypes);
-
       UpdateEventDates(dates, newEvent);
-
       return ValidateRemainingHolidaysAndCreate(newEvent, dates);
     }
 
@@ -583,6 +582,17 @@ namespace AdminCore.Services
       }
 
       return eventStatusId;
+    }
+
+    private void CheckEventTypeAdminLevel(EventTypes eventTypes, int employeeId)
+    {
+      int eventTypeId = (int)eventTypes;
+      var levelRequired = DatabaseContext.EventTypeRepository.GetSingle(x => x.EventTypeId == eventTypeId).EmployeeRoleId;
+      var userLevel = DatabaseContext.EmployeeRepository.GetSingle(x => x.EmployeeId == employeeId).EmployeeRoleId;
+      if (levelRequired == (int)EmployeeRoles.SystemAdministrator && userLevel == (int)EmployeeRoles.User)
+      {
+        throw new Exception("User does not have the correct privileges to book this type of event.");
+      }
     }
   }
 }
