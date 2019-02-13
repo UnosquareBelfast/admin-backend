@@ -1,4 +1,5 @@
-﻿using AdminCore.Common.Interfaces;
+﻿using AdminCore.Common.Exceptions;
+using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using AdminCore.Common.Exceptions;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -239,6 +239,70 @@ namespace AdminCore.WebApi.Controllers
       }
 
       return StatusCode((int)HttpStatusCode.NoContent, "No Messages exists");
+    }
+
+    [Authorize("Admin")]
+    [HttpPost("PublicHoliday")]
+    public IActionResult CreatePublicHoliday(CreatePublicHolidayViewModel createPublicHolidayViewModel)
+    {
+      try
+      {
+        _eventService.AddPublicHoliday(createPublicHolidayViewModel.Date, createPublicHolidayViewModel.CountryId);
+        return Ok("Successfully Added Public Holiday");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong creating public holiday");
+      }
+    }
+
+    [Authorize("Admin")]
+    [HttpPut("PublicHoliday")]
+    public IActionResult UpdatePublicHoliday(UpdatePublicHolidayViewModel updatePublicHolidayViewModel)
+    {
+      try
+      {
+        _eventService.UpdatePublicHoliday(updatePublicHolidayViewModel.PublicHolidayId, updatePublicHolidayViewModel.Date,
+          updatePublicHolidayViewModel.CountryId);
+        return Ok("Successfully Updated Public Holiday");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong updating public holiday");
+      }
+    }
+
+    [Authorize("Admin")]
+    [HttpGet("PublicHoliday/{countryId}")]
+    public IActionResult GetPublicHolidays(int countryId)
+    {
+      try
+      {
+        return Ok(_mapper.Map<IList<PublicHolidayViewModel>>(_eventService.GetPublicHolidays(countryId)));
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong getting public holiday");
+      }
+    }
+
+    [Authorize("Admin")]
+    [HttpPut("DeletePublicHoliday/{publicHolidayId}")]
+    public IActionResult DeletePublicHoliday(int publicHolidayId)
+    {
+      try
+      {
+        _eventService.DeletePublicHoliday(publicHolidayId);
+        return Ok("Successfully deleted Public Holiday");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong deleting public holiday");
+      }
     }
 
     private bool ValidateDate(string date)

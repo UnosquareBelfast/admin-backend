@@ -180,6 +180,50 @@ namespace AdminCore.Services
         throw new Exception("Holiday booked contains a half day whilst being more than one day.");
     }
 
+    public void AddPublicHoliday(DateTime date, int countryId)
+    {
+      if (!IsWeekend(date) && GetPublicHoliday(date, countryId) == null)
+      {
+        AddPublicHolidayToDb(date, countryId);
+      }
+      else
+      {
+        throw new Exception("Date is already booked as a Public Holiday");
+      }
+    }
+
+    public void UpdatePublicHoliday(int publicHolidayId, DateTime date, int countryId)
+    {
+      var publicHoliday = GetPublicHoliday(publicHolidayId);
+      if (publicHoliday != null && !IsWeekend(date))
+      {
+        UpdatePublicHolidayDetails(date, countryId, publicHoliday);
+        UpdatePublicHolidayInDb(publicHoliday);
+      }
+      else
+      {
+        throw new Exception("Public Holiday does not exist");
+      }
+    }
+
+    public IList<PublicHolidayDto> GetPublicHolidays(int countryId)
+    {
+      return _mapper.Map<IList<PublicHolidayDto>>(DatabaseContext.PublicHolidayRepository.Get(x => x.CountryId == countryId));
+    }
+
+    public void DeletePublicHoliday(int publicHolidayId)
+    {
+      var publicHoliday = GetPublicHoliday(publicHolidayId);
+      if (publicHoliday != null)
+      {
+        DeletePublicHolidayInDb(publicHoliday);
+      }
+      else
+      {
+        throw new Exception("Public Holiday does not exist");
+      }
+    }
+
     private static Expression<Func<EventDate, bool>> RetrieveEventsWithinRange(DateTime startDate, DateTime endDate)
     {
       return x => (startDate < x.StartDate && endDate > x.EndDate) ||
@@ -583,6 +627,48 @@ namespace AdminCore.Services
       }
 
       return eventStatusId;
+    }
+
+    private void AddPublicHolidayToDb(DateTime date, int countryId)
+    {
+      var publicHoliday = new PublicHoliday { PublicHolidayDate = date, CountryId = countryId };
+      DatabaseContext.PublicHolidayRepository.Insert(publicHoliday);
+      DatabaseContext.SaveChanges();
+    }
+
+    private static bool IsWeekend(DateTime date)
+    {
+      return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+    }
+
+    private PublicHoliday GetPublicHoliday(int publicHolidayId)
+    {
+      return DatabaseContext.PublicHolidayRepository.GetSingle(x =>
+        x.PublicHolidayId == publicHolidayId);
+    }
+
+    private PublicHoliday GetPublicHoliday(DateTime date, int countryId)
+    {
+      return DatabaseContext.PublicHolidayRepository.GetSingle(x =>
+        x.PublicHolidayDate.Date == date.Date && x.CountryId == countryId);
+    }
+
+    private void UpdatePublicHolidayInDb(PublicHoliday publicHoliday)
+    {
+      DatabaseContext.PublicHolidayRepository.Update(publicHoliday);
+      DatabaseContext.SaveChanges();
+    }
+
+    private static void UpdatePublicHolidayDetails(DateTime date, int countryId, PublicHoliday publicHoliday)
+    {
+      publicHoliday.PublicHolidayDate = date;
+      publicHoliday.CountryId = countryId;
+    }
+
+    private void DeletePublicHolidayInDb(PublicHoliday publicHoliday)
+    {
+      DatabaseContext.PublicHolidayRepository.Delete(publicHoliday);
+      DatabaseContext.SaveChanges();
     }
   }
 }
