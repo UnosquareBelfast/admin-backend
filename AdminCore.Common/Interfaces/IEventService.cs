@@ -35,10 +35,10 @@ namespace AdminCore.Common.Interfaces
 
     void AddPublicHoliday(DateTime date, int countryId);
 
-    void UpdatePublicHoliday(int publicHolidayId, DateTime date, int countryId);
+    void DeletePublicHoliday(int publicHolidayId);
 
     IList<PublicHolidayDto> GetPublicHolidays(int countryId);
 
-    void DeletePublicHoliday(int publicHolidayId);
+    void UpdatePublicHoliday(int publicHolidayId, DateTime date, int countryId);
   }
 }
