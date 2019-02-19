@@ -150,14 +150,13 @@ namespace AdminCore.Services
 
     private static int GetYearsWithCompany(DateTime startDate)
     {
-      var totalDays = (DateTime.Today - startDate).Days;
-      var years = totalDays / 365.25m;
-      return (int)Math.Floor(years);
+      return DateTime.Today.Year - startDate.Year;
     }
 
     private static bool IsInFirstThreeMonths(DateTime startDate, DateTime currentDate)
     {
-      return startDate.Year == currentDate.Year && ((currentDate.DayOfYear - startDate.DayOfYear) < 91);
+      var isWithinFirstThreeMonths = currentDate.AddMonths(-3) < startDate;
+      return startDate.Year == currentDate.Year && isWithinFirstThreeMonths;
     }
 
     private int GetHolidaysByYearsWithCompany(DateTime startDate)
