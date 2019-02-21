@@ -50,9 +50,9 @@ namespace AdminCore.DAL.Database
 
     public DbSet<EventType> EventTypes { get; set; }
 
-    public DbSet<EntitledHoliday> EntitledHolidayRepository { get; set; }
+    public DbSet<MandatoryEvent> MandatoryEvents { get; set; }
 
-    public DbSet<PublicHoliday> PublicHolidays { get; set; }
+    public DbSet<EntitledHoliday> EntitledHolidayRepository { get; set; }
 
     public DbSet<Team> Teams { get; set; }
 

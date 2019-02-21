@@ -179,6 +179,50 @@ namespace AdminCore.Services
         throw new Exception("Holiday booked contains a half day whilst being more than one day.");
     }
 
+    public void AddMandatoryEvent(DateTime date, int countryId)
+    {
+      if (!IsWeekend(date) && GetMandatoryEvent(date, countryId) == null)
+      {
+        AddMandatoryEventToDb(date, countryId);
+      }
+      else
+      {
+        throw new Exception("Date is already booked as a Mandatory Event");
+      }
+    }
+
+    public void UpdateMandatoryEvent(int mandatoryEventId, DateTime date, int countryId)
+    {
+      var mandatoryEvent = GetMandatoryEvent(mandatoryEventId);
+      if (mandatoryEvent != null && !IsWeekend(date))
+      {
+        UpdateMandatoryEventDetails(date, countryId, mandatoryEvent);
+        UpdateMandatoryEventInDb(mandatoryEvent);
+      }
+      else
+      {
+        throw new Exception("Mandatory Event does not exist");
+      }
+    }
+
+    public IList<MandatoryEventDto> GetMandatoryEvents(int countryId)
+    {
+      return _mapper.Map<IList<MandatoryEventDto>>(DatabaseContext.MandatoryEventRepository.Get(x => x.CountryId == countryId));
+    }
+
+    public void DeleteMandatoryEvent(int mandatoryEventId)
+    {
+      var mandatoryEvent = GetMandatoryEvent(mandatoryEventId);
+      if (mandatoryEvent != null)
+      {
+        DeleteMandatoryEventInDb(mandatoryEvent);
+      }
+      else
+      {
+        throw new Exception("Mandatory Event does not exist");
+      }
+    }
+
     private static Expression<Func<EventDate, bool>> RetrieveEventsWithinRange(DateTime startDate, DateTime endDate)
     {
       return x => (startDate < x.StartDate && endDate > x.EndDate) ||
@@ -600,6 +644,48 @@ namespace AdminCore.Services
     private static bool UserDoesNotHaveCorrectPrivileges(int employeeRoleLevelRequired, int employeeLevel)
     {
       return employeeRoleLevelRequired == (int)EmployeeRoles.SystemAdministrator && employeeLevel == (int)EmployeeRoles.User;
+    }
+
+    private void AddMandatoryEventToDb(DateTime date, int countryId)
+    {
+      var mandatoryEvent = new MandatoryEvent { MandatoryEventDate = date, CountryId = countryId };
+      DatabaseContext.MandatoryEventRepository.Insert(mandatoryEvent);
+      DatabaseContext.SaveChanges();
+    }
+
+    private static bool IsWeekend(DateTime date)
+    {
+      return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+    }
+
+    private MandatoryEvent GetMandatoryEvent(int mandatoryEventId)
+    {
+      return DatabaseContext.MandatoryEventRepository.GetSingle(x =>
+        x.MandatoryEventId == mandatoryEventId);
+    }
+
+    private MandatoryEvent GetMandatoryEvent(DateTime date, int countryId)
+    {
+      return DatabaseContext.MandatoryEventRepository.GetSingle(x =>
+        x.MandatoryEventDate.Date == date.Date && x.CountryId == countryId);
+    }
+
+    private void UpdateMandatoryEventInDb(MandatoryEvent mandatoryEvent)
+    {
+      DatabaseContext.MandatoryEventRepository.Update(mandatoryEvent);
+      DatabaseContext.SaveChanges();
+    }
+
+    private static void UpdateMandatoryEventDetails(DateTime date, int countryId, MandatoryEvent mandatoryEvent)
+    {
+      mandatoryEvent.MandatoryEventDate = date;
+      mandatoryEvent.CountryId = countryId;
+    }
+
+    private void DeleteMandatoryEventInDb(MandatoryEvent mandatoryEvent)
+    {
+      DatabaseContext.MandatoryEventRepository.Delete(mandatoryEvent);
+      DatabaseContext.SaveChanges();
     }
   }
 }

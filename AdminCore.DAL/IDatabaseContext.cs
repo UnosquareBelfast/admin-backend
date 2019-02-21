@@ -30,7 +30,7 @@ namespace AdminCore.DAL
 
     IRepository<EntitledHoliday> EntitledHolidayRepository { get; }
 
-    IRepository<PublicHoliday> PublicHolidayRepository { get; }
+    IRepository<MandatoryEvent> MandatoryEventRepository { get; }
 
     IRepository<Team> TeamRepository { get; }
 

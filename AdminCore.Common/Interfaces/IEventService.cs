@@ -32,5 +32,13 @@ namespace AdminCore.Common.Interfaces
     void RejectEvent(int eventId, string message, int employeeId);
 
     void IsEventValid(EventDateDto eventDates, int employeeId);
+
+    void AddMandatoryEvent(DateTime date, int countryId);
+
+    void DeleteMandatoryEvent(int mandatoryEventId);
+
+    IList<MandatoryEventDto> GetMandatoryEvents(int countryId);
+
+    void UpdateMandatoryEvent(int mandatoryEventId, DateTime date, int countryId);
   }
 }

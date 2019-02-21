@@ -1,4 +1,5 @@
-﻿using AdminCore.Common.Interfaces;
+﻿using AdminCore.Common.Exceptions;
+using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using AdminCore.Common.Exceptions;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -239,6 +239,70 @@ namespace AdminCore.WebApi.Controllers
       }
 
       return StatusCode((int)HttpStatusCode.NoContent, "No Messages exists");
+    }
+
+    [Authorize("Admin")]
+    [HttpPost("PublicHoliday")]
+    public IActionResult CreateMandatoryEvent(CreateMandatoryEventViewModel createMandatoryEventViewModel)
+    {
+      try
+      {
+        _eventService.AddMandatoryEvent(createMandatoryEventViewModel.Date, createMandatoryEventViewModel.CountryId);
+        return Ok("Successfully Added mandatory event");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong creating mandatory event");
+      }
+    }
+
+    [Authorize("Admin")]
+    [HttpPut("MandatoryEvent")]
+    public IActionResult UpdateMandatoryEvent(UpdateMandatoryEventViewModel updateMandatoryEventViewModel)
+    {
+      try
+      {
+        _eventService.UpdateMandatoryEvent(updateMandatoryEventViewModel.MandatoryEventId, updateMandatoryEventViewModel.Date,
+          updateMandatoryEventViewModel.CountryId);
+        return Ok("Successfully Updated mandatory event");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong updating mandatory event");
+      }
+    }
+
+    [Authorize("Admin")]
+    [HttpGet("MandatoryEvent/{countryId}")]
+    public IActionResult GetPublicHolidays(int countryId)
+    {
+      try
+      {
+        return Ok(_mapper.Map<IList<MandatoryEventViewModel>>(_eventService.GetMandatoryEvents(countryId)));
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong getting mandatory event");
+      }
+    }
+
+    [Authorize("Admin")]
+    [HttpPut("DeleteMandatoryEvent/{publicHolidayId}")]
+    public IActionResult DeletePublicHoliday(int mandatoryEventId)
+    {
+      try
+      {
+        _eventService.DeleteMandatoryEvent(mandatoryEventId);
+        return Ok("Successfully deleted Mandatory Event");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex.Message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong deleting mandatory event");
+      }
     }
 
     private bool ValidateDate(string date)
