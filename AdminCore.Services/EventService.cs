@@ -180,47 +180,47 @@ namespace AdminCore.Services
         throw new Exception("Holiday booked contains a half day whilst being more than one day.");
     }
 
-    public void AddPublicHoliday(DateTime date, int countryId)
+    public void AddMandatoryEvent(DateTime date, int countryId)
     {
-      if (!IsWeekend(date) && GetPublicHoliday(date, countryId) == null)
+      if (!IsWeekend(date) && GetMandatoryEvent(date, countryId) == null)
       {
-        AddPublicHolidayToDb(date, countryId);
+        AddMandatoryEventToDb(date, countryId);
       }
       else
       {
-        throw new Exception("Date is already booked as a Public Holiday");
+        throw new Exception("Date is already booked as a Mandatory Event");
       }
     }
 
-    public void UpdatePublicHoliday(int publicHolidayId, DateTime date, int countryId)
+    public void UpdateMandatoryEvent(int mandatoryEventId, DateTime date, int countryId)
     {
-      var publicHoliday = GetPublicHoliday(publicHolidayId);
-      if (publicHoliday != null && !IsWeekend(date))
+      var mandatoryEvent = GetMandatoryEvent(mandatoryEventId);
+      if (mandatoryEvent != null && !IsWeekend(date))
       {
-        UpdatePublicHolidayDetails(date, countryId, publicHoliday);
-        UpdatePublicHolidayInDb(publicHoliday);
+        UpdateMandatoryEventDetails(date, countryId, mandatoryEvent);
+        UpdateMandatoryEventInDb(mandatoryEvent);
       }
       else
       {
-        throw new Exception("Public Holiday does not exist");
+        throw new Exception("Mandatory Event does not exist");
       }
     }
 
-    public IList<PublicHolidayDto> GetPublicHolidays(int countryId)
+    public IList<MandatoryEventDto> GetMandatoryEvents(int countryId)
     {
-      return _mapper.Map<IList<PublicHolidayDto>>(DatabaseContext.PublicHolidayRepository.Get(x => x.CountryId == countryId));
+      return _mapper.Map<IList<MandatoryEventDto>>(DatabaseContext.MandatoryEventRepository.Get(x => x.CountryId == countryId));
     }
 
-    public void DeletePublicHoliday(int publicHolidayId)
+    public void DeleteMandatoryEvent(int mandatoryEventId)
     {
-      var publicHoliday = GetPublicHoliday(publicHolidayId);
-      if (publicHoliday != null)
+      var mandatoryEvent = GetMandatoryEvent(mandatoryEventId);
+      if (mandatoryEvent != null)
       {
-        DeletePublicHolidayInDb(publicHoliday);
+        DeleteMandatoryEventInDb(mandatoryEvent);
       }
       else
       {
-        throw new Exception("Public Holiday does not exist");
+        throw new Exception("Mandatory Event does not exist");
       }
     }
 
@@ -629,10 +629,10 @@ namespace AdminCore.Services
       return eventStatusId;
     }
 
-    private void AddPublicHolidayToDb(DateTime date, int countryId)
+    private void AddMandatoryEventToDb(DateTime date, int countryId)
     {
-      var publicHoliday = new PublicHoliday { PublicHolidayDate = date, CountryId = countryId };
-      DatabaseContext.PublicHolidayRepository.Insert(publicHoliday);
+      var mandatoryEvent = new MandatoryEvent { MandatoryEventDate = date, CountryId = countryId };
+      DatabaseContext.MandatoryEventRepository.Insert(mandatoryEvent);
       DatabaseContext.SaveChanges();
     }
 
@@ -641,33 +641,33 @@ namespace AdminCore.Services
       return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
     }
 
-    private PublicHoliday GetPublicHoliday(int publicHolidayId)
+    private MandatoryEvent GetMandatoryEvent(int mandatoryEventId)
     {
-      return DatabaseContext.PublicHolidayRepository.GetSingle(x =>
-        x.PublicHolidayId == publicHolidayId);
+      return DatabaseContext.MandatoryEventRepository.GetSingle(x =>
+        x.MandatoryEventId == mandatoryEventId);
     }
 
-    private PublicHoliday GetPublicHoliday(DateTime date, int countryId)
+    private MandatoryEvent GetMandatoryEvent(DateTime date, int countryId)
     {
-      return DatabaseContext.PublicHolidayRepository.GetSingle(x =>
-        x.PublicHolidayDate.Date == date.Date && x.CountryId == countryId);
+      return DatabaseContext.MandatoryEventRepository.GetSingle(x =>
+        x.MandatoryEventDate.Date == date.Date && x.CountryId == countryId);
     }
 
-    private void UpdatePublicHolidayInDb(PublicHoliday publicHoliday)
+    private void UpdateMandatoryEventInDb(MandatoryEvent mandatoryEvent)
     {
-      DatabaseContext.PublicHolidayRepository.Update(publicHoliday);
+      DatabaseContext.MandatoryEventRepository.Update(mandatoryEvent);
       DatabaseContext.SaveChanges();
     }
 
-    private static void UpdatePublicHolidayDetails(DateTime date, int countryId, PublicHoliday publicHoliday)
+    private static void UpdateMandatoryEventDetails(DateTime date, int countryId, MandatoryEvent mandatoryEvent)
     {
-      publicHoliday.PublicHolidayDate = date;
-      publicHoliday.CountryId = countryId;
+      mandatoryEvent.MandatoryEventDate = date;
+      mandatoryEvent.CountryId = countryId;
     }
 
-    private void DeletePublicHolidayInDb(PublicHoliday publicHoliday)
+    private void DeleteMandatoryEventInDb(MandatoryEvent mandatoryEvent)
     {
-      DatabaseContext.PublicHolidayRepository.Delete(publicHoliday);
+      DatabaseContext.MandatoryEventRepository.Delete(mandatoryEvent);
       DatabaseContext.SaveChanges();
     }
   }

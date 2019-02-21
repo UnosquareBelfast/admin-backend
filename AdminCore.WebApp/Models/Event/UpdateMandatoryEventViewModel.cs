@@ -3,9 +3,9 @@ using System;
 
 namespace AdminCore.WebApi.Models.Event
 {
-  public class UpdatePublicHolidayViewModel : ViewModel
+  public class UpdateMandatoryEventViewModel : ViewModel
   {
-    public int PublicHolidayId { get; set; }
+    public int MandatoryEventId { get; set; }
     public int CountryId { get; set; }
     public DateTime Date { get; set; }
   }

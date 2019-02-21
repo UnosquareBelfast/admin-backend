@@ -36,7 +36,7 @@ namespace AdminCore.Services
 
     private void AddPublicHolidays(Employee employee)
     {
-      var publicHolidays = DatabaseContext.PublicHolidayRepository.Get(x => x.CountryId == employee.CountryId);
+      var publicHolidays = DatabaseContext.MandatoryEventRepository.Get(x => x.CountryId == employee.CountryId);
       CreatePublicHolidays(employee, publicHolidays);
     }
 
@@ -111,7 +111,7 @@ namespace AdminCore.Services
       return employee.Any() ? employee.First() : null;
     }
 
-    private void CreatePublicHolidays(Employee employee, IList<PublicHoliday> publicHolidays)
+    private void CreatePublicHolidays(Employee employee, IList<MandatoryEvent> publicHolidays)
     {
       var eventService = new EventService(DatabaseContext, _mapper, new DateService());
       foreach (var holiday in publicHolidays)
@@ -121,12 +121,12 @@ namespace AdminCore.Services
       }
     }
 
-    private static EventDateDto ConvertHolidayToEventDate(PublicHoliday holiday)
+    private static EventDateDto ConvertHolidayToEventDate(MandatoryEvent holiday)
     {
       var eventDateDto = new EventDateDto
       {
-        StartDate = holiday.PublicHolidayDate,
-        EndDate = holiday.PublicHolidayDate,
+        StartDate = holiday.MandatoryEventDate,
+        EndDate = holiday.MandatoryEventDate,
         IsHalfDay = false
       };
       return eventDateDto;

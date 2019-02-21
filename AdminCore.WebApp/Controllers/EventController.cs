@@ -243,65 +243,65 @@ namespace AdminCore.WebApi.Controllers
 
     [Authorize("Admin")]
     [HttpPost("PublicHoliday")]
-    public IActionResult CreatePublicHoliday(CreatePublicHolidayViewModel createPublicHolidayViewModel)
+    public IActionResult CreateMandatoryEvent(CreateMandatoryEventViewModel createMandatoryEventViewModel)
     {
       try
       {
-        _eventService.AddPublicHoliday(createPublicHolidayViewModel.Date, createPublicHolidayViewModel.CountryId);
-        return Ok("Successfully Added Public Holiday");
+        _eventService.AddMandatoryEvent(createMandatoryEventViewModel.Date, createMandatoryEventViewModel.CountryId);
+        return Ok("Successfully Added mandatory event");
       }
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong creating public holiday");
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong creating mandatory event");
       }
     }
 
     [Authorize("Admin")]
-    [HttpPut("PublicHoliday")]
-    public IActionResult UpdatePublicHoliday(UpdatePublicHolidayViewModel updatePublicHolidayViewModel)
+    [HttpPut("MandatoryEvent")]
+    public IActionResult UpdateMandatoryEvent(UpdateMandatoryEventViewModel updateMandatoryEventViewModel)
     {
       try
       {
-        _eventService.UpdatePublicHoliday(updatePublicHolidayViewModel.PublicHolidayId, updatePublicHolidayViewModel.Date,
-          updatePublicHolidayViewModel.CountryId);
-        return Ok("Successfully Updated Public Holiday");
+        _eventService.UpdateMandatoryEvent(updateMandatoryEventViewModel.MandatoryEventId, updateMandatoryEventViewModel.Date,
+          updateMandatoryEventViewModel.CountryId);
+        return Ok("Successfully Updated mandatory event");
       }
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong updating public holiday");
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong updating mandatory event");
       }
     }
 
     [Authorize("Admin")]
-    [HttpGet("PublicHoliday/{countryId}")]
+    [HttpGet("MandatoryEvent/{countryId}")]
     public IActionResult GetPublicHolidays(int countryId)
     {
       try
       {
-        return Ok(_mapper.Map<IList<PublicHolidayViewModel>>(_eventService.GetPublicHolidays(countryId)));
+        return Ok(_mapper.Map<IList<MandatoryEventViewModel>>(_eventService.GetMandatoryEvents(countryId)));
       }
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong getting public holiday");
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong getting mandatory event");
       }
     }
 
     [Authorize("Admin")]
-    [HttpPut("DeletePublicHoliday/{publicHolidayId}")]
-    public IActionResult DeletePublicHoliday(int publicHolidayId)
+    [HttpPut("DeleteMandatoryEvent/{publicHolidayId}")]
+    public IActionResult DeletePublicHoliday(int mandatoryEventId)
     {
       try
       {
-        _eventService.DeletePublicHoliday(publicHolidayId);
-        return Ok("Successfully deleted Public Holiday");
+        _eventService.DeleteMandatoryEvent(mandatoryEventId);
+        return Ok("Successfully deleted Mandatory Event");
       }
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong deleting public holiday");
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong deleting mandatory event");
       }
     }
 

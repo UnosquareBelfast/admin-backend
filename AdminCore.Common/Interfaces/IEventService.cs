@@ -33,12 +33,12 @@ namespace AdminCore.Common.Interfaces
 
     void IsEventValid(EventDateDto eventDates, int employeeId);
 
-    void AddPublicHoliday(DateTime date, int countryId);
+    void AddMandatoryEvent(DateTime date, int countryId);
 
-    void DeletePublicHoliday(int publicHolidayId);
+    void DeleteMandatoryEvent(int mandatoryEventId);
 
-    IList<PublicHolidayDto> GetPublicHolidays(int countryId);
+    IList<MandatoryEventDto> GetMandatoryEvents(int countryId);
 
-    void UpdatePublicHoliday(int publicHolidayId, DateTime date, int countryId);
+    void UpdateMandatoryEvent(int mandatoryEventId, DateTime date, int countryId);
   }
 }
