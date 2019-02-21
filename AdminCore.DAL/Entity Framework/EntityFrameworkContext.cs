@@ -33,6 +33,8 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<EventType> _eventTypeRepository;
 
+    private IRepository<EntitledHoliday> _entitledHolidayRepository;
+
     private IRepository<MandatoryEvent> _mandatoryEventRepository;
 
     private IRepository<Team> _teamRepository;
@@ -81,6 +83,9 @@ namespace AdminCore.DAL.Entity_Framework
 
     public IRepository<MandatoryEvent> MandatoryEventRepository =>
       _mandatoryEventRepository ?? (_mandatoryEventRepository = new EntityFrameworkRepository<MandatoryEvent>(this));
+
+    public IRepository<EntitledHoliday> EntitledHolidayRepository =>
+      _entitledHolidayRepository ?? (_entitledHolidayRepository = new EntityFrameworkRepository<EntitledHoliday>(this));
 
     public IRepository<Team> TeamRepository =>
       _teamRepository ?? (_teamRepository = new EntityFrameworkRepository<Team>(this));

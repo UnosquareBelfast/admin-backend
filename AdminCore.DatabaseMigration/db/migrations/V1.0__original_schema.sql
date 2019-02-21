@@ -113,7 +113,12 @@ CREATE TABLE IF NOT EXISTS public.event_type
 (
     event_type_id        integer,
     description character varying(255) COLLATE pg_catalog."default",
-    CONSTRAINT event_type_pkey PRIMARY KEY (event_type_id)
+		employee_role_id integer NOT NULL,
+    CONSTRAINT event_type_pkey PRIMARY KEY (event_type_id),
+		CONSTRAINT employee_employee_role_id_fkey FOREIGN KEY (employee_role_id)
+    REFERENCES public.employee_role (employee_role_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
 )
 WITH (
 OIDS = FALSE
@@ -380,7 +385,7 @@ TABLESPACE pg_default;
 ALTER SEQUENCE event_message_event_message_id_seq
     OWNED BY event_message.event_message_id;
 
-		  ----------------------------------------------------------------------------------------
+		----------------------------------------------------------------------------------------
 
 /*
                                    PUBLIC HOLIDAY TABLE
@@ -406,3 +411,32 @@ TABLESPACE pg_default;
 
 ALTER SEQUENCE public_holiday_public_holiday_id_seq
     OWNED BY public_holiday.public_holiday_id;
+
+				  ----------------------------------------------------------------------------------------
+
+/*
+                                   HOLIDAY ENTITLEMENT TABLE
+*/
+
+  ----------------------------------------------------------------------------------------
+CREATE SEQUENCE IF NOT EXISTS public.entitled_holiday_entitled_holiday_id_seq;
+CREATE TABLE IF NOT EXISTS public.entitled_holiday
+(
+    entitled_holiday_id integer NOT NULL DEFAULT nextval('entitled_holiday_entitled_holiday_id_seq'::regclass),
+    country_id integer NOT NULL,
+		month integer,
+		years_with_company integer,
+    entitled_holidays integer NOT NULL,
+    CONSTRAINT entitled_holiday_pkey PRIMARY KEY (entitled_holiday_id),
+    CONSTRAINT holiday_country_id_fkey FOREIGN KEY (country_id)
+        REFERENCES public.country (country_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER SEQUENCE entitled_holiday_entitled_holiday_id_seq
+    OWNED BY entitled_holiday.entitled_holiday_id;

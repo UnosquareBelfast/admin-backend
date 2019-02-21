@@ -52,6 +52,8 @@ namespace AdminCore.DAL.Database
 
     public DbSet<MandatoryEvent> MandatoryEvents { get; set; }
 
+    public DbSet<EntitledHoliday> EntitledHolidayRepository { get; set; }
+
     public DbSet<Team> Teams { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

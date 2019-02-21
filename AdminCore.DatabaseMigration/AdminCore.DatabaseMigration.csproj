@@ -38,6 +38,9 @@
 	<None Update="db\migrations\V1.8__add_public_holidays.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	<None Update="db\migrations\V1.9__add_entitled_holidays.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
