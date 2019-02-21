@@ -586,13 +586,20 @@ namespace AdminCore.Services
 
     private void CheckEventTypeAdminLevel(EventTypes eventTypes, int employeeId)
     {
-      int eventTypeId = (int)eventTypes;
-      var levelRequired = DatabaseContext.EventTypeRepository.GetSingle(x => x.EventTypeId == eventTypeId).EmployeeRoleId;
-      var userLevel = DatabaseContext.EmployeeRepository.GetSingle(x => x.EmployeeId == employeeId).EmployeeRoleId;
-      if (levelRequired == (int)EmployeeRoles.SystemAdministrator && userLevel == (int)EmployeeRoles.User)
+      var eventTypeId = (int)eventTypes;
+      var employeeRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
+                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
+      var employeeRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
+                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
+      if (UserDoesNotHaveCorrectPrivileges(employeeRoleLevelRequired, employeeRole))
       {
         throw new Exception("User does not have the correct privileges to book this type of event.");
       }
+    }
+
+    private static bool UserDoesNotHaveCorrectPrivileges(int employeeRoleLevelRequired, int employeeLevel)
+    {
+      return employeeRoleLevelRequired == (int)EmployeeRoles.SystemAdministrator && employeeLevel == (int)EmployeeRoles.User;
     }
   }
 }
