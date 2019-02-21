@@ -12,5 +12,8 @@ namespace AdminCore.DAL.Models
 
     [Column("description")]
     public string Description { get; set; }
+
+    [Column("employee_role_id")]
+    public virtual int EmployeeRoleId { get; set; }
   }
 }
