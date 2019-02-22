@@ -392,14 +392,14 @@ ALTER SEQUENCE event_message_event_message_id_seq
 */
 
   ----------------------------------------------------------------------------------------
-CREATE SEQUENCE IF NOT EXISTS public.public_holiday_public_holiday_id_seq;
-CREATE TABLE IF NOT EXISTS public.public_holiday
+CREATE SEQUENCE IF NOT EXISTS public.mandatory_event_mandatory_event_id_seq;
+CREATE TABLE IF NOT EXISTS public.mandatory_event
 (
-    public_holiday_id integer NOT NULL DEFAULT nextval('public_holiday_public_holiday_id_seq'::regclass),
+    mandatory_event_id integer NOT NULL DEFAULT nextval('mandatory_event_mandatory_event_id_seq'::regclass),
     country_id integer NOT NULL,
-    public_holiday_date date NOT NULL,
-    CONSTRAINT public_holiday_pkey PRIMARY KEY (public_holiday_id),
-    CONSTRAINT public_holiday_country_id_fkey FOREIGN KEY (country_id)
+    mandatory_event_date date NOT NULL,
+    CONSTRAINT mandatory_event_pkey PRIMARY KEY (mandatory_event_id),
+    CONSTRAINT mandatory_event_country_id_fkey FOREIGN KEY (country_id)
         REFERENCES public.country (country_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -409,8 +409,8 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER SEQUENCE public_holiday_public_holiday_id_seq
-    OWNED BY public_holiday.public_holiday_id;
+ALTER SEQUENCE mandatory_event_mandatory_event_id_seq
+    OWNED BY mandatory_event.mandatory_event_id;
 
 				  ----------------------------------------------------------------------------------------
 

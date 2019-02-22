@@ -1,4 +1,4 @@
-INSERT INTO public.public_holiday (public_holiday_id, country_id, public_holiday_date)
+INSERT INTO public.mandatory_event (mandatory_event_id, country_id, mandatory_event_date)
 VALUES (1, 1, '2019-01-01'),
        (2, 1, '2019-05-27'),
        (3, 1, '2019-12-25'),
@@ -10,5 +10,5 @@ VALUES (1, 1, '2019-01-01'),
        (9, 2, '2019-11-28'),
 			 (10, 2, '2019-11-29'),
 			 (11, 2, '2019-12-25')
-ON CONFLICT (public_holiday_id)
+ON CONFLICT (mandatory_event_id)
   DO NOTHING;
