@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdminCore.DAL.Models
 {
-  [Table("public_holiday")]
+  [Table("mandatory_event")]
   public class MandatoryEvent
   {
     [Key]
