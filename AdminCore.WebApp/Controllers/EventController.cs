@@ -242,7 +242,7 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [Authorize("Admin")]
-    [HttpPost("PublicHoliday")]
+    [HttpPost("MandatoryEvent")]
     public IActionResult CreateMandatoryEvent(CreateMandatoryEventViewModel createMandatoryEventViewModel)
     {
       try
