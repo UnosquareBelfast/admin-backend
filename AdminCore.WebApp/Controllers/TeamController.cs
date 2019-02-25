@@ -88,7 +88,7 @@ namespace AdminCore.WebApi.Controllers
         return Ok(Mapper.Map<IList<TeamViewModel>>(teams));
       }
 
-      return StatusCode((int)HttpStatusCode.InternalServerError, $"No teams found with client ID {clientId}");
+      return StatusCode((int)HttpStatusCode.NoContent, $"No teams found with client ID {clientId}");
     }
   }
 }
