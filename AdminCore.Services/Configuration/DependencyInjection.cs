@@ -7,6 +7,7 @@ using AdminCore.DAL.Entity_Framework;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -17,13 +18,14 @@ namespace AdminCore.Services.Configuration
   {
     private static bool _registered;
 
-    public static void RegisterDependencyInjection(IServiceCollection services = null)
+    public static void RegisterDependencyInjection(IServiceCollection serviceDescriptor = null,
+      params ServiceDescriptor[] serviceDescriptors)
     {
       if (!_registered)
       {
-        if (services == null) services = new ServiceCollection();
-
-        services.AddAutoMapper();
+        var services = new ServiceCollection().AddAutoMapper();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddDbContext<AdminCoreContext>();
         services.AddScoped<IDatabaseContext, EntityFrameworkContext>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -34,10 +36,16 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IEmployeeService, EmployeeService>();
         services.AddTransient<IClientService, ClientService>();
         services.AddTransient<ITeamService, TeamService>();
+        services.AddTransient<ISchedulesService, SchedulesService>();
         services.AddTransient<IEventService, EventService>();
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
+
+        foreach (var serviceDescription in serviceDescriptors)
+        {
+          services.Add(serviceDescription);
+        }
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

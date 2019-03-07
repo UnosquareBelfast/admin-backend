@@ -37,6 +37,8 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<MandatoryEvent> _mandatoryEventRepository;
 
+    private IRepository<Schedule> _scheduleRepository;
+
     private IRepository<Team> _teamRepository;
 
     public EntityFrameworkContext(AdminCoreContext adminCoreContext)
@@ -86,6 +88,9 @@ namespace AdminCore.DAL.Entity_Framework
 
     public IRepository<EntitledHoliday> EntitledHolidayRepository =>
       _entitledHolidayRepository ?? (_entitledHolidayRepository = new EntityFrameworkRepository<EntitledHoliday>(this));
+
+    public IRepository<Schedule> SchedulesRepository =>
+      _scheduleRepository ?? (_scheduleRepository = new EntityFrameworkRepository<Schedule>(this));
 
     public IRepository<Team> TeamRepository =>
       _teamRepository ?? (_teamRepository = new EntityFrameworkRepository<Team>(this));
