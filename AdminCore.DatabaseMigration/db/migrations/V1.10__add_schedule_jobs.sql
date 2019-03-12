@@ -20,6 +20,6 @@ ALTER SEQUENCE schedule_job_schedule_job_id_seq
     OWNED BY schedule_job.schedule_job_id;
 
 INSERT INTO public.schedule_job (schedule_job_id, schedule_job_name, schedule_cron_expression, is_active)
-VALUES (1, 'Prune Expired Events Job', '0 {0} {5} ? * *', true)
+VALUES (1, 'Prune Expired Events Job', '0 0 3 ? * *', true)
 ON CONFLICT (schedule_job_id)
   DO NOTHING;
