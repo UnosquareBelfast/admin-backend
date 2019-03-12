@@ -59,8 +59,7 @@ namespace AdminCore.ScheduledJobs
     {
       var trigger = TriggerBuilder.Create()
         .WithIdentity(GetTriggerKeyForSchedule(schedule))
-        //.WithCronSchedule(string.Format(schedule.ScheduleCronExpression, 0, 13))
-        .WithCronSchedule(string.Format("0/5 * * ? * * *", 0, 13)) //Test Schedule for every 5 seconds
+        .WithCronSchedule(string.Format(schedule.ScheduleCronExpression))
         .Build();
 
       return trigger;

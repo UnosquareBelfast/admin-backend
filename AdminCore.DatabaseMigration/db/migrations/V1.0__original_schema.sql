@@ -440,27 +440,3 @@ TABLESPACE pg_default;
 
 ALTER SEQUENCE entitled_holiday_entitled_holiday_id_seq
     OWNED BY entitled_holiday.entitled_holiday_id;
-
-				----------------------------------------------------------------------------------------
-
-/*
-                                   SCHEDULED JOB TABLE
-*/
-
-  ----------------------------------------------------------------------------------------
-CREATE SEQUENCE IF NOT EXISTS public.scheduled_job_scheduled_job_id_seq;
-CREATE TABLE IF NOT EXISTS public.scheduled_job
-(
-    scheduled_job_id integer NOT NULL DEFAULT nextval('scheduled_job_scheduled_job_id_seq'::regclass),
-    schedule_job_name text NOT NULL,
-		schedule_cron_expression text NOT NULL,
-    is_active boolean NOT NULL,
-    CONSTRAINT scheduled_job_pkey PRIMARY KEY (scheduled_job_id)
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-
-ALTER SEQUENCE scheduled_job_scheduled_job_id_seq
-    OWNED BY scheduled_job.scheduled_job_id;
