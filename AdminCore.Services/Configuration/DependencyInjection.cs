@@ -42,9 +42,12 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
 
-        foreach (var serviceDescription in serviceDescriptors)
+        if (serviceDescriptors != null)
         {
-          services.Add(serviceDescription);
+          foreach (var serviceDescription in serviceDescriptors)
+          {
+            services.Add(serviceDescription);
+          }
         }
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());

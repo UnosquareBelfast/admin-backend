@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdminCore.DAL.Models
 {
-  [Table("scheduled_job")]
+  [Table("schedule_job")]
   public class Schedule
   {
     [Key]
-    [Column("scheduled_job_id")]
+    [Column("schedule_job_id")]
     public int ScheduleJobId { get; set; }
 
     [Column("schedule_job_name")]

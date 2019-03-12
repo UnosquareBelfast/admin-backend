@@ -1,4 +1,5 @@
-﻿using AdminCore.Common;
+﻿using System;
+using AdminCore.Common;
 using AdminCore.Common.Interfaces;
 using AdminCore.ScheduledJobs;
 using AdminCore.Services.Configuration;
@@ -17,6 +18,8 @@ namespace AdminCore.JobExecutor
       var scheduleRunner = ServiceLocator.Instance.GetInstance<ISchedulesService>();
 
       scheduleRunner.QueueAllExistingSchedules();
+
+      Console.ReadKey();
     }
   }
 }

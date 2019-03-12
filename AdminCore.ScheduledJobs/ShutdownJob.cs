@@ -7,7 +7,6 @@ namespace AdminCore.ScheduledJobs
   {
     public Task Execute(IJobExecutionContext context)
     {
-      var resourceGroupName = context.JobDetail.JobDataMap.GetString("ResourceGroupName");
       var returnedValues = DatabaseContext.SchedulesRepository.GetSingle(x => x.IsActive);
       if (returnedValues != null)
       {

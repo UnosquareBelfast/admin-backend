@@ -11,6 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
+    <None Update="db\migrations\V1.10__add_schedule_jobs.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="db\migrations\V1.0__original_schema.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
