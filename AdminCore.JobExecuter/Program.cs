@@ -11,7 +11,7 @@ namespace AdminCore.JobExecutor
   {
     private static void Main(string[] args)
     {
-      DependencyInjection.RegisterDependencyInjection(null,
+      DependencyInjection.RegisterDependencyInjection(
         new ServiceDescriptor(typeof(IScheduleRunner), typeof(ScheduleRunner), ServiceLifetime.Singleton)
       );
 

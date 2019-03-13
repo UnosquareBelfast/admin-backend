@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AdminCore.ScheduledJobs
 {
-  internal class StartupJob : BaseDatabaseJob, IJob
+  internal class PruneExpiredEventsJob : BaseDatabaseJob, IJob
   {
     public Task Execute(IJobExecutionContext context)
     {

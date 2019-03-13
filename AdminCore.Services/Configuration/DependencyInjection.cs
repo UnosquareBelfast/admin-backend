@@ -18,8 +18,7 @@ namespace AdminCore.Services.Configuration
   {
     private static bool _registered;
 
-    public static void RegisterDependencyInjection(IServiceCollection serviceDescriptor = null,
-      params ServiceDescriptor[] serviceDescriptors)
+    public static void RegisterDependencyInjection(IServiceCollection serviceDescriptor = null)
     {
       if (!_registered)
       {
@@ -36,11 +35,28 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IEmployeeService, EmployeeService>();
         services.AddTransient<IClientService, ClientService>();
         services.AddTransient<ITeamService, TeamService>();
-        services.AddTransient<ISchedulesService, SchedulesService>();
         services.AddTransient<IEventService, EventService>();
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
+
+        ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
+
+        _registered = true;
+      }
+    }
+
+    public static void RegisterDependencyInjection(params ServiceDescriptor[] serviceDescriptors)
+    {
+      if (!_registered)
+      {
+        var services = new ServiceCollection().AddAutoMapper();
+        services.AddDbContext<AdminCoreContext>();
+        services.AddScoped<IDatabaseContext, EntityFrameworkContext>();
+        services.AddSingleton<IConfiguration, ConfigurationProvider>();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddTransient<ISchedulesService, SchedulesService>();
 
         if (serviceDescriptors != null)
         {
@@ -55,22 +71,22 @@ namespace AdminCore.Services.Configuration
         _registered = true;
       }
     }
-  }
 
-  [ExcludeFromCodeCoverage]
-  public class DependencyInjectionContainer : IContainer
-  {
-    private readonly IServiceProvider _container;
-
-    internal DependencyInjectionContainer(IServiceProvider container)
+    [ExcludeFromCodeCoverage]
+    public class DependencyInjectionContainer : IContainer
     {
-      _container = container;
-    }
+      private readonly IServiceProvider _container;
 
-    public T GetInstance<T>()
-      where T : class
-    {
-      return _container.GetService<T>();
+      internal DependencyInjectionContainer(IServiceProvider container)
+      {
+        _container = container;
+      }
+
+      public T GetInstance<T>()
+        where T : class
+      {
+        return _container.GetService<T>();
+      }
     }
   }
 }
