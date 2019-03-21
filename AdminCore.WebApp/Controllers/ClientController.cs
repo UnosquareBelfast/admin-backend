@@ -56,9 +56,10 @@ namespace AdminCore.WebApi.Controllers
     public IActionResult CreateClient(CreateClientViewModel viewModel)
     {
       var clientDto = Mapper.Map<ClientDto>(viewModel);
+      ClientDto savedClient;
       try
       {
-        _clientService.Save(clientDto);
+        savedClient = _clientService.Save(clientDto);
       }
       catch (Exception ex)
       {
@@ -66,7 +67,7 @@ namespace AdminCore.WebApi.Controllers
         return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong, client was not created.");
       }
 
-      return Ok($"Client {viewModel.ClientName} has successfully been created");
+      return Ok(savedClient + $"Client {viewModel.ClientName} has successfully been created");
     }
 
     [HttpGet("{id}")]

@@ -11,6 +11,6 @@ namespace AdminCore.Common.Interfaces
 
     TeamDto Get(int id);
 
-    void Save(TeamDto teamDto);
+    TeamDto Save(TeamDto teamDto);
   }
 }
