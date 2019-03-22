@@ -7,7 +7,7 @@ namespace AdminCore.Common.Interfaces
   {
     IList<ClientDto> GetAll();
 
-    void Save(ClientDto clientDto);
+    ClientDto Save(ClientDto clientDto);
 
     void Delete(int id);
 

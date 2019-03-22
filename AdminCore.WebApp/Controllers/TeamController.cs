@@ -50,9 +50,10 @@ namespace AdminCore.WebApi.Controllers
     public IActionResult CreateTeam(CreateTeamViewModel teamViewModel)
     {
       var teamDto = Mapper.Map<TeamDto>(teamViewModel);
+      TeamDto savedTeam;
       try
       {
-        _teamService.Save(teamDto);
+        savedTeam = _teamService.Save(teamDto);
       }
       catch (Exception ex)
       {
@@ -60,7 +61,7 @@ namespace AdminCore.WebApi.Controllers
         return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong, team was not created.");
       }
 
-      return Ok();
+      return Ok(savedTeam);
     }
 
     [HttpPut]
