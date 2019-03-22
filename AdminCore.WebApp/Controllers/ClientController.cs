@@ -67,7 +67,7 @@ namespace AdminCore.WebApi.Controllers
         return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong, client was not created.");
       }
 
-      return Ok(savedClient + $"Client {viewModel.ClientName} has successfully been created");
+      return Ok(savedClient);
     }
 
     [HttpGet("{id}")]
