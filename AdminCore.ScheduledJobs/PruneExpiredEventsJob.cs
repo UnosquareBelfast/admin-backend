@@ -13,7 +13,7 @@ namespace AdminCore.ScheduledJobs
     public Task Execute(IJobExecutionContext context)
     {
       var schedules = DatabaseContext.SchedulesRepository.Get(x => x.IsActive);
-      if (schedules != null)
+      if (schedules != null && schedules.Count > 0)
       {
         return PruneExpiredEvents();
       }
@@ -23,8 +23,7 @@ namespace AdminCore.ScheduledJobs
 
     private Task PruneExpiredEvents()
     {
-      var awaitingApproval = (int)EventStatuses.AwaitingApproval;
-      var expiredUnapprovedEvents = GetExpiredUnapprovedEvents(awaitingApproval);
+      var expiredUnapprovedEvents = GetExpiredUnapprovedEvents();
       CancelExpiredUnapprovedEvents(expiredUnapprovedEvents);
 
       return Task.CompletedTask;
@@ -35,8 +34,8 @@ namespace AdminCore.ScheduledJobs
       if (expiredUnapprovedEvents.Any())
       {
         SetExpiredUnapprovedEventsStatusToCancelled(expiredUnapprovedEvents);
-        Console.WriteLine("Successfully pruned " + expiredUnapprovedEvents.Count +
-                          " expired events awaiting approval, status set to cancelled.");
+        Console.WriteLine($"Successfully pruned {expiredUnapprovedEvents.Count} " +
+                          $"expired events awaiting approval, status set to cancelled.");
       }
       else
       {
@@ -56,15 +55,16 @@ namespace AdminCore.ScheduledJobs
 
     private Event CancelUnapprovedEvent(EventDate expiredUnapprovedEvent)
     {
-      var cancelledEventStats = (int)EventStatuses.Cancelled;
+      var cancelledEventStatus = (int)EventStatuses.Cancelled;
       var unapprovedEvent =
         DatabaseContext.EventRepository.GetSingle(x => x.EventId == expiredUnapprovedEvent.EventId);
-      unapprovedEvent.EventStatusId = cancelledEventStats;
+      unapprovedEvent.EventStatusId = cancelledEventStatus;
       return unapprovedEvent;
     }
 
-    private List<EventDate> GetExpiredUnapprovedEvents(int awaitingApproval)
+    private List<EventDate> GetExpiredUnapprovedEvents()
     {
+      var awaitingApproval = (int)EventStatuses.AwaitingApproval;
       return DatabaseContext.EventDatesRepository.GetAsQueryable(
           x => x.EndDate < DateTime.Today)
         .Where(x => x.Event.EventStatusId == awaitingApproval).ToList();

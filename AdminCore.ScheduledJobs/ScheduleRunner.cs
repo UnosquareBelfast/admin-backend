@@ -39,7 +39,9 @@ namespace AdminCore.ScheduledJobs
     private static IJobDetail GetJob(ScheduleDto schedule)
     {
       if (schedule.IsActive)
+      {
         return GetJobForScheduler<PruneExpiredEventsJob>(schedule);
+      }
 
       throw new Exception("No active schedule");
     }

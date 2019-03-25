@@ -12,7 +12,7 @@ namespace AdminCore.DatabaseMigration
     [ExcludeFromCodeCoverage]
     public static void Main(string[] args)
     {
-      DependencyInjection.RegisterDependencyInjection(null, null);
+      DependencyInjection.RegisterDependencyInjection();
 
       var configuration = ServiceLocator.Instance.GetInstance<IConfiguration>();
       var migration = ServiceLocator.Instance.GetInstance<IDataMigration>();

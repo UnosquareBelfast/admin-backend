@@ -52,7 +52,7 @@ namespace AdminCore.Services.Configuration
       {
         var services = new ServiceCollection().AddAutoMapper();
         services.AddDbContext<AdminCoreContext>();
-        services.AddScoped<IDatabaseContext, EntityFrameworkContext>();
+        services.AddTransient<IDatabaseContext, EntityFrameworkContext>();
         services.AddSingleton<IConfiguration, ConfigurationProvider>();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));

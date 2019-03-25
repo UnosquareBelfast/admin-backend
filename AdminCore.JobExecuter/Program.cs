@@ -12,9 +12,14 @@ namespace AdminCore.JobExecutor
     private static void Main(string[] args)
     {
       DependencyInjection.RegisterDependencyInjection(
-        new ServiceDescriptor(typeof(IScheduleRunner), typeof(ScheduleRunner), ServiceLifetime.Singleton)
+        new ServiceDescriptor(typeof(IScheduleRunner), typeof(ScheduleRunner), ServiceLifetime.Transient)
       );
 
+      RunScheduleRunner();
+    }
+
+    private static void RunScheduleRunner()
+    {
       var scheduleRunner = ServiceLocator.Instance.GetInstance<ISchedulesService>();
 
       scheduleRunner.QueueAllExistingSchedules();
