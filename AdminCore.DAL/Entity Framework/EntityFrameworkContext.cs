@@ -39,10 +39,6 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<Team> _teamRepository;
 
-    /*    public EntityFrameworkContext()
-        {
-        }*/
-
     public EntityFrameworkContext(AdminCoreContext adminCoreContext)
     {
       _adminCoreContext = adminCoreContext;
