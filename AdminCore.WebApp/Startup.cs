@@ -58,7 +58,7 @@ namespace AdminCore.WebApi
         });
       });
 
-      DependencyInjection.RegisterDependencyInjection(services);
+      DependencyInjection.RegisterWebDependencyInjection(services);
     }
 
     public void Configure(IApplicationBuilder app, IHostingEnvironment env)

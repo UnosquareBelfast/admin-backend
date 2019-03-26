@@ -18,7 +18,7 @@ namespace AdminCore.Services.Configuration
   {
     private static bool _registered;
 
-    public static void RegisterDependencyInjection(IServiceCollection serviceDescriptor = null)
+    public static void RegisterWebDependencyInjection(IServiceCollection serviceDescriptor = null)
     {
       if (!_registered)
       {
@@ -46,7 +46,7 @@ namespace AdminCore.Services.Configuration
       }
     }
 
-    public static void RegisterDependencyInjection(params ServiceDescriptor[] serviceDescriptors)
+    public static void RegisterJobsDependencyInjection(params ServiceDescriptor[] serviceDescriptors)
     {
       if (!_registered)
       {

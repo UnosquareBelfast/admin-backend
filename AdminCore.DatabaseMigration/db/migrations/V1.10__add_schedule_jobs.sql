@@ -1,6 +1,9 @@
+  ----------------------------------------------------------------------------------------
+
 /*
                                    SCHEDULE JOB TABLE
 */
+
   ----------------------------------------------------------------------------------------
 CREATE SEQUENCE IF NOT EXISTS public.schedule_job_schedule_job_id_seq;
 CREATE TABLE IF NOT EXISTS public.schedule_job

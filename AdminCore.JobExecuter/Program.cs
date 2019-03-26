@@ -11,7 +11,7 @@ namespace AdminCore.JobExecutor
   {
     private static void Main(string[] args)
     {
-      DependencyInjection.RegisterDependencyInjection(
+      DependencyInjection.RegisterJobsDependencyInjection(
         new ServiceDescriptor(typeof(IScheduleRunner), typeof(ScheduleRunner), ServiceLifetime.Transient)
       );
 

@@ -11,13 +11,13 @@ namespace AdminCore.ScheduledJobs
   {
     private readonly IScheduler _scheduler;
 
-    public ScheduleRunner(IDatabaseContext databaseContext)
+    public ScheduleRunner()
     {
       var factory = new StdSchedulerFactory();
       _scheduler = factory.GetScheduler().Result;
       _scheduler.Start();
 
-      _scheduler.JobFactory = new DatabaseJobFactory(databaseContext);
+      _scheduler.JobFactory = new DatabaseJobFactory();
     }
 
     public void Dispose()
