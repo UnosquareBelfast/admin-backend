@@ -100,11 +100,11 @@ namespace AdminCore.Services.Tests
       };
 
       // Employees
-      var employeeNiall = BuildEmployee(1, "Niall", "McMahon", "niall@test.com", northernIreland, user, active);
-      var employeeJamie = BuildEmployee(2, "Jamie", "Higgins", "jamie@test.com", northernIreland, user, active);
-      var employeeEoin = BuildEmployee(3, "Eoin", "McAfee", "eoin@test.com", northernIreland, user, active);
-      var employeeKurtis = BuildEmployee(4, "Kurtis", "Moore", "kurtis@test.com", northernIreland, user, active);
-      var employeeLee = BuildEmployee(4, "Lee", "McKay", "lee@test.com", northernIreland, user, active);
+      var employeeNiall = BuildEmployee(1, "Niall", "McMahon", "niall@test.com", northernIreland, user, active, 40);
+      var employeeJamie = BuildEmployee(2, "Jamie", "Higgins", "jamie@test.com", northernIreland, user, active, 50);
+      var employeeEoin = BuildEmployee(3, "Eoin", "McAfee", "eoin@test.com", northernIreland, user, active, 23);
+      var employeeKurtis = BuildEmployee(4, "Kurtis", "Moore", "kurtis@test.com", northernIreland, user, active, 5);
+      var employeeLee = BuildEmployee(4, "Lee", "McKay", "lee@test.com", northernIreland, user, active, 25);
 
       EmployeeRepository = new List<Employee>()
       {
@@ -170,7 +170,7 @@ namespace AdminCore.Services.Tests
       };
 
       // Events
-      var event1 = BuildEvent(1, employeeNiall, approved, annualLeave);
+      var event1 = BuildEvent(1, employeeNiall, awaitingApproval, annualLeave);
       var event2 = BuildEvent(2, employeeNiall, cancelled, annualLeave);
       var event3 = BuildEvent(3, employeeNiall, approved, annualLeave);
       var event4 = BuildEvent(4, employeeJamie, approved, annualLeave);
@@ -551,7 +551,7 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    private static Employee BuildEmployee(int employeeId, string forename, string surname, string email, Country country, EmployeeRole role, EmployeeStatus status)
+    private static Employee BuildEmployee(int employeeId, string forename, string surname, string email, Country country, EmployeeRole role, EmployeeStatus status, int totalHolidays)
     {
       return new Employee()
       {
@@ -564,7 +564,8 @@ namespace AdminCore.Services.Tests
         EmployeeRoleId = role.EmployeeRoleId,
         EmployeeRole = role,
         EmployeeStatus = status,
-        EmployeeStatusId = status.EmployeeRoleId
+        EmployeeStatusId = status.EmployeeRoleId,
+        TotalHolidays = totalHolidays
       };
     }
 
