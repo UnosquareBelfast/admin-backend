@@ -25,20 +25,22 @@ namespace AdminCore.Services
       return _mapper.Map<IList<ClientDto>>(clients);
     }
 
-    public void Save(ClientDto clientDto)
+    public ClientDto Save(ClientDto clientDto)
     {
+      Client client;
       if (clientDto.ClientId == 0)
       {
-        var newClientEntry = _mapper.Map<Client>(clientDto);
-        DatabaseContext.ClientRepository.Insert(newClientEntry);
+        client = _mapper.Map<Client>(clientDto);
+        DatabaseContext.ClientRepository.Insert(client);
       }
       else
       {
-        var client = GetById(clientDto.ClientId);
+        client = GetById(clientDto.ClientId);
         client.ClientName = clientDto.ClientName;
       }
 
       DatabaseContext.SaveChanges();
+      return _mapper.Map<ClientDto>(client);
     }
 
     public void Delete(int id)

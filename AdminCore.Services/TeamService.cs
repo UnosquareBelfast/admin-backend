@@ -36,20 +36,22 @@ namespace AdminCore.Services
       return _mapper.Map<TeamDto>(teamDbEntry);
     }
 
-    public void Save(TeamDto newTeamDto)
+    public TeamDto Save(TeamDto newTeamDto)
     {
+      Team team;
       if (newTeamDto.TeamId == 0)
       {
-        var newTeamEntry = _mapper.Map<Team>(newTeamDto);
-        DatabaseContext.TeamRepository.Insert(newTeamEntry);
+        team = _mapper.Map<Team>(newTeamDto);
+        DatabaseContext.TeamRepository.Insert(team);
       }
       else
       {
-        var team = GetByTeamId(newTeamDto.TeamId);
+        team = GetByTeamId(newTeamDto.TeamId);
         _mapper.Map(newTeamDto, team);
       }
 
       DatabaseContext.SaveChanges();
+      return _mapper.Map<TeamDto>(team);
     }
 
     private Team GetByTeamId(int teamId)

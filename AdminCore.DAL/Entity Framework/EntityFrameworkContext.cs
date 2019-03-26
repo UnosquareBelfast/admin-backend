@@ -50,53 +50,53 @@ namespace AdminCore.DAL.Entity_Framework
       _adminCoreContext = adminCoreContext;
     }
 
-    public IRepository<EventDate> EventDatesRepository =>
+    public virtual IRepository<EventDate> EventDatesRepository =>
       _eventDatesRepository ?? (_eventDatesRepository = new EntityFrameworkRepository<EventDate>(this));
 
-    public IRepository<Client> ClientRepository =>
+    public virtual IRepository<Client> ClientRepository =>
       _clientRepository ?? (_clientRepository = new EntityFrameworkRepository<Client>(this));
 
-    public IRepository<Contract> ContractRepository =>
+    public virtual IRepository<Contract> ContractRepository =>
       _contractRepository ?? (_contractRepository = new EntityFrameworkRepository<Contract>(this));
 
-    public IRepository<Country> CountryRepository =>
+    public virtual IRepository<Country> CountryRepository =>
       _countryRepository ?? (_countryRepository = new EntityFrameworkRepository<Country>(this));
 
-    public IRepository<Employee> EmployeeRepository =>
+    public virtual IRepository<Employee> EmployeeRepository =>
       _employeeRepository ?? (_employeeRepository = new EntityFrameworkRepository<Employee>(this));
 
-    public IRepository<EmployeeRole> EmployeeRoleRepository =>
+    public virtual IRepository<EmployeeRole> EmployeeRoleRepository =>
       _employeeRoleRepository ?? (_employeeRoleRepository = new EntityFrameworkRepository<EmployeeRole>(this));
 
-    public IRepository<EmployeeStatus> EmployeeStatusRepository =>
+    public virtual IRepository<EmployeeStatus> EmployeeStatusRepository =>
       _employeeStatusRepository ?? (_employeeStatusRepository = new EntityFrameworkRepository<EmployeeStatus>(this));
 
-    public IRepository<Event> EventRepository =>
+    public virtual IRepository<Event> EventRepository =>
       _eventRepository ?? (_eventRepository = new EntityFrameworkRepository<Event>(this));
 
-    public IRepository<EventMessage> EventMessageRepository =>
+    public virtual IRepository<EventMessage> EventMessageRepository =>
       _eventMessageRepository ?? (_eventMessageRepository = new EntityFrameworkRepository<EventMessage>(this));
 
-    public IRepository<EventMessageType> EventMessageTypeRepository =>
+    public virtual IRepository<EventMessageType> EventMessageTypeRepository =>
       _eventMessageTypeRepository ??
       (_eventMessageTypeRepository = new EntityFrameworkRepository<EventMessageType>(this));
 
-    public IRepository<EventStatus> EventStatusRepository =>
+    public virtual IRepository<EventStatus> EventStatusRepository =>
       _eventStatusRepository ?? (_eventStatusRepository = new EntityFrameworkRepository<EventStatus>(this));
 
-    public IRepository<EventType> EventTypeRepository =>
+    public virtual IRepository<EventType> EventTypeRepository =>
       _eventTypeRepository ?? (_eventTypeRepository = new EntityFrameworkRepository<EventType>(this));
 
-    public IRepository<MandatoryEvent> MandatoryEventRepository =>
+    public virtual IRepository<MandatoryEvent> MandatoryEventRepository =>
       _mandatoryEventRepository ?? (_mandatoryEventRepository = new EntityFrameworkRepository<MandatoryEvent>(this));
 
-    public IRepository<EntitledHoliday> EntitledHolidayRepository =>
+    public virtual IRepository<EntitledHoliday> EntitledHolidayRepository =>
       _entitledHolidayRepository ?? (_entitledHolidayRepository = new EntityFrameworkRepository<EntitledHoliday>(this));
 
     public IRepository<Schedule> SchedulesRepository =>
       _scheduleRepository ?? (_scheduleRepository = new EntityFrameworkRepository<Schedule>(this));
 
-    public IRepository<Team> TeamRepository =>
+    public virtual IRepository<Team> TeamRepository =>
       _teamRepository ?? (_teamRepository = new EntityFrameworkRepository<Team>(this));
 
     public void SaveChanges()
@@ -109,7 +109,7 @@ namespace AdminCore.DAL.Entity_Framework
       return _adminCoreContext.Entry(entity);
     }
 
-    public DbSet<T> Set<T>() where T : class
+    public virtual DbSet<T> Set<T>() where T : class
     {
       return _adminCoreContext.Set<T>();
     }
