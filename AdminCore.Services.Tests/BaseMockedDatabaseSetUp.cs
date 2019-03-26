@@ -1,4 +1,6 @@
-﻿using AdminCore.DAL.Entity_Framework;
+﻿using AdminCore.Common.Interfaces;
+using AdminCore.DAL.Database;
+using AdminCore.DAL.Entity_Framework;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using NSubstitute.Extensions;
@@ -9,7 +11,9 @@ namespace AdminCore.Services.Tests
 {
   public class BaseMockedDatabaseSetUp : MockDatabase
   {
-    private static readonly EntityFrameworkContext DatabaseContext = Substitute.ForPartsOf<EntityFrameworkContext>();
+    private static readonly IConfiguration Configuration = Substitute.For<IConfiguration>();
+    private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
+    private static readonly EntityFrameworkContext DatabaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
 
     protected virtual EntityFrameworkContext SetUpDatabase()
     {
