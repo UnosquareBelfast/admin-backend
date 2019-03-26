@@ -21,7 +21,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminCore.WebApi.Tests", "A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminCore.Extensions", "AdminCore.Extensions\AdminCore.Extensions.csproj", "{69046AAF-A835-4587-8C75-D81F7FE8DB3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.Services.Tests", "AdminCore.Services.Tests\AdminCore.Services.Tests.csproj", "{6F9CE2E9-2B9F-4117-B9BB-7E9B5E6DC4F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminCore.Services.Tests", "AdminCore.Services.Tests\AdminCore.Services.Tests.csproj", "{6F9CE2E9-2B9F-4117-B9BB-7E9B5E6DC4F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminCore.ScheduledJobs", "AdminCore.ScheduledJobs\AdminCore.ScheduledJobs.csproj", "{7E152F98-D82C-4152-AB39-A0B721E708B7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B0E99730-B170-426D-B4E1-2C560C619905} = {B0E99730-B170-426D-B4E1-2C560C619905}
+		{3FCBE27F-23F5-4CB8-92E8-A91E21C8543C} = {3FCBE27F-23F5-4CB8-92E8-A91E21C8543C}
+		{671FD3C5-213C-4B98-BD2A-DCEEE239CAE7} = {671FD3C5-213C-4B98-BD2A-DCEEE239CAE7}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.JobExecutor", "AdminCore.JobExecuter\AdminCore.JobExecutor.csproj", "{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +78,14 @@ Global
 		{6F9CE2E9-2B9F-4117-B9BB-7E9B5E6DC4F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F9CE2E9-2B9F-4117-B9BB-7E9B5E6DC4F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F9CE2E9-2B9F-4117-B9BB-7E9B5E6DC4F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E152F98-D82C-4152-AB39-A0B721E708B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E152F98-D82C-4152-AB39-A0B721E708B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E152F98-D82C-4152-AB39-A0B721E708B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E152F98-D82C-4152-AB39-A0B721E708B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

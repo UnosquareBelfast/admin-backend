@@ -32,6 +32,8 @@ namespace AdminCore.DAL
 
     IRepository<MandatoryEvent> MandatoryEventRepository { get; }
 
+    IRepository<Schedule> SchedulesRepository { get; }
+
     IRepository<Team> TeamRepository { get; }
 
     void SaveChanges();
