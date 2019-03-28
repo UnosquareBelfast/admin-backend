@@ -1,6 +1,8 @@
 ﻿using AdminCore.Common.Interfaces;
+using AdminCore.DAL;
 using AdminCore.DAL.Database;
 using AdminCore.DAL.Entity_Framework;
+using AdminCore.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using NSubstitute.Extensions;
@@ -28,6 +30,7 @@ namespace AdminCore.Services.Tests
       var mockEventStatusRepository = GetMockedRepository(EventStatusRepository);
       var mockEventTypeRepository = GetMockedRepository(EventTypeRepository);
       var mockTeamRepository = GetMockedRepository(TeamRepository);
+      var mockMandatoryEventRepository = GetMockedRepository(MandatoryEventRepository);
 
       DatabaseContext.Configure().ClientRepository.Returns(mockClientRepository);
       DatabaseContext.Configure().ContractRepository.Returns(mockContractRepository);
@@ -40,6 +43,12 @@ namespace AdminCore.Services.Tests
       DatabaseContext.Configure().EventStatusRepository.Returns(mockEventStatusRepository);
       DatabaseContext.Configure().EventTypeRepository.Returns(mockEventTypeRepository);
       DatabaseContext.Configure().TeamRepository.Returns(mockTeamRepository);
+      DatabaseContext.Configure().MandatoryEventRepository.Returns(mockMandatoryEventRepository);
+
+      DatabaseContext.When(x => x.RetrieveRepository<Event>()).DoNotCallBase();
+      DatabaseContext.When(x => x.RetrieveRepository<EventDate>()).DoNotCallBase();
+
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
 
       return DatabaseContext;
     }
@@ -55,20 +64,26 @@ namespace AdminCore.Services.Tests
       ((IQueryable<T>)dbSet).ElementType.Returns(queryable.ElementType);
       ((IQueryable<T>)dbSet).GetEnumerator().Returns(enumerator).AndDoes(x => enumerator.Reset());
 
+      dbSet.Find(Arg.Any<object>()).Returns(x => sourceList.ElementAt(0));
+
       return dbSet;
     }
 
-    protected virtual EntityFrameworkRepository<T> GetMockedEntityFrameworkRepository<T>(DbSet<T> sourceList) where T : class
+    protected virtual IRepository<T> GetMockedEntityFrameworkRepository<T>(DbSet<T> sourceList) where T : class
     {
       DatabaseContext.When(x => x.Set<T>()).DoNotCallBase();
       DatabaseContext.Set<T>().Returns(sourceList);
 
-      var mockedRepository = new EntityFrameworkRepository<T>(DatabaseContext);
+      var mockedRepository = Substitute.ForPartsOf<EntityFrameworkRepository<T>>(DatabaseContext);
+
+      mockedRepository.When(x => x.Update(Arg.Any<T>())).DoNotCallBase();
+      mockedRepository.When(x => x.Delete(Arg.Any<T>())).DoNotCallBase();
+      mockedRepository.When(x => x.Delete(Arg.Any<object>())).DoNotCallBase();
 
       return mockedRepository;
     }
 
-    protected virtual EntityFrameworkRepository<T> GetMockedRepository<T>(IList<T> sourceList) where T : class
+    protected virtual IRepository<T> GetMockedRepository<T>(IList<T> sourceList) where T : class
     {
       var queryableMockDbSet = GetQueryableMockDbSet(sourceList);
       var mockedEntityFrameworkRepository = GetMockedEntityFrameworkRepository(queryableMockDbSet);

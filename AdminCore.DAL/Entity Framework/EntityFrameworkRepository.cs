@@ -24,7 +24,7 @@ namespace AdminCore.DAL.Entity_Framework
       Delete(entityToDelete);
     }
 
-    public void Delete(T entityToDelete)
+    public virtual void Delete(T entityToDelete)
     {
       if (((EntityFrameworkContext)_context).Entry(entityToDelete).State == EntityState.Detached)
       {
@@ -70,7 +70,7 @@ namespace AdminCore.DAL.Entity_Framework
       return queryableData;
     }
 
-    public void Update(T entityToUpdate)
+    public virtual void Update(T entityToUpdate)
     {
       _dbSet.Attach(entityToUpdate);
       ((EntityFrameworkContext)_context).Entry(entityToUpdate).State = EntityState.Modified;

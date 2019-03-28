@@ -50,61 +50,66 @@ namespace AdminCore.DAL.Entity_Framework
       _adminCoreContext = adminCoreContext;
     }
 
+    public IRepository<T> RetrieveRepository<T>() where T : class
+    {
+      return new EntityFrameworkRepository<T>(this);
+    }
+
     public virtual IRepository<EventDate> EventDatesRepository =>
-      _eventDatesRepository ?? (_eventDatesRepository = new EntityFrameworkRepository<EventDate>(this));
+      _eventDatesRepository ?? (_eventDatesRepository = RetrieveRepository<EventDate>());
 
     public virtual IRepository<Client> ClientRepository =>
-      _clientRepository ?? (_clientRepository = new EntityFrameworkRepository<Client>(this));
+      _clientRepository ?? (_clientRepository = RetrieveRepository<Client>());
 
     public virtual IRepository<Contract> ContractRepository =>
-      _contractRepository ?? (_contractRepository = new EntityFrameworkRepository<Contract>(this));
+      _contractRepository ?? (_contractRepository = RetrieveRepository<Contract>());
 
     public virtual IRepository<Country> CountryRepository =>
-      _countryRepository ?? (_countryRepository = new EntityFrameworkRepository<Country>(this));
+      _countryRepository ?? (_countryRepository = RetrieveRepository<Country>());
 
     public virtual IRepository<Employee> EmployeeRepository =>
-      _employeeRepository ?? (_employeeRepository = new EntityFrameworkRepository<Employee>(this));
+      _employeeRepository ?? (_employeeRepository = RetrieveRepository<Employee>());
 
     public virtual IRepository<EmployeeRole> EmployeeRoleRepository =>
-      _employeeRoleRepository ?? (_employeeRoleRepository = new EntityFrameworkRepository<EmployeeRole>(this));
+      _employeeRoleRepository ?? (_employeeRoleRepository = RetrieveRepository<EmployeeRole>());
 
     public virtual IRepository<EmployeeStatus> EmployeeStatusRepository =>
-      _employeeStatusRepository ?? (_employeeStatusRepository = new EntityFrameworkRepository<EmployeeStatus>(this));
+      _employeeStatusRepository ?? (_employeeStatusRepository = RetrieveRepository<EmployeeStatus>());
 
     public virtual IRepository<Event> EventRepository =>
-      _eventRepository ?? (_eventRepository = new EntityFrameworkRepository<Event>(this));
+      _eventRepository ?? (_eventRepository = RetrieveRepository<Event>());
 
     public virtual IRepository<EventMessage> EventMessageRepository =>
-      _eventMessageRepository ?? (_eventMessageRepository = new EntityFrameworkRepository<EventMessage>(this));
+      _eventMessageRepository ?? (_eventMessageRepository = RetrieveRepository<EventMessage>());
 
     public virtual IRepository<EventMessageType> EventMessageTypeRepository =>
       _eventMessageTypeRepository ??
-      (_eventMessageTypeRepository = new EntityFrameworkRepository<EventMessageType>(this));
+      (_eventMessageTypeRepository = RetrieveRepository<EventMessageType>());
 
     public virtual IRepository<EventStatus> EventStatusRepository =>
-      _eventStatusRepository ?? (_eventStatusRepository = new EntityFrameworkRepository<EventStatus>(this));
+      _eventStatusRepository ?? (_eventStatusRepository = RetrieveRepository<EventStatus>());
 
     public virtual IRepository<EventType> EventTypeRepository =>
-      _eventTypeRepository ?? (_eventTypeRepository = new EntityFrameworkRepository<EventType>(this));
+      _eventTypeRepository ?? (_eventTypeRepository = RetrieveRepository<EventType>());
 
     public virtual IRepository<MandatoryEvent> MandatoryEventRepository =>
-      _mandatoryEventRepository ?? (_mandatoryEventRepository = new EntityFrameworkRepository<MandatoryEvent>(this));
+      _mandatoryEventRepository ?? (_mandatoryEventRepository = RetrieveRepository<MandatoryEvent>());
 
     public virtual IRepository<EntitledHoliday> EntitledHolidayRepository =>
-      _entitledHolidayRepository ?? (_entitledHolidayRepository = new EntityFrameworkRepository<EntitledHoliday>(this));
+      _entitledHolidayRepository ?? (_entitledHolidayRepository = RetrieveRepository<EntitledHoliday>());
 
     public IRepository<Schedule> SchedulesRepository =>
-      _scheduleRepository ?? (_scheduleRepository = new EntityFrameworkRepository<Schedule>(this));
+      _scheduleRepository ?? (_scheduleRepository = RetrieveRepository<Schedule>());
 
     public virtual IRepository<Team> TeamRepository =>
-      _teamRepository ?? (_teamRepository = new EntityFrameworkRepository<Team>(this));
+      _teamRepository ?? (_teamRepository = RetrieveRepository<Team>());
 
-    public void SaveChanges()
+    public virtual void SaveChanges()
     {
       _adminCoreContext.SaveChanges();
     }
 
-    public EntityEntry Entry<T>(T entity) where T : class
+    public virtual EntityEntry Entry<T>(T entity) where T : class
     {
       return _adminCoreContext.Entry(entity);
     }

@@ -113,7 +113,7 @@ namespace AdminCore.Services
       }
       else
       {
-        throw new Exception("Event " + eventId + "doesn't exist or is already rejected");
+        throw new Exception($"Event {eventId} doesn't exist or is already rejected");
       }
     }
 
@@ -304,12 +304,6 @@ namespace AdminCore.Services
         x => x.EventMessages);
     }
 
-    private Employee GetEmployeeFromEmployeeId(int employeeId)
-    {
-      var employee = DatabaseContext.EmployeeRepository.GetSingle(x => x.EmployeeId == employeeId);
-      return employee;
-    }
-
     private bool IsDateRangeLessThanTotalHolidaysRemaining(EventDateDto eventDates, int employeeId)
     {
       return !(GetHolidayStatsForUser(employeeId).AvailableHolidays < ((eventDates.EndDate - eventDates.StartDate).TotalDays) + 1);
@@ -367,7 +361,7 @@ namespace AdminCore.Services
 
     private bool IsHalfDay(EventDateDto dates)
     {
-      return IsSameDay(_mapper.Map<EventDate>(dates)) && dates.IsHalfDay;
+      return dates.IsHalfDay;
     }
 
     private void UpdateEventDates(EventDateDto eventDateDto, Event eventToUpdate)
@@ -541,7 +535,7 @@ namespace AdminCore.Services
 
     private IList<Event> QueryOtherEvents(int eventTypeId)
     {
-      var annualLeave = DatabaseContext.EventRepository.Get(x =>
+      var events = DatabaseContext.EventRepository.Get(x =>
           x.EventType.EventTypeId == eventTypeId,
         null,
         x => x.EventDates,
@@ -549,7 +543,7 @@ namespace AdminCore.Services
         x => x.EventType,
         x => x.EventStatus,
         x => x.EventMessages);
-      return annualLeave;
+      return events;
     }
 
     private IList<Event> QueryEmployeeEvents(EventTypes eventType)
