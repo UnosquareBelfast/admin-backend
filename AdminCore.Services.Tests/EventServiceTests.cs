@@ -1,12 +1,15 @@
-using AdminCore.Common.Interfaces;
+﻿using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL;
+using AdminCore.DAL.Database;
+using AdminCore.DAL.Entity_Framework;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Event;
 using AdminCore.Services.Mappings;
 using AutoMapper;
 using NSubstitute;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -14,18 +17,49 @@ namespace AdminCore.Services.Tests
 {
   public sealed class EventServiceTests : BaseMockedDatabaseSetUp
   {
+    private static readonly IMapper Mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new EventMapperProfile())));
+    private static readonly IConfiguration Configuration = Substitute.For<IConfiguration>();
+    private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
+
+    public EventServiceTests()
+    {
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+    }
+
     [Fact]
     public void CreateEvent_ValidNewEventOfOneDay_SuccessfullyInsertsNewEventIntoDb()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 03)
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
       };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, new List<Event>());
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
       eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId);
@@ -38,15 +72,36 @@ namespace AdminCore.Services.Tests
     public void CreateEvent_ValidNewEventOfOneHalfDay_SuccessfullyInsertsNewEventIntoDb()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 03),
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
         IsHalfDay = true
       };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, new List<Event>());
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
       eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId);
@@ -59,34 +114,85 @@ namespace AdminCore.Services.Tests
     public void CreateEvent_WhenEventDatesAlreadyBooked_ThrowsAlreadyBookedException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
-      const int employeeId = 2;
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 18),
-        EndDate = new DateTime(2018, 12, 21)
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
       };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
-      var ex = Assert.Throws<Exception>(() => eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId));
+      databaseContext.EventRepository.Insert(newEvent);
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId));
 
       // Assert
       Assert.Equal("Holiday dates already booked.", ex.Message);
     }
 
     [Fact]
-    public void CreateEvent_ValidNewEvent_SuccessfullyInsertsNewEventIntoDb()
+    public void CreateEvent_ValidNewEventOfMultipleDays_SuccessfullyInsertsNewEventIntoDb()
     {
-      // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 03);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 05)
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
       };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
       eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId);
@@ -99,14 +205,35 @@ namespace AdminCore.Services.Tests
     public void CreateEvent_WithSickLeaveEventType_SuccessfullyInsertsNewEventIntoDbAndIsAutoApproved()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.SickLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 05)
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
       };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, new List<Event>());
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, new List<EventDate>());
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
       eventService.CreateEvent(eventDateDto, EventTypes.Sickness, employeeId);
@@ -119,14 +246,39 @@ namespace AdminCore.Services.Tests
     public void CreateEvent_WithoutEnoughAvailableHolidays_ThrowsNotEnoughHolidaysException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2019, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2019, 12, 05)
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
       };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
       var ex = Assert.Throws<Exception>(() =>
@@ -140,18 +292,43 @@ namespace AdminCore.Services.Tests
     public void CreateEvent_WithoutAdequateUserRole_ThrowsIncorrectPrivilegesException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       const int employeeId = 1;
-      var eventType = EventTypes.PaternityLeave;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.BuildEventType((int)EventTypes.PaternityLeave,
+        "Paternal Leave", (int)EmployeeRoles.SystemAdministrator);
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 05)
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
       };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
-      var ex = Assert.Throws<Exception>(() => eventService.CreateEvent(eventDateDto, eventType, employeeId));
+      var ex = Assert.Throws<Exception>(() => eventService.CreateEvent(eventDateDto, EventTypes.PaternityLeave, employeeId));
 
       // Assert
       Assert.Equal("User does not have the correct privileges to book this type of event.", ex.Message);
@@ -161,25 +338,39 @@ namespace AdminCore.Services.Tests
     public void CreateEvent_WithValidEmployee_SuccessfullyInsertsNewEventIntoDb()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
-      var employee = new Employee
-      {
-        EmployeeId = 6,
-        CountryId = 1,
-        EmployeeRoleId = 1,
-        EmployeeStatusId = 1,
-        Forename = "FirstName",
-        StartDate = DateTime.Today,
-        Surname = "Surname",
-        TotalHolidays = 50
-      };
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 05)
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
       };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
 
       // Act
       eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employee);
@@ -192,76 +383,232 @@ namespace AdminCore.Services.Tests
     public void GetEmployeeEvents_WithAnnualLeaveEventType_ReturnsListOfEmployeeAnnualLeaveEvents()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
-      var eventType = EventTypes.AnnualLeave;
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
 
-      // Act
-      var annualLeaveEventsList = eventService.GetEmployeeEvents(eventType);
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
+      var eventDateDto = new EventDateDto
+      {
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
+      };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
+      var eventService = GetEventService(databaseContext);
+
+      //Act
+      var annualLeaveEventsList = eventService.GetEmployeeEvents(EventTypes.AnnualLeave);
 
       // Assert
-      Assert.Equal(14, annualLeaveEventsList.Count);
+      Assert.Equal(1, annualLeaveEventsList.Count);
     }
 
     [Fact]
     public void GetEmployeeEvents_WithSickLeaveEventType_ReturnsListOfEmployeeSickLeaveEvents()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.SickLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
+      var eventDateDto = new EventDateDto
+      {
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
+      };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
       var eventService = GetEventService(databaseContext);
-      var eventType = EventTypes.Sickness;
 
       // Act
-      var sickLeaveEventsList = eventService.GetEmployeeEvents(eventType);
+      var sickLeaveEventsList = eventService.GetEmployeeEvents(EventTypes.Sickness);
 
       // Assert
-      Assert.Equal(2, sickLeaveEventsList.Count);
+      Assert.Equal(1, sickLeaveEventsList.Count);
     }
 
     [Fact]
     public void GetByDateBetween_WithValidDateAndAnnualLeaveEventType_ReturnsListOfAnnualLeaveEventsBetweenDatesGiven()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 03);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
+      var eventDateDto = new EventDateDto
+      {
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
+      };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+
       var eventService = GetEventService(databaseContext);
-      DateTime startDate = new DateTime(2017, 12, 03);
-      DateTime endDate = new DateTime(2019, 12, 01);
-      var eventType = EventTypes.AnnualLeave;
 
       // Act
-      var annualLeaveEventsByDateList = eventService.GetByDateBetween(startDate, endDate, eventType);
+      var annualLeaveEventsByDateList = eventService.GetByDateBetween(startDate.AddDays(-1), endDate.AddDays(1), EventTypes.AnnualLeave);
 
       // Assert
-      Assert.Equal(32, annualLeaveEventsByDateList.Count);
+      Assert.Equal(1, annualLeaveEventsByDateList.Count);
     }
 
     [Fact]
-    public void GetEmployeeEventsById_WithValidEmployeeAndAnnualLeaveEventType_ReturnsListOfAnnualLeaveEventsForThatEmployee()
+    public void
+      GetEmployeeEventsById_WithValidEmployeeAndAnnualLeaveEventType_ReturnsListOfAnnualLeaveEventsForThatEmployee()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 03);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate,
+        eventId, employeeId, eventStatus, eventType);
+
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, events);
+      var employeeList = new List<Employee> { employee };
+
+      var eventWithEmployee = newEvent;
+      eventWithEmployee.Employee = employee;
+      var eventWithEmployeeList = new List<Event>
+      {
+        eventWithEmployee
+      };
+
+      var eventDateWithEventAndEmployeeList = Mapper.Map<EventDate>(eventDateDto);
+      eventDateWithEventAndEmployeeList.Event = eventWithEmployee;
+      var eventDatesWithEventAndEmployeeList = new List<EventDate> { eventDateWithEventAndEmployeeList };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, eventWithEmployeeList);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesWithEventAndEmployeeList);
+
       var eventService = GetEventService(databaseContext);
-      var employeeId = 1;
-      var eventType = EventTypes.AnnualLeave;
 
       // Act
-      var eventsByEmployeeId = eventService.GetEventsByEmployeeId(employeeId, eventType);
+      var eventsByEmployeeId = eventService.GetEventsByEmployeeId(employeeId, EventTypes.AnnualLeave);
 
       // Assert
-      Assert.Equal(3, eventsByEmployeeId.Count);
+      Assert.Equal(1, eventsByEmployeeId.Count);
     }
 
     [Fact]
     public void GetEmployeeEventsById_WithValidEmployeeAndSickLeaveEventType_ReturnsListOfEventsForThatEmployee()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.SickLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate, eventId, employeeId, eventStatus, eventType);
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var employee = TestClassBuilder.BuildGenericEmployee(events);
+      var employeeList = new List<Employee> { employee };
+
+      var eventWithEmployee = newEvent;
+      eventWithEmployee.Employee = employee;
+      var eventWithEmployeeList = new List<Event>
+      {
+        eventWithEmployee
+      };
+
+      var eventDateWithEventAndEmployeeList = Mapper.Map<EventDate>(eventDateDto);
+      eventDateWithEventAndEmployeeList.Event = eventWithEmployee;
+      var eventDatesWithEventAndEmployeeList = new List<EventDate> { eventDateWithEventAndEmployeeList };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, eventWithEmployeeList);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesWithEventAndEmployeeList);
+
       var eventService = GetEventService(databaseContext);
-      var employeeId = 1;
-      var eventType = EventTypes.Sickness;
 
       // Act
-      var eventsByEmployeeId = eventService.GetEventsByEmployeeId(employeeId, eventType);
+      var eventsByEmployeeId = eventService.GetEventsByEmployeeId(employeeId, EventTypes.Sickness);
 
       // Assert
       Assert.Equal(1, eventsByEmployeeId.Count);
@@ -272,27 +619,66 @@ namespace AdminCore.Services.Tests
       GetApprovedEventDatesByEmployeeIdAndStartAndEndDate_WithValidDates_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDate()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType =
+        TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate, eventId, employeeId, eventStatus, eventType);
+
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var employee = TestClassBuilder.BuildGenericEmployee(events);
+      var employeeList = new List<Employee> { employee };
+
+      var eventWithEmployee = newEvent;
+      eventWithEmployee.Employee = employee;
+      var eventWithEmployeeList = new List<Event>
+      {
+        eventWithEmployee
+      };
+
+      var eventDateWithEventAndEmployeeList = Mapper.Map<EventDate>(eventDateDto);
+      eventDateWithEventAndEmployeeList.Event = eventWithEmployee;
+      var eventDatesWithEventAndEmployeeList = new List<EventDate> { eventDateWithEventAndEmployeeList };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, eventWithEmployeeList);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesWithEventAndEmployeeList);
+
       var eventService = GetEventService(databaseContext);
-      DateTime startDate = new DateTime(2017, 12, 03);
-      DateTime endDate = new DateTime(2019, 12, 01);
-      var employeeId = 1;
 
       // Act
-      var eventDateList =
-        eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDates(startDate, endDate, employeeId);
+      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDates(startDate, endDate, employeeId);
 
       // Assert
-      Assert.Equal(4, eventDateList.Count);
+      Assert.Equal(1, eventsByEmployeeId.Count);
     }
 
     [Fact]
     public void GetEventById_WithExistingEventId_ReturnsEvent()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var eventId = 1;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      var eventService = GetEventService(databaseContext);
 
       // Act
       var returnedEvent = eventService.GetEvent(eventId);
@@ -305,12 +691,19 @@ namespace AdminCore.Services.Tests
     public void GetEventById_WithNonExistingEventId_ReturnsNull()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventId = 1;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
       var eventService = GetEventService(databaseContext);
-      var eventId = 9004;
 
       // Act
-      var returnedEvent = eventService.GetEvent(eventId);
+      var returnedEvent = eventService.GetEvent(2);
 
       // Assert
       Assert.Null(returnedEvent);
@@ -320,40 +713,59 @@ namespace AdminCore.Services.Tests
     public void GetEventByStatus_WithApprovedEventStatus_ReturnsAllEventsOfApprovedStatusType()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var approvedSickEvent = TestClassBuilder.BuildEvent(1, 1, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.SickLeaveEventType(), eventDatesList);
+      var approvedAnnualLeaveEvent = TestClassBuilder.BuildEvent(2, 2, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { approvedSickEvent, approvedAnnualLeaveEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
       var eventService = GetEventService(databaseContext);
-      var eventStatus = EventStatuses.Approved;
-      var eventType = EventTypes.AnnualLeave;
 
       // Act
-      var returnedEvents = eventService.GetEventByStatus(eventStatus, eventType);
+      var returnedEvents = eventService.GetEventByStatus(EventStatuses.Approved, EventTypes.AnnualLeave);
 
       // Assert
-      Assert.Equal(11, returnedEvents.Count);
+      Assert.Equal(1, returnedEvents.Count);
     }
 
     [Fact]
     public void GetEventByType_WithAnnualLeaveEventType_ReturnsListOfAllAnnualLeaveEvents()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var annualLeaveEvent = TestClassBuilder.BuildEvent(1, 1, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { annualLeaveEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
       var eventService = GetEventService(databaseContext);
-      var annualLeaveId = EventTypes.AnnualLeave;
 
       // Act
-      var returnedEvents = eventService.GetEventByType(annualLeaveId);
+      var returnedEvents = eventService.GetEventByType(EventTypes.AnnualLeave);
 
       // Assert
-      Assert.Equal(13, returnedEvents.Count);
+      Assert.Equal(1, returnedEvents.Count);
     }
 
     [Fact]
     public void RejectEvent_WithValidEvent_RejectsTheEventOfEventIdProvided()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var eventId = 1;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.AwaitingApprovalEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      var eventService = GetEventService(databaseContext);
+
       var message = "Rejected";
       var employeeIdRejecting = 2;
 
@@ -368,9 +780,17 @@ namespace AdminCore.Services.Tests
     public void RejectEvent_WithValidEventAndNoRejectMessage_RejectsTheEventOfEventIdProvided()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var eventId = 1;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.AwaitingApprovalEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      var eventService = GetEventService(databaseContext);
+
       var employeeIdRejecting = 2;
 
       // Act
@@ -384,18 +804,25 @@ namespace AdminCore.Services.Tests
     public void RejectEvent_WhenCalledWithEventAlreadyRejected_ThrowsException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var eventId = 1;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.RejectedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      var eventService = GetEventService(databaseContext);
+
       var message = "Rejected";
       var employeeIdRejecting = 2;
 
       // Act
-      eventService.RejectEvent(eventId, message, employeeIdRejecting);
-      var ex = Assert.Throws<Exception>(() => eventService.RejectEvent(eventId, message, employeeIdRejecting));
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.RejectEvent(eventId, message, employeeIdRejecting));
 
       // Assert
-      databaseContext.Received().SaveChanges();
       Assert.Equal($"Event {eventId} doesn't exist or is already rejected", ex.Message);
     }
 
@@ -403,64 +830,97 @@ namespace AdminCore.Services.Tests
     public void RejectEvent_WhenCalledWithEventIdNotExisting_ThrowsException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventId = 1;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.RejectedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
       var eventService = GetEventService(databaseContext);
-      var eventId = 9308315;
+
+      var nonExistentEventId = 9004;
       var message = "Rejected";
       var employeeIdRejecting = 2;
 
       // Act
-      var ex = Assert.Throws<Exception>(() => eventService.RejectEvent(eventId, message, employeeIdRejecting));
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.RejectEvent(nonExistentEventId, message, employeeIdRejecting));
 
       // Assert
-      Assert.Equal($"Event {eventId} doesn't exist or is already rejected", ex.Message);
+      Assert.Equal($"Event {nonExistentEventId} doesn't exist or is already rejected", ex.Message);
     }
 
     [Fact]
     public void UpdateEventStatus_WithUpdatedStatusBeingCancelled_UpdatesEventStatusToCancelled()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var eventId = 1;
-      var eventStatus = EventStatuses.Cancelled;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      var eventService = GetEventService(databaseContext);
 
       // Act
-      eventService.UpdateEventStatus(eventId, eventStatus);
+      eventService.UpdateEventStatus(eventId, EventStatuses.Cancelled);
 
       // Assert
-      Assert.Equal((int)eventStatus, eventService.GetEvent(eventId).EventStatusId);
+      Assert.Equal((int)EventStatuses.Cancelled, eventService.GetEvent(eventId).EventStatusId);
     }
 
     [Fact]
-    public void UpdateEventStatus_WhenCalledOnEventThatCannotHaveEventStatusUpdated_DoesNotUpdatesEventStatusForMandatoryEvent()
+    public void UpdateEventStatus_WhenCalledOnEventThatCannotHaveEventStatusUpdated_DoesNotUpdatesEventStatusForPublicHoliday()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventId = 1;
+      var employeeId = 1;
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.PublicHolidayEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
       var eventService = GetEventService(databaseContext);
-      var eventId = 16;
-      var eventStatus = EventStatuses.Cancelled;
 
       // Act
-      eventService.UpdateEventStatus(eventId, eventStatus);
+      eventService.UpdateEventStatus(eventId, EventStatuses.Cancelled);
 
       // Assert
-      Assert.NotEqual((int)eventStatus, eventService.GetEvent(eventId).EventStatusId);
+      Assert.NotEqual((int)EventStatuses.Cancelled, eventService.GetEvent(eventId).EventStatusId);
     }
 
     [Fact]
     public void UpdateEvent_WhenCalled_UpdatesTheEventWithNewDates()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var eventId = 1;
       var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+
       var eventDateDto = new EventDateDto
       {
         EventId = eventId,
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 05)
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2018, 12, 06)
       };
 
       // Act
@@ -472,46 +932,67 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void UpdateEvent_WhenCalledOnEventThatCannotBeUpdated_DoesNotTheMandatoryEventWithNewDates()
+    public void UpdateEvent_WhenCalledOnEventThatCannotBeUpdated_DoesNotUpdateThePublicHolidayWithNewDates()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
-      var eventId = 16;
-      var oldMessageCount = eventService.GetEvent(eventId).EventMessages.Count;
+      var eventId = 1;
       var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.PublicHolidayEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+
       var eventDateDto = new EventDateDto
       {
         EventId = eventId,
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 05)
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2018, 12, 06)
       };
 
       // Act
       eventService.UpdateEvent(eventDateDto, null, employeeId);
 
       // Assert
-      Assert.Equal(oldMessageCount, eventService.GetEvent(eventId).EventMessages.Count);
+      Assert.False(eventService.GetEvent(eventId).EventDates.Contains(eventDateDto));
     }
 
     [Fact]
     public void UpdateEvent_WhenNotEnoughHolidays_DoesNotUpdateEvent()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var eventId = 1;
-      var message = "Updated";
       var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+
       var eventDateDto = new EventDateDto
       {
         EventId = eventId,
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2019, 12, 05)
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2019, 12, 06)
       };
 
       // Act
-      var ex = Assert.Throws<Exception>(() => eventService.UpdateEvent(eventDateDto, message, employeeId));
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.UpdateEvent(eventDateDto, null, employeeId));
 
       // Assert
       Assert.Equal("Not enough holidays to book", ex.Message);
@@ -521,9 +1002,19 @@ namespace AdminCore.Services.Tests
     public void GetHolidayStatsForUser_WithValidEmployee_ReturnsValidHolidayStatus()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
+      var eventId = 1;
       var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
 
       // Act
       var holidayStats = eventService.GetHolidayStatsForUser(employeeId);
@@ -537,9 +1028,19 @@ namespace AdminCore.Services.Tests
     public void IsEventValid_WhenCalledWithoutEnoughHolidays_ReturnsNotEnoughHolidaysException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
+      var eventId = 1;
       var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
       var eventDateDto = new EventDateDto
       {
         StartDate = new DateTime(2018, 12, 03),
@@ -557,9 +1058,20 @@ namespace AdminCore.Services.Tests
     public void IsEventValid_WhenMultipleHalfDaysConsecutivelyBooked_ReturnsCannotBookHalfDayOfMoreThanOneDayException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
+      var eventId = 1;
       var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+
       var eventDateDto = new EventDateDto
       {
         StartDate = new DateTime(2018, 12, 03),
@@ -578,7 +1090,8 @@ namespace AdminCore.Services.Tests
     public void AddMandatoryEvent_WithValidEvent_InsertsMandatoryEventIntoDb()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, new List<MandatoryEvent>());
       var eventService = GetEventService(databaseContext);
       var date = new DateTime(2020, 12, 25);
       var countryId = 1;
@@ -594,10 +1107,18 @@ namespace AdminCore.Services.Tests
     public void AddMandatoryEvent_WithMandatoryEventAlreadyExisting_ReturnsDateAlreadyBookedException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
       var date = new DateTime(2019, 12, 25);
       var countryId = 1;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = 1,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
+      var eventService = GetEventService(databaseContext);
 
       // Act
       var ex = Assert.Throws<Exception>(() => eventService.AddMandatoryEvent(date, countryId));
@@ -610,9 +1131,10 @@ namespace AdminCore.Services.Tests
     public void AddMandatoryEvent_WithWeekendDate_ReturnsDateAlreadyBookedException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, new List<MandatoryEvent>());
       var eventService = GetEventService(databaseContext);
-      var date = new DateTime(2019, 03, 24);
+      var date = new DateTime(2019, 03, 31);
       var countryId = 1;
 
       // Act
@@ -626,14 +1148,23 @@ namespace AdminCore.Services.Tests
     public void UpdateMandatoryEvent_WithValidMandatoryEvent_UpdatesMandatoryEventInDb()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
-      var mandatoryEvent = 1;
-      var date = new DateTime(2019, 03, 27);
+      var date = new DateTime(2019, 12, 25);
       var countryId = 1;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = 1,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
+      var eventService = GetEventService(databaseContext);
+
+      var newEventDate = new DateTime(2019, 12, 26);
 
       // Act
-      eventService.UpdateMandatoryEvent(mandatoryEvent, date, countryId);
+      eventService.UpdateMandatoryEvent(mandatoryEvent.MandatoryEventId, newEventDate, countryId);
 
       // Assert
       databaseContext.Received().MandatoryEventRepository.Update(Arg.Any<MandatoryEvent>());
@@ -643,14 +1174,23 @@ namespace AdminCore.Services.Tests
     public void UpdateMandatoryEvent_WithNonExistingMandatoryEventId_ReturnsMandatoryEventDoesNotExistException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
-      var mandatoryEvent = 9004;
-      var date = new DateTime(2019, 03, 27);
+      var eventId = 1;
+      var invalidId = 9004;
+      var date = new DateTime(2019, 12, 25);
       var countryId = 1;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = eventId,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
+      var eventService = GetEventService(databaseContext);
 
       // Act
-      var ex = Assert.Throws<Exception>(() => eventService.UpdateMandatoryEvent(mandatoryEvent, date, countryId));
+      var ex = Assert.Throws<Exception>(() => eventService.UpdateMandatoryEvent(invalidId, date, countryId));
 
       // Assert
       Assert.Equal("Mandatory Event does not exist", ex.Message);
@@ -660,14 +1200,23 @@ namespace AdminCore.Services.Tests
     public void UpdateMandatoryEvent_WithWeekendDate_ReturnsMandatoryEventDoesNotExistException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
-      var mandatoryEvent = 1;
-      var date = new DateTime(2019, 03, 24);
+      var date = new DateTime(2019, 12, 25);
       var countryId = 1;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = 1,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
+      var eventService = GetEventService(databaseContext);
+
+      var newEventDate = new DateTime(2019, 04, 06);
 
       // Act
-      var ex = Assert.Throws<Exception>(() => eventService.UpdateMandatoryEvent(mandatoryEvent, date, countryId));
+      var ex = Assert.Throws<Exception>(() => eventService.UpdateMandatoryEvent(mandatoryEvent.MandatoryEventId, newEventDate, countryId));
 
       // Assert
       Assert.Equal("Mandatory Event does not exist", ex.Message);
@@ -677,9 +1226,19 @@ namespace AdminCore.Services.Tests
     public void GetMandatoryEvents_WithValidCountryId_ReturnsMandatoryEvents()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
-      var eventService = GetEventService(databaseContext);
+      var eventId = 1;
+      var date = new DateTime(2019, 12, 25);
       var countryId = 1;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = eventId,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
+      var eventService = GetEventService(databaseContext);
 
       // Act
       var mandatoryEventsWithNorthernIrelandId = eventService.GetMandatoryEvents(countryId);
@@ -693,12 +1252,23 @@ namespace AdminCore.Services.Tests
     public void GetMandatoryEvents_WithInValidCountryId_ReturnsEmptyList()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventId = 1;
+      var date = new DateTime(2019, 12, 25);
+      var countryId = 1;
+      var invalidCountryId = 9004;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = eventId,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
       var eventService = GetEventService(databaseContext);
-      var countryId = 9004;
 
       // Act
-      var mandatoryEventsWithInvalidCountryId = eventService.GetMandatoryEvents(countryId);
+      var mandatoryEventsWithInvalidCountryId = eventService.GetMandatoryEvents(invalidCountryId);
 
       // Assert
       Assert.Empty(mandatoryEventsWithInvalidCountryId);
@@ -708,12 +1278,22 @@ namespace AdminCore.Services.Tests
     public void DeleteMandatoryEvent_WithValidMandatoryEventId_DeletesMandatoryEventFromDb()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventId = 1;
+      var date = new DateTime(2019, 12, 25);
+      var countryId = 1;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = eventId,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
       var eventService = GetEventService(databaseContext);
-      var mandatoryEventId = 1;
 
       // Act
-      eventService.DeleteMandatoryEvent(mandatoryEventId);
+      eventService.DeleteMandatoryEvent(mandatoryEvent.MandatoryEventId);
 
       // Assert
       databaseContext.Received().MandatoryEventRepository.Delete(Arg.Any<MandatoryEvent>());
@@ -723,12 +1303,23 @@ namespace AdminCore.Services.Tests
     public void DeleteMandatoryEvent_WithInValidMandatoryEventId_ReturnsMandatoryEventDoesNotExistException()
     {
       // Arrange
-      IDatabaseContext databaseContext = SetUpDatabase();
+      var eventId = 1;
+      var invalidEventId = 9004;
+      var date = new DateTime(2019, 12, 25);
+      var countryId = 1;
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      var mandatoryEvent = new MandatoryEvent
+      {
+        MandatoryEventId = eventId,
+        CountryId = countryId,
+        MandatoryEventDate = date
+      };
+      var mandatoryEventList = new List<MandatoryEvent> { mandatoryEvent };
+      databaseContext = SetUpMandatoryEventRepository(databaseContext, mandatoryEventList);
       var eventService = GetEventService(databaseContext);
-      var mandatoryEventId = 9004;
 
       // Act
-      var ex = Assert.Throws<Exception>(() => eventService.DeleteMandatoryEvent(mandatoryEventId));
+      var ex = Assert.Throws<Exception>(() => eventService.DeleteMandatoryEvent(invalidEventId));
 
       // Assert
       Assert.Equal("Mandatory Event does not exist", ex.Message);
@@ -736,9 +1327,8 @@ namespace AdminCore.Services.Tests
 
     private static EventService GetEventService(IDatabaseContext databaseContext)
     {
-      IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new EventMapperProfile())));
       IDateService dateService = new DateService();
-      return new EventService(databaseContext, mapper, dateService);
+      return new EventService(databaseContext, Mapper, dateService);
     }
   }
 }
