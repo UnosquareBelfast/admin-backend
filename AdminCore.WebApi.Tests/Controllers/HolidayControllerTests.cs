@@ -47,8 +47,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var result = _controller.CreateHoliday(createViewModel);
 
       // Assert
-
-      //VerifyActionResult(result);
+      VerifyActionResult(result);
       _eventService.Received(1).CreateEvent(Arg.Any<EventDateDto>(), EventTypes.AnnualLeave, employeeId);
     }
 
@@ -62,7 +61,6 @@ namespace AdminCore.WebApi.Tests.Controllers
       var result = _controller.UpdateHoliday(updateViewModel);
 
       // Assert
-
       VerifyActionResult(result);
       _eventService.Received(1).UpdateEvent(Arg.Any<EventDateDto>(), Arg.Any<string>(), Arg.Any<int>());
     }
