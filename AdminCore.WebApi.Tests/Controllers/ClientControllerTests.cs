@@ -119,7 +119,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       _controller.CreateClient(updateViewModel);
 
-      _clientService.Received().Save(Arg.Any<ClientDto>());
+      _clientService.Received(1).Save(Arg.Any<ClientDto>());
     }
 
     [Fact]
