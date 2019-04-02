@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
+using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
 using AdminCore.WebApi.Controllers;
 using AdminCore.WebApi.Mappings;
@@ -7,8 +10,6 @@ using AdminCore.WebApi.Models.Event;
 using AutoFixture;
 using AutoMapper;
 using NSubstitute;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace AdminCore.WebApi.Tests.Controllers
@@ -19,14 +20,18 @@ namespace AdminCore.WebApi.Tests.Controllers
     private readonly IEventService _eventService;
     private readonly IFixture _fixture;
     private readonly IMapper _mapper;
+    private readonly EmployeeDto _employeeDto;
 
     public WorkingFromHomeControllerTests()
     {
+      var authenticatedUser = Substitute.For<IAuthenticatedUser>();
+      _employeeDto = new EmployeeDto();
+      authenticatedUser.RetrieveLoggedInUser().Returns(_employeeDto);
       _eventService = Substitute.For<IEventService>();
       _mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new WebMappingProfile())));
       _fixture = new Fixture();
       _fixture.Customize<EventDto>(x => x.Without(z => z.EventDates));
-      _controller = new WorkingFromHomeController(_eventService, _mapper, Substitute.For<IAuthenticatedUser>());
+      _controller = new WorkingFromHomeController(_eventService, _mapper, authenticatedUser);
     }
 
     [Fact]
@@ -34,6 +39,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       var createViewModel = _fixture.Create<CreateEventViewModel>();
+      _employeeDto.EmployeeId = 1;
 
       // Act
       var result = _controller.CreateWorkingFromHome(createViewModel);

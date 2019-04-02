@@ -33,7 +33,6 @@ namespace AdminCore.WebApi.Controllers
     [HttpPost]
     public IActionResult CreateWorkingFromHome(CreateEventViewModel createWorkingFromHomeViewModel)
     {
-      var employeeId = _employee.EmployeeId;
       var eventDates = _mapper.Map<EventDateDto>(createWorkingFromHomeViewModel);
 
       try

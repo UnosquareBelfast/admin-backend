@@ -1,23 +1,17 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using AdminCore.Common.Interfaces;
 using AdminCore.DTOs.Client;
 using AdminCore.WebApi.Controllers;
 using AdminCore.WebApi.Models.Client;
 using AutoFixture;
 using AutoMapper;
-using NSubstitute;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using AdminCore.DAL;
-using AdminCore.DAL.Models;
-using AdminCore.Services;
 using Microsoft.AspNetCore.Mvc;
-using NSubstitute.ExceptionExtensions;
+using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using Xunit;
-using ClientDto = AdminCore.DTOs.Client.ClientDto;
 
 namespace AdminCore.WebApi.Tests.Controllers
 {
@@ -111,9 +105,21 @@ namespace AdminCore.WebApi.Tests.Controllers
       };
 
       var result = _controller.CreateClient(updateViewModel);
-      var resultValue = RetrieveValueFromActionResult<string>(result);
-      Assert.Equal("Client TestClient has successfully been created", resultValue);
 
+      VerifyActionResult(result);
+    }
+
+    [Fact]
+    public void TestCreateClientInvokesSaveMethodCallOnClientServiceWhenGivenValidInput()
+    {
+      var updateViewModel = new CreateClientViewModel()
+      {
+        ClientName = "TestClient"
+      };
+
+      _controller.CreateClient(updateViewModel);
+
+      _clientService.Received().Save(Arg.Any<ClientDto>());
     }
 
     [Fact]
