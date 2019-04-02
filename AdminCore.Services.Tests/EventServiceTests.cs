@@ -903,6 +903,7 @@ namespace AdminCore.Services.Tests
       // Arrange
       var eventId = 1;
       var employeeId = 1;
+      var message = "Update Message";
       var employee = TestClassBuilder.BuildGenericEmployee(null);
       var employeeList = new List<Employee> { employee };
       var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
@@ -910,9 +911,51 @@ namespace AdminCore.Services.Tests
         TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
       var events = new List<Event> { newEvent };
 
+      var eventDateWithEvent = Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto());
+      eventDateWithEvent.Event = newEvent;
+      var eventDateWithEventList = new List<EventDate> { eventDateWithEvent };
+
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
       databaseContext = SetUpEventRepository(databaseContext, events);
-      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDateWithEventList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+
+      var eventDateDto = new EventDateDto
+      {
+        EventId = eventId,
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2018, 12, 06)
+      };
+
+      // Act
+      eventService.UpdateEvent(eventDateDto, message, employeeId);
+
+      // Assert
+      databaseContext.Received().EventRepository.Delete(Arg.Any<Event>());
+      databaseContext.Received().EventRepository.Insert(Arg.Any<Event>());
+    }
+
+    [Fact]
+    public void UpdateEvent_WhenCalledWithNullMessage_UpdatesTheEventWithNewDates()
+    {
+      // Arrange
+      var eventId = 1;
+      var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var eventDateWithEvent = Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto());
+      eventDateWithEvent.Event = newEvent;
+      var eventDateWithEventList = new List<EventDate> { eventDateWithEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDateWithEventList);
       databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
       var eventService = GetEventService(databaseContext);
 
