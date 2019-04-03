@@ -109,7 +109,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       var result = _teamController.CreateTeam(updateViewModel);
 
-      Assert.IsType<OkResult>(result);
+      Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
