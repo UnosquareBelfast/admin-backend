@@ -18,11 +18,12 @@ namespace AdminCore.Services.Configuration
   {
     private static bool _registered;
 
-    public static void RegisterWebDependencyInjection(IServiceCollection serviceDescriptor = null)
+    public static void RegisterWebDependencyInjection(IServiceCollection services = null)
     {
       if (!_registered)
       {
-        var services = new ServiceCollection().AddAutoMapper();
+        if (services == null) services = new ServiceCollection();
+        services.AddAutoMapper();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddDbContext<AdminCoreContext>();
