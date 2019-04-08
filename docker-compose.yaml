@@ -33,7 +33,7 @@ services:
       DB_CONNECTION_STRING: "User ID=user;Password=password;Server=admincore-postgres;Port=5432;Database=AdminCore;Integrated Security=true;Pooling=true;"
     restart: always
     ports:
-      - 8081:8081
+      - 80:8081
     depends_on:
       - admincore-postgres
       - admincore-migration
