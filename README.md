@@ -37,7 +37,7 @@ For mac users you can us Make to build Docker images.
 1. Download & Install [Node V8.11.1](https://nodejs.org/en/download/releases/) for NPM.
 2. Navigate to `/web-app/`.
 3. Run `npm install` to get the dependencies for the project.
-4. Create a file `.env` inside `/web-app/` with the following line: `DOMAIN='http://localhost:8081'`. This points to the back-end. If you are using Docker Toolbox the domain may differ.
+4. Create a file `.env` inside `/web-app/` with the following line: `DOMAIN='http://localhost:80'`. This points to the back-end. If you are using Docker Toolbox the domain may differ.
 5. Run `npm start` to start the web-server.
 
 ### Native App
@@ -45,7 +45,7 @@ For mac users you can us Make to build Docker images.
 
 1. Navigate to `/NativeApp`.
 2. Run `npm install` to get the dependencies for the project.
-3. Create a `.env` inside `/NativeApp/` and add the following line: `DOMAIN='http://localhost:8081'`.
+3. Create a `.env` inside `/NativeApp/` and add the following line: `DOMAIN='http://localhost:80'`.
 4. If running on an android simulator, you will need to add an IP address to `baseURl` in `/utilities/AxiosInstance` (temporary).
 
 #### Running on IOS or Android device
