@@ -17,6 +17,7 @@ namespace AdminCore.Services.Mappings
       CreateMap<EventDate, EventDto>().ReverseMap();
       CreateMap<EventDate, EventDateDto>().ReverseMap();
       CreateMap<EventType, EventTypes>().ReverseMap();
+      CreateMap<EventType, EventTypeDto>().ReverseMap();
     }
   }
 }

@@ -17,6 +17,7 @@ namespace AdminCore.Services.Tests
     public List<EventStatus> EventStatusRepository;
     public List<EventType> EventTypeRepository;
     public List<Team> TeamRepository;
+    public List<MandatoryEvent> MandatoryEventRepository;
 
     public MockDatabase()
     {
@@ -52,17 +53,20 @@ namespace AdminCore.Services.Tests
       };
 
       // Event Types
-      var annualLeave = BuildEventType(1, "Annual Leave");
-      var workingFromHome = BuildEventType(2, "Working From Home");
-      var sickLeave = BuildEventType(3, "Sick Leave");
-      var workTravel = BuildEventType(4, "Work Related Travel");
+      var mandatoryEvent = BuildEventType(0, "Mandatory Event", 2);
+      var annualLeave = BuildEventType(1, "Annual Leave", 3);
+      var workingFromHome = BuildEventType(2, "Working From Home", 3);
+      var workTravel = BuildEventType(5, "On Business", 3);
+      var sickLeave = BuildEventType(12, "Sick Leave", 3);
+      var paternityLeave = BuildEventType(9, "Paternity Leave", 2);
 
       EventTypeRepository = new List<EventType>()
       {
         annualLeave,
         workingFromHome,
         sickLeave,
-        workTravel
+        workTravel,
+        paternityLeave
       };
 
       // Employee Roles
@@ -172,20 +176,20 @@ namespace AdminCore.Services.Tests
       // Events
       var event1 = BuildEvent(1, employeeNiall, awaitingApproval, annualLeave);
       var event2 = BuildEvent(2, employeeNiall, cancelled, annualLeave);
-      var event3 = BuildEvent(3, employeeNiall, approved, annualLeave);
+      var event3 = BuildEvent(3, employeeNiall, approved, sickLeave);
       var event4 = BuildEvent(4, employeeJamie, approved, annualLeave);
       var event5 = BuildEvent(5, employeeJamie, approved, annualLeave);
       var event6 = BuildEvent(6, employeeJamie, approved, annualLeave);
       var event7 = BuildEvent(7, employeeEoin, approved, annualLeave);
       var event8 = BuildEvent(8, employeeEoin, approved, annualLeave);
-      var event9 = BuildEvent(9, employeeEoin, approved, annualLeave);
+      var event9 = BuildEvent(9, employeeEoin, approved, sickLeave);
       var event10 = BuildEvent(10, employeeKurtis, approved, annualLeave);
       var event11 = BuildEvent(11, employeeKurtis, approved, annualLeave);
       var event12 = BuildEvent(12, employeeKurtis, approved, annualLeave);
       var event13 = BuildEvent(13, employeeLee, approved, annualLeave);
       var event14 = BuildEvent(14, employeeLee, approved, annualLeave);
       var event15 = BuildEvent(15, employeeNiall, approved, annualLeave);
-      var event16 = BuildEvent(16, employeeJamie, approved, annualLeave);
+      var event16 = BuildEvent(16, employeeJamie, approved, mandatoryEvent);
 
       EventRepository = new List<Event>()
       {
@@ -430,6 +434,14 @@ namespace AdminCore.Services.Tests
         eventDate39
       };
 
+      // Mandatory Events
+      var christmasDay = BuildMandatoryEvent(1, 1, new DateTime(2019, 12, 25));
+
+      MandatoryEventRepository = new List<MandatoryEvent>()
+      {
+        christmasDay
+      };
+
       #endregion Hardcoded Database Values
     }
 
@@ -486,12 +498,13 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    private static EventType BuildEventType(int eventTypeId, string eventTypeDescription)
+    private static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int employeeRoleId)
     {
       return new EventType()
       {
         EventTypeId = eventTypeId,
-        Description = eventTypeDescription
+        Description = eventTypeDescription,
+        EmployeeRoleId = employeeRoleId
       };
     }
 
@@ -566,6 +579,16 @@ namespace AdminCore.Services.Tests
         EmployeeStatus = status,
         EmployeeStatusId = status.EmployeeRoleId,
         TotalHolidays = totalHolidays
+      };
+    }
+
+    private static MandatoryEvent BuildMandatoryEvent(int mandatoryEventId, int countryId, DateTime mandatoryEventDate)
+    {
+      return new MandatoryEvent()
+      {
+        MandatoryEventId = mandatoryEventId,
+        CountryId = countryId,
+        MandatoryEventDate = mandatoryEventDate
       };
     }
 
