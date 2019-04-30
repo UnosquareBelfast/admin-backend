@@ -1,10 +1,10 @@
-using FsmTestApp.EnumConstants;
+using AdminCore.FsmWorkflow.EnumConstants;
 using Newtonsoft.Json;
 using Stateless;
 
-namespace FsmTestApp.FsmMachines
+namespace AdminCore.FsmWorkflow.FsmMachines
 {
-    public abstract class WorkflowFsm<FsmData, State, Trigger> : ILeaveWorkflow<State, ApprovalState>
+    public abstract class WorkflowFsm<FsmData, State, Trigger> : ILeaveWorkflow<State>
     {
         public State CurrentState => FsMachine.State;
         protected FsmData FsmStateData { get; set; }

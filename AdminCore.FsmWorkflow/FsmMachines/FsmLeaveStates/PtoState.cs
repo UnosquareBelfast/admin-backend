@@ -1,4 +1,4 @@
-namespace FsmTestApp.FsmMachines.FsmLeaveStates
+namespace AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates
 {
     public enum PtoState
     {

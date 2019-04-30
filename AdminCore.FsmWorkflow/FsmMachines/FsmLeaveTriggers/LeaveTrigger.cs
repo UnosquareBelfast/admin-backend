@@ -1,4 +1,4 @@
-namespace FsmTestApp.FsmMachines.FsmLeaveTriggers
+namespace AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers
 {
     public enum LeaveTrigger
     {

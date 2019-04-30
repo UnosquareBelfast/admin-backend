@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using FsmTestApp.EnumConstants;
-using FsmTestApp.FsmMachines.FsmLeaveStates;
-using FsmTestApp.FsmMachines.FsmLeaveTriggers;
-using FsmTestApp.FsmMachines.FsmWorkflowState;
+using AdminCore.FsmWorkflow.EnumConstants;
+using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
+using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers;
+using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
 using Stateless;
 
-namespace FsmTestApp.FsmMachines
+namespace AdminCore.FsmWorkflow.FsmMachines
 {
     public class WorkflowFsmPto : WorkflowFsm<WorkflowStatePto, PtoState, LeaveTrigger>
     {       

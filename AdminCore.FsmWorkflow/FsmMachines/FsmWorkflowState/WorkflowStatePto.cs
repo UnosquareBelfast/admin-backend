@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using FsmTestApp.EnumConstants;
-using FsmTestApp.FsmMachines.FsmLeaveStates;
+using AdminCore.FsmWorkflow.EnumConstants;
+using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using Newtonsoft.Json;
 
-namespace FsmTestApp.FsmMachines.FsmWorkflowState
+namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
 {
     public class WorkflowStatePto
     {

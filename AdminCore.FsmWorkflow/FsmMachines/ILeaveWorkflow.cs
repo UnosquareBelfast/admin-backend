@@ -1,6 +1,8 @@
-namespace FsmTestApp.FsmMachines
+using AdminCore.FsmWorkflow.EnumConstants;
+
+namespace AdminCore.FsmWorkflow.FsmMachines
 {
-    public interface ILeaveWorkflow<State, ApprovalState>
+    public interface ILeaveWorkflow<State>
     {
         State CurrentState { get; }
         

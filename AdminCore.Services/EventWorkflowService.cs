@@ -5,8 +5,9 @@ using AdminCore.DTOs.EventWorkflow;
 using AdminCore.Services.Base;
 using AdminCore.DAL;
 using AdminCore.DAL.Models;
+using AdminCore.FsmWorkflow.FsmMachines;
+using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using AutoMapper;
-using FsmTestApp.FsmMachines;
 
 namespace AdminCore.Services
 {
@@ -34,7 +35,9 @@ namespace AdminCore.Services
             switch (eventType)
             {
                 case EventTypes.AnnualLeave:
-                    return new WorkflowFsmPto().ToJson();
+                    return new WorkflowFsmPto("", "", "", PtoState.LeaveAwaitingTeamLeadClient).ToJson();
+                default:
+                    return "";
             }
         }
     }

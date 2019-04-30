@@ -139,7 +139,7 @@ namespace AdminCore.Services
 
     public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
     {
-      var newEvent = BuildNewEvent(employee.EmployeeId, eventTypes);
+      var newEvent = BuildNewEvent(employee, eventTypes);
 
       UpdateEventDates(dates, newEvent);
 
@@ -446,20 +446,19 @@ namespace AdminCore.Services
       return newEvent;
     }
 
-//    private Event BuildNewEvent(Employee employee, EventTypes eventTypes)
-//    {
-//      var newEvent = new Event
-//      {
-//        DateCreated = DateTime.Now,
-//        Employee = employee,
-//        EventStatusId = (int)EventStatuses.Approved,
-//        EventTypeId = (int)eventTypes,
-//        EventDates = new List<EventDate>(),
-//        EventWorkflow = _mapper.Map<EventWorkflow>(_eventWorkflowService.CreateEventWorkflow(eventTypes)),
-//        LastModified = _dateService.GetCurrentDateTime()
-//      };
-//      return newEvent;
-//    }
+    private Event BuildNewEvent(Employee employee, EventTypes eventTypes)
+    {
+      var newEvent = new Event
+      {
+        DateCreated = DateTime.Now,
+        Employee = employee,
+        EventStatusId = (int)EventStatuses.Approved,
+        EventTypeId = (int)eventTypes,
+        EventDates = new List<EventDate>(),
+        LastModified = _dateService.GetCurrentDateTime()
+      };
+      return newEvent;
+    }
 
     private Event AddEventMessage(Event eventToUpdate, EventMessageTypes eventMessageTypes, string message)
     {

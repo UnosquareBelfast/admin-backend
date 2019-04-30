@@ -1,4 +1,4 @@
-namespace FsmTestApp.EnumConstants
+namespace AdminCore.FsmWorkflow.EnumConstants
 {
     public enum ApprovalState
     {
