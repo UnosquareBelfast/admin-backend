@@ -14,4 +14,9 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AdminCore.Constants\AdminCore.Constants.csproj" />
+      <ProjectReference Include="..\AdminCore.DAL\AdminCore.DAL.csproj" />
+    </ItemGroup>
+
 </Project>

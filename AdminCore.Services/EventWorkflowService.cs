@@ -24,21 +24,10 @@ namespace AdminCore.Services
             var workflow = new EventWorkflow
             {
                 EventId = eventId,
-                WorkflowSerializedState = GetSerializedWorkflow(eventType)
+//                WorkflowSerializedState = GetSerializedWorkflow(eventType)
             };
             
             return _mapper.Map<EventWorkflowDto>(workflow);
-        }
-
-        private string GetSerializedWorkflow(EventTypes eventType)
-        {
-            switch (eventType)
-            {
-                case EventTypes.AnnualLeave:
-                    return new WorkflowFsmPto("", "", "", PtoState.LeaveAwaitingTeamLeadClient).ToJson();
-                default:
-                    return "";
-            }
         }
     }
 }

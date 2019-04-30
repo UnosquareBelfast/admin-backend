@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using AdminCore.FsmWorkflow;
 
 namespace AdminCore.Services
 {
@@ -18,12 +19,14 @@ namespace AdminCore.Services
   {
     private readonly IMapper _mapper;
     private readonly IDateService _dateService;
+    private readonly IFsmWorkflowHandler _fsmWorkflowHandler;
 
-    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService)
+    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService, IFsmWorkflowHandler fsmWorkflowHandler)
       : base(databaseContext)
     {
       _mapper = mapper;
       _dateService = dateService;
+      _fsmWorkflowHandler = fsmWorkflowHandler;
     }
 
     public IList<EventDto> GetEmployeeEvents(EventTypes eventType)
@@ -439,6 +442,7 @@ namespace AdminCore.Services
         EventStatusId = eventStatusId,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
+        EventWorkflow = _fsmWorkflowHandler.CreateEventWorkflow(eventTypes, "", "", ""),
         LastModified = _dateService.GetCurrentDateTime()
       };
       return newEvent;

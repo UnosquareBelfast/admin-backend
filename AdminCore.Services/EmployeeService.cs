@@ -9,6 +9,7 @@ using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdminCore.FsmWorkflow;
 
 namespace AdminCore.Services
 {
@@ -113,7 +114,7 @@ namespace AdminCore.Services
 
     private void CreatePublicHolidays(Employee employee, IList<MandatoryEvent> publicHolidays)
     {
-      var eventService = new EventService(DatabaseContext, _mapper, new DateService());
+      var eventService = new EventService(DatabaseContext, _mapper, new DateService(), new FsmWorkflowHandler());
       foreach (var holiday in publicHolidays)
       {
         eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,

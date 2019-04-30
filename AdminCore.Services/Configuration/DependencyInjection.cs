@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AdminCore.FsmWorkflow;
 
 namespace AdminCore.Services.Configuration
 {
@@ -41,6 +42,8 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
+        
+        services.AddTransient<IFsmWorkflowHandler, FsmWorkflowHandler>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 
