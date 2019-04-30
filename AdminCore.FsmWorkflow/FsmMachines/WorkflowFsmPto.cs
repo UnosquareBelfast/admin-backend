@@ -33,7 +33,7 @@ namespace FsmTestApp.FsmMachines
             // Leave Awaiting Team Lead and Client
             FsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
-                .OnEntry(() =>
+                .OnActivate(() =>
                 {
                     if (IsTeamLeadClientResponsesReceived(FsmStateData.ApprovalDict))
                     {
@@ -48,7 +48,7 @@ namespace FsmTestApp.FsmMachines
             // Leave Awaiting CSE
             FsMachine.Configure(PtoState.LeaveAwaitingCse)
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
-                .OnEntry(() =>
+                .OnActivate(() =>
                 {
                     switch (FsmStateData.ApprovalDict[_cse])
                     {
@@ -74,6 +74,8 @@ namespace FsmTestApp.FsmMachines
             FsMachine.Configure(PtoState.LeaveRejected)
                 .SubstateOf(PtoState.LeaveResponsesReceived)
                 .OnEntry(LeaveRejected);
+            
+            FsMachine.Activate();
         }
         
         private void LeaveResponse(ApprovalState approvalState, string responder)
