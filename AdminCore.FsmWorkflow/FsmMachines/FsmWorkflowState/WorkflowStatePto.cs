@@ -9,6 +9,10 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
     {
         public PtoState CurrentState { get; set; }
         
+        public string TeamLead { get; set; }
+        public string Client { get; set; }
+        public string Cse { get; set; }
+        
         public Dictionary<string, ApprovalState> ApprovalDict { get; set; }
 
         [JsonConstructor]
@@ -22,6 +26,10 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
         public WorkflowStatePto(string teamLead, string client, string cse, PtoState initialState)
         {
             CurrentState = initialState;
+
+            TeamLead = teamLead;
+            Client = client;
+            Cse = cse;
             
             ApprovalDict = new Dictionary<string, ApprovalState>
             {

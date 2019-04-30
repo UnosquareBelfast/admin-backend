@@ -12,13 +12,15 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     {       
         private StateMachine<PtoState, LeaveTrigger>.TriggerWithParameters<ApprovalState, string> LeaveResponseTrigger;
         
-        private readonly string _teamLead, _client, _cse;
-        public WorkflowFsmPto(string teamLead, string client, string cse, PtoState initialState)
+//        private string _teamLead, _client, _cse;
+
+        public WorkflowFsmPto()
         {
-            _teamLead = teamLead;
-            _client = client;
-            _cse = cse;
             
+        }
+        
+        public WorkflowFsmPto(string teamLead, string client, string cse, PtoState initialState)
+        {           
             FsmStateData = new WorkflowStatePto(teamLead, client, cse, initialState);
 
             ConfigureFsm();
@@ -26,6 +28,10 @@ namespace AdminCore.FsmWorkflow.FsmMachines
 
         protected override void ConfigureFsm()
         {
+//            _teamLead = FsmStateData.TeamLead;
+//            _client = FsmStateData.Client;
+//            _cse = FsmStateData.Cse;
+            
             FsMachine = new StateMachine<PtoState, LeaveTrigger>(() => FsmStateData.CurrentState, s => FsmStateData.CurrentState = s);
             
             LeaveResponseTrigger = FsMachine.SetTriggerParameters<ApprovalState, string>(LeaveTrigger.LeaveResponded);
@@ -50,7 +56,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
                 .OnActivate(() =>
                 {
-                    switch (FsmStateData.ApprovalDict[_cse])
+                    switch (FsmStateData.ApprovalDict[FsmStateData.Cse])
                     {
                         case ApprovalState.Approved:
                             FsMachine.Fire(LeaveTrigger.LeaveApproved);
@@ -88,8 +94,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         
         private bool IsTeamLeadClientResponsesReceived(Dictionary<string, ApprovalState> approvalDict)
         {
-            return approvalDict[_teamLead] != ApprovalState.Unassigned &&
-                   approvalDict[_client] != ApprovalState.Unassigned;
+            return approvalDict[FsmStateData.TeamLead] != ApprovalState.Unassigned &&
+                   approvalDict[FsmStateData.Client] != ApprovalState.Unassigned;
         }
 
         private void LeaveApproved()
