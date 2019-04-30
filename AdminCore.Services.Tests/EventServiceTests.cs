@@ -1371,7 +1371,7 @@ namespace AdminCore.Services.Tests
     private static EventService GetEventService(IDatabaseContext databaseContext)
     {
       IDateService dateService = new DateService();
-      return new EventService(databaseContext, Mapper, dateService);
+      return new EventService(databaseContext, Mapper, dateService, new EventWorkflowService());
     }
   }
 }

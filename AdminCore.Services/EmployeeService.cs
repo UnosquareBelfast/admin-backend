@@ -113,7 +113,8 @@ namespace AdminCore.Services
 
     private void CreatePublicHolidays(Employee employee, IList<MandatoryEvent> publicHolidays)
     {
-      var eventService = new EventService(DatabaseContext, _mapper, new DateService());
+      // TODO Maybe inject EventService via constructor injection rather than instantiate here, unless there's a specific reason for doing this e.g needing a special database context etc.
+      var eventService = new EventService(DatabaseContext, _mapper, new DateService(), new EventWorkflowService());
       foreach (var holiday in publicHolidays)
       {
         eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,

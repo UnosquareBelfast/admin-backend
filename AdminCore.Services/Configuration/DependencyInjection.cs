@@ -37,6 +37,7 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IClientService, ClientService>();
         services.AddTransient<ITeamService, TeamService>();
         services.AddTransient<IEventService, EventService>();
+        services.AddTransient<IEventWorkflowService, EventWorkflowService>();
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
