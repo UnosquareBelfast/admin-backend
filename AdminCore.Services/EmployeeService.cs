@@ -16,10 +16,13 @@ namespace AdminCore.Services
   {
     private readonly IMapper _mapper;
 
-    public EmployeeService(IDatabaseContext databaseContext, IMapper mapper) :
+    private readonly IEventService _eventService;
+    
+    public EmployeeService(IDatabaseContext databaseContext, IMapper mapper, IEventService eventService) :
       base(databaseContext)
     {
       _mapper = mapper;
+      _eventService = eventService;
     }
 
     public string Create(EmployeeDto newEmployeeDto)
@@ -113,12 +116,9 @@ namespace AdminCore.Services
 
     private void CreatePublicHolidays(Employee employee, IList<MandatoryEvent> publicHolidays)
     {
-      // TODO Maybe inject EventService via constructor injection rather than instantiate here, unless there's a specific reason for doing this e.g needing a special database context etc.
-      var eventService = new EventService(DatabaseContext, _mapper, new DateService(), new EventWorkflowService());
       foreach (var holiday in publicHolidays)
       {
-        eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,
-          employee);
+        _eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday, employee.EmployeeId);
       }
     }
 
