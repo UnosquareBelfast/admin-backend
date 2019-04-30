@@ -2,6 +2,7 @@
 using AdminCore.DTOs.Event;
 using System;
 using System.Collections.Generic;
+using AdminCore.DTOs.Employee;
 
 namespace AdminCore.Common.Interfaces
 {

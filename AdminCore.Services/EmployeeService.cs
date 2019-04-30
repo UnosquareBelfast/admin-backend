@@ -16,13 +16,10 @@ namespace AdminCore.Services
   {
     private readonly IMapper _mapper;
 
-    private readonly IEventService _eventService;
-    
-    public EmployeeService(IDatabaseContext databaseContext, IMapper mapper, IEventService eventService) :
+    public EmployeeService(IDatabaseContext databaseContext, IMapper mapper) :
       base(databaseContext)
     {
       _mapper = mapper;
-      _eventService = eventService;
     }
 
     public string Create(EmployeeDto newEmployeeDto)
@@ -116,9 +113,11 @@ namespace AdminCore.Services
 
     private void CreatePublicHolidays(Employee employee, IList<MandatoryEvent> publicHolidays)
     {
+      var eventService = new EventService(DatabaseContext, _mapper, new DateService());
       foreach (var holiday in publicHolidays)
       {
-        _eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday, employee.EmployeeId);
+        eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,
+          employee);
       }
     }
 

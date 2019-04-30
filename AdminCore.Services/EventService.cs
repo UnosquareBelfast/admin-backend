@@ -18,14 +18,12 @@ namespace AdminCore.Services
   {
     private readonly IMapper _mapper;
     private readonly IDateService _dateService;
-    private readonly IEventWorkflowService _eventWorkflowService;
 
-    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService, IEventWorkflowService eventWorkflowService)
+    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService)
       : base(databaseContext)
     {
       _mapper = mapper;
       _dateService = dateService;
-      _eventWorkflowService = eventWorkflowService;
     }
 
     public IList<EventDto> GetEmployeeEvents(EventTypes eventType)
