@@ -19,7 +19,7 @@ namespace AdminCore.FsmWorkflow
             var workflow = new EventWorkflow
             {
                 EventId = (int)eventType,
-                WorkflowSerializedState = GetSerializedWorkflow(eventType, teamLead, client, cse)
+//                WorkflowSerializedState = GetSerializedWorkflow(eventType, teamLead, client, cse)
             };
 
             return workflow;
@@ -36,7 +36,7 @@ namespace AdminCore.FsmWorkflow
             }
         }
 
-        private void FireLeaveResponded(EventTypes eventType, string serializedFsm, ApprovalState approvalState, string responderName)
+        public void FireLeaveResponded(EventTypes eventType, string serializedFsm, ApprovalState approvalState, string responderName)
         {
             switch (eventType)
             {

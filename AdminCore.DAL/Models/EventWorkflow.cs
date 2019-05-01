@@ -14,11 +14,9 @@ namespace AdminCore.DAL.Models
 
     [Column("event_id")]
     public int EventId { get; set; }
-    
-    [StringLength(200)]
-    [Column("workflow_serialized_state")]
-    public string WorkflowSerializedState { get; set; }
 
     public virtual Event Event { get; set; }
+    
+    public virtual ICollection<EventWorkflowApprovalStatus> EventWorkflowApprovalStatuses { get; set; }
   }
 }

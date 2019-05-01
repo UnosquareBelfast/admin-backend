@@ -1,12 +1,9 @@
+using System.Collections.Generic;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
-using AdminCore.DAL;
 using AdminCore.DTOs.EventWorkflow;
-using AdminCore.Services.Base;
-using AdminCore.DAL;
-using AdminCore.DAL.Models;
-using AdminCore.FsmWorkflow.FsmMachines;
-using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
+using AdminCore.DTOs.Employee;
+using AdminCore.DTOs.Event;
 using AutoMapper;
 
 namespace AdminCore.Services
@@ -18,16 +15,40 @@ namespace AdminCore.Services
         {
             _mapper = mapper;
         }
-        
-        public EventWorkflowDto CreateEventWorkflow(int eventId, EventTypes eventType)
+
+        public EventWorkflowDto AddEventWorkflow(int eventId, EmployeeDto employee)
         {
-            var workflow = new EventWorkflow
-            {
-                EventId = eventId,
-//                WorkflowSerializedState = GetSerializedWorkflow(eventType)
-            };
-            
-            return _mapper.Map<EventWorkflowDto>(workflow);
+            throw new System.NotImplementedException();
+        }
+
+        public EventWorkflowDto AddEventWorkflow(EventDto employeeEvent, EmployeeDto employee)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public EventWorkflowDto GetWorkflowByEventId(int eventId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IDictionary<EmployeeRoleDto, ApprovalStatusDto> GetWorkflowApprovalStatusDictById(int eventId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public EventStatuses UpdateWorkflowResponse(int eventId, EmployeeDto employee, EventStatuses eventStatus)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public EventStatuses UpdateWorkflowResponse(EventDto employeeEvent, EmployeeDto employee, EventStatuses eventStatus)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

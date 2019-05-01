@@ -35,6 +35,8 @@ namespace AdminCore.DAL
     IRepository<Schedule> SchedulesRepository { get; }
 
     IRepository<Team> TeamRepository { get; }
+    
+    IRepository<EventWorkflow> EventWorkflowRepository { get; }
 
     void SaveChanges();
   }

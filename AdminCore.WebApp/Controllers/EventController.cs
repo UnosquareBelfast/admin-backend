@@ -24,14 +24,16 @@ namespace AdminCore.WebApi.Controllers
     private readonly IMapper _mapper;
     private readonly EmployeeDto _employee;
     private readonly IEventMessageService _eventMessageService;
+    private readonly IEventWorkflowService _eventWorkflowService;
 
-    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser)
+    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser, IEventWorkflowService eventWorkflowService)
       : base(mapper)
     {
       _eventService = wfhEventService;
       _eventMessageService = eventMessageService;
       _mapper = mapper;
       _employee = authenticatedUser.RetrieveLoggedInUser();
+      _eventWorkflowService = eventWorkflowService;
     }
 
     [HttpGet]
@@ -146,7 +148,8 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         ValidateIfHolidayEvent(createEventViewModel, eventDates);
-        _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
+        var eventDto = _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
+        _eventWorkflowService.AddEventWorkflow(eventDto, _employee);
         return Ok($"Event has been created successfully");
       }
       catch (Exception ex)
@@ -188,7 +191,17 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         var eventToApprove = _eventService.GetEvent(approveEventViewModel.EventId);
-        return ApproveIfEventDoesNotBelongToTheAdmin(approveEventViewModel, eventToApprove);
+        
+        var eventApprovalState = _eventWorkflowService.UpdateWorkflowResponse(eventToApprove, _employee, EventStatuses.Approved);
+
+        if (eventApprovalState == EventStatuses.Approved)
+        {
+          return ApproveIfEventDoesNotBelongToTheAdmin(approveEventViewModel, eventToApprove);
+        }
+        else
+        {
+          return Ok("Approve response sent successfully");
+        }
       }
       catch (Exception ex)
       {
@@ -202,8 +215,15 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        _eventService.UpdateEventStatus(cancelEventViewModel.EventId, EventStatuses.Cancelled);
-        return Ok("Successfully Cancelled");
+        var eventToCancel = _eventService.GetEvent(cancelEventViewModel.EventId);
+        var eventApprovalState = _eventWorkflowService.UpdateWorkflowResponse(eventToCancel, _employee, EventStatuses.Cancelled);
+
+        if (eventApprovalState == EventStatuses.Cancelled)
+        {
+          _eventService.UpdateEventStatus(cancelEventViewModel.EventId, EventStatuses.Cancelled);
+        }
+
+        return Ok("Cancel response sent successfully");
       }
       catch (Exception ex)
       {
@@ -217,9 +237,17 @@ namespace AdminCore.WebApi.Controllers
     public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
     {
       try
-      {
-        _eventService.RejectEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
-        return Ok("Successfully Rejected");
+      {       
+        var eventToReject = _eventService.GetEvent(rejectEventViewModel.EventId);
+        var eventApprovalState = _eventWorkflowService.UpdateWorkflowResponse(eventToReject, _employee, EventStatuses.Rejected);
+
+        if (eventApprovalState == EventStatuses.Rejected)
+        {
+          _eventService.RejectEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
+         
+        }
+        
+        return Ok("Reject response sent successfully.");
       }
       catch (Exception ex)
       {

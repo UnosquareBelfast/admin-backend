@@ -40,6 +40,8 @@ namespace AdminCore.DAL.Entity_Framework
     private IRepository<Schedule> _scheduleRepository;
 
     private IRepository<Team> _teamRepository;
+    
+    private IRepository<EventWorkflow> _eventWorkflowRepository;
 
     public EntityFrameworkContext()
     {
@@ -103,6 +105,9 @@ namespace AdminCore.DAL.Entity_Framework
 
     public virtual IRepository<Team> TeamRepository =>
       _teamRepository ?? (_teamRepository = RetrieveRepository<Team>());
+    
+    public virtual IRepository<EventWorkflow> EventWorkflowRepository =>
+      _eventWorkflowRepository ?? (_eventWorkflowRepository = RetrieveRepository<EventWorkflow>());
 
     public virtual void SaveChanges()
     {
