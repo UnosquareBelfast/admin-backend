@@ -17,6 +17,10 @@ namespace AdminCore.DAL.Models
 
     public virtual Event Event { get; set; }
     
-    public virtual ICollection<EventWorkflowApprovalStatus> EventWorkflowApprovalStatuses { get; set; }
+    [Column("workflow_state")]
+    public int WorkflowState { get; set; }
+    
+    public virtual ICollection<EmployeeApprovalResponse> EventWorkflowApprovalStatuses { get; set; }
+    public virtual ICollection<EmployeeRole> EmployeeRoleResponders { get; set; }
   }
 }

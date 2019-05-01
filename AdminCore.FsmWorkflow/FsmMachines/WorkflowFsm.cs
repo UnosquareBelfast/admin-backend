@@ -11,7 +11,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         
         protected StateMachine<State, Trigger> FsMachine;
 
-        public abstract void FireLeaveResponded(ApprovalState approvalState, string responder);
+        public abstract bool FireLeaveResponded(ApprovalState approvalState, string responder);
         
         public virtual string ToJson()
         {

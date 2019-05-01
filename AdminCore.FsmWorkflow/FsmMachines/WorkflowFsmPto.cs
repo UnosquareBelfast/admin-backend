@@ -26,6 +26,13 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             ConfigureFsm();
         }
 
+        public WorkflowFsmPto(WorkflowStatePto fsmStateData)
+        {
+            FsmStateData = fsmStateData;
+
+            ConfigureFsm();
+        }
+        
         protected override void ConfigureFsm()
         {
 //            _teamLead = FsmStateData.TeamLead;
@@ -49,7 +56,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .InternalTransition(LeaveResponseTrigger,
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTrigger.TeamLeadClientResponseReceived, PtoState.LeaveAwaitingCse)
-                .PermitReentryIf(LeaveTrigger.EvaluateLeaveState);
+                .Permit(LeaveTrigger.LeaveCancelled, PtoState.LeaveCancelled)
+                .PermitReentry(LeaveTrigger.EvaluateLeaveState);
             
             // Leave Awaiting CSE
             FsMachine.Configure(PtoState.LeaveAwaitingCse)
@@ -66,20 +74,27 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                             break;
                     }
                 })
-                .InternalTransition(LeaveResponseTrigger,(approvalState, responder, transition) => LeaveResponse(approvalState, responder))
+                .InternalTransition(LeaveResponseTrigger,
+                    (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTrigger.LeaveApproved, PtoState.LeaveApproved)
                 .Permit(LeaveTrigger.LeaveRejected, PtoState.LeaveRejected)
+                .Permit(LeaveTrigger.LeaveCancelled, PtoState.LeaveCancelled)
                 .PermitReentry(LeaveTrigger.EvaluateLeaveState);
             
             // Leave Approved
             FsMachine.Configure(PtoState.LeaveApproved)
-                .SubstateOf(PtoState.LeaveResponsesReceived)
+                .SubstateOf(PtoState.LeaveRequestCompleted)
                 .OnEntry(LeaveApproved);
             
             // Leave Rejected
             FsMachine.Configure(PtoState.LeaveRejected)
-                .SubstateOf(PtoState.LeaveResponsesReceived)
+                .SubstateOf(PtoState.LeaveRequestCompleted)
                 .OnEntry(LeaveRejected);
+            
+            // Leave Cancelled
+            FsMachine.Configure(PtoState.LeaveCancelled)
+                .SubstateOf(PtoState.LeaveRequestCompleted)
+                .OnEntry(LeaveCancelled);
             
             FsMachine.Activate();
         }
@@ -108,12 +123,19 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             Console.WriteLine("LEAVE REJECTED");
         }
 
-        public override void FireLeaveResponded(ApprovalState approvalState, string responder)
+        private void LeaveCancelled()
+        {
+            Console.WriteLine("LEAVE CANCELLED");
+        }
+        
+        public override bool FireLeaveResponded(ApprovalState approvalState, string responder)
         {
             // Fire the response trigger first.
             FsMachine.Fire(LeaveResponseTrigger, approvalState, responder);
             // Then evaluate the changes.
             FsMachine.Fire(LeaveTrigger.EvaluateLeaveState);
+
+            return FsMachine.IsInState(PtoState.LeaveRequestCompleted);
         }
     }
 }

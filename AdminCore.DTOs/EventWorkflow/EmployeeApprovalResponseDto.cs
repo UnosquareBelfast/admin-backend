@@ -4,9 +4,9 @@ using AdminCore.DTOs.EventWorkflow;
 
 namespace AdminCore.DAL.Models
 {
-  public class EventWorkflowApprovalStatusDto
+  public class EmployeeApprovalResponseDto
   {
-    public int EmployeeApprovalStatusId { get; set; }
+    public int EmployeeApprovalResponseId { get; set; }
 
     public int EmployeeRoleId { get; set; }
 

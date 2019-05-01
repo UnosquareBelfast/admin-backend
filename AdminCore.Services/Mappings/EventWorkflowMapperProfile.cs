@@ -11,7 +11,7 @@ namespace AdminCore.Services.Mappings
         {
             CreateMap<EventWorkflow, EventWorkflowDto>().ReverseMap();
             CreateMap<ApprovalStatus, ApprovalStatusDto>().ReverseMap();
-            CreateMap<EventWorkflowApprovalStatus, EventWorkflowApprovalStatusDto>().ReverseMap();
+            CreateMap<EmployeeApprovalResponse, EmployeeApprovalResponseDto>().ReverseMap();
         }
     }
 }

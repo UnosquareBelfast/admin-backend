@@ -6,7 +6,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     {
         State CurrentState { get; }
         
-        void FireLeaveResponded(ApprovalState approvalState, string responder);
+        bool FireLeaveResponded(ApprovalState approvalState, string responder);
 
         string ToJson();
         

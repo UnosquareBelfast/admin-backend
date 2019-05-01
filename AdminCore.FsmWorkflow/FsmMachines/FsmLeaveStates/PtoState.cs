@@ -3,10 +3,11 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates
     public enum PtoState
     {
         LeaveAwaitingResponses,
-        LeaveResponsesReceived,
+        LeaveRequestCompleted,
         LeaveAwaitingTeamLeadClient,
         LeaveAwaitingCse,
         LeaveApproved,
-        LeaveRejected
+        LeaveRejected,
+        LeaveCancelled
     }
 }

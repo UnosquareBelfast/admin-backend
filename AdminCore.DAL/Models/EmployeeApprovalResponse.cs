@@ -5,12 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdminCore.DAL.Models
 {
-  [Table("event_workflow_approval_status")]
-  public class EventWorkflowApprovalStatus : ISoftDeletable
+  [Table("employee_approval_response")]
+  public class EmployeeApprovalResponse : ISoftDeletable
   {
     [Key]
-    [Column("employee_approval_status_id")]
-    public int EmployeeApprovalStatusId { get; set; }
+    [Column("employee_approval_response_id")]
+    public int EmployeeApprovalResponseId { get; set; }
 
     [Column("employee_role_id")]
     public int EmployeeRoleId { get; set; }

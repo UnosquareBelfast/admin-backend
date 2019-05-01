@@ -8,12 +8,13 @@ namespace AdminCore.Common.Interfaces
 {
   public interface IEventWorkflowService
   {
-    EventWorkflowDto AddEventWorkflow(int eventId, EmployeeDto employee);
-    EventWorkflowDto AddEventWorkflow(EventDto employeeEvent, EmployeeDto employee);
+    EventWorkflowDto CreateEventWorkflow(int eventId, int eventTypeId);
     EventWorkflowDto GetWorkflowByEventId(int eventId);
     IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId);
     IDictionary<EmployeeRoleDto, ApprovalStatusDto> GetWorkflowApprovalStatusDictById(int eventId);
-    EventStatuses UpdateWorkflowResponse(int eventId, EmployeeDto employee, EventStatuses eventStatus);
-    EventStatuses UpdateWorkflowResponse(EventDto employeeEvent, EmployeeDto employee, EventStatuses eventStatus);
+//    bool WorkflowResponseApprove(int eventId, EmployeeDto employee, EventStatuses eventStatus);
+    bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto employee);
+    bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto employee);
+    bool WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto employee);
   }
 }

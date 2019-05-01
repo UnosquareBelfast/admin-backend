@@ -19,14 +19,14 @@ namespace AdminCore.Services
   {
     private readonly IMapper _mapper;
     private readonly IDateService _dateService;
-    private readonly IFsmWorkflowHandler _fsmWorkflowHandler;
+    private readonly IEventWorkflowService _eventWorkflowService;
 
-    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService, IFsmWorkflowHandler fsmWorkflowHandler)
+    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService, IEventWorkflowService eventWorkflowService)
       : base(databaseContext)
     {
       _mapper = mapper;
       _dateService = dateService;
-      _fsmWorkflowHandler = fsmWorkflowHandler;
+      _eventWorkflowService = eventWorkflowService;
     }
 
     public IList<EventDto> GetEmployeeEvents(EventTypes eventType)
@@ -140,7 +140,7 @@ namespace AdminCore.Services
 
     public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
     {
-      var newEvent = BuildNewEvent(employee, eventTypes);
+      var newEvent = BuildNewAutoApprovedEvent(employee, eventTypes);
 
       UpdateEventDates(dates, newEvent);
 
@@ -442,12 +442,13 @@ namespace AdminCore.Services
         EventStatusId = eventStatusId,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
+        EventWorkflow = _mapper.Map<EventWorkflow>(_eventWorkflowService.CreateEventWorkflow(employeeId, (int)eventTypes)),
         LastModified = _dateService.GetCurrentDateTime()
       };
       return newEvent;
     }
 
-    private Event BuildNewEvent(Employee employee, EventTypes eventTypes)
+    private Event BuildNewAutoApprovedEvent(Employee employee, EventTypes eventTypes)
     {
       var newEvent = new Event
       {

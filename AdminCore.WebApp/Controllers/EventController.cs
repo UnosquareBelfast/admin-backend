@@ -148,8 +148,7 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         ValidateIfHolidayEvent(createEventViewModel, eventDates);
-        var eventDto = _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
-        _eventWorkflowService.AddEventWorkflow(eventDto, _employee);
+        _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
         return Ok($"Event has been created successfully");
       }
       catch (Exception ex)
@@ -192,16 +191,13 @@ namespace AdminCore.WebApi.Controllers
       {
         var eventToApprove = _eventService.GetEvent(approveEventViewModel.EventId);
         
-        var eventApprovalState = _eventWorkflowService.UpdateWorkflowResponse(eventToApprove, _employee, EventStatuses.Approved);
-
-        if (eventApprovalState == EventStatuses.Approved)
+        var eventInFinalState = _eventWorkflowService.WorkflowResponseApprove(eventToApprove, _employee);
+        if (eventInFinalState)
         {
           return ApproveIfEventDoesNotBelongToTheAdmin(approveEventViewModel, eventToApprove);
         }
-        else
-        {
-          return Ok("Approve response sent successfully");
-        }
+
+        return Ok("Approve response sent successfully");
       }
       catch (Exception ex)
       {
@@ -216,9 +212,9 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         var eventToCancel = _eventService.GetEvent(cancelEventViewModel.EventId);
-        var eventApprovalState = _eventWorkflowService.UpdateWorkflowResponse(eventToCancel, _employee, EventStatuses.Cancelled);
+        var eventInFinalState = _eventWorkflowService.WorkflowResponseCancel(eventToCancel, _employee);
 
-        if (eventApprovalState == EventStatuses.Cancelled)
+        if (eventInFinalState)
         {
           _eventService.UpdateEventStatus(cancelEventViewModel.EventId, EventStatuses.Cancelled);
         }
@@ -239,9 +235,9 @@ namespace AdminCore.WebApi.Controllers
       try
       {       
         var eventToReject = _eventService.GetEvent(rejectEventViewModel.EventId);
-        var eventApprovalState = _eventWorkflowService.UpdateWorkflowResponse(eventToReject, _employee, EventStatuses.Rejected);
+        var eventInFinalState = _eventWorkflowService.WorkflowResponseReject(eventToReject, _employee);
 
-        if (eventApprovalState == EventStatuses.Rejected)
+        if (eventInFinalState)
         {
           _eventService.RejectEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
          

@@ -1,31 +1,36 @@
 using System.Collections.Generic;
+using System.Linq;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
+using AdminCore.DAL;
+using AdminCore.DAL.Models;
 using AdminCore.DTOs.EventWorkflow;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
+using AdminCore.FsmWorkflow;
+using AdminCore.Services.Base;
 using AutoMapper;
 
 namespace AdminCore.Services
 {
-    public class EventWorkflowService : IEventWorkflowService
+    public class EventWorkflowService : BaseService, IEventWorkflowService
     {
-        private IMapper _mapper;
-        public EventWorkflowService(IMapper mapper)
+        private readonly IMapper _mapper;
+        private readonly IEmployeeService _employeeService;
+        private readonly IFsmWorkflowHandler _fsmWorkflowHandler;
+        
+        public EventWorkflowService(IDatabaseContext databaseContext, IMapper mapper, IEmployeeService employeeService, IFsmWorkflowHandler fsmWorkflowHandler) : base(databaseContext)
         {
             _mapper = mapper;
+            _employeeService = employeeService;
+            _fsmWorkflowHandler = fsmWorkflowHandler;
         }
 
-        public EventWorkflowDto AddEventWorkflow(int eventId, EmployeeDto employee)
+        public EventWorkflowDto CreateEventWorkflow(int eventId, int eventTypeId)
         {
-            throw new System.NotImplementedException();
+            return _mapper.Map<EventWorkflowDto>(_fsmWorkflowHandler.CreateEventWorkflow(eventId, eventTypeId));
         }
-
-        public EventWorkflowDto AddEventWorkflow(EventDto employeeEvent, EmployeeDto employee)
-        {
-            throw new System.NotImplementedException();
-        }
-
+        
         public EventWorkflowDto GetWorkflowByEventId(int eventId)
         {
             throw new System.NotImplementedException();
@@ -41,14 +46,25 @@ namespace AdminCore.Services
             throw new System.NotImplementedException();
         }
 
-        public EventStatuses UpdateWorkflowResponse(int eventId, EmployeeDto employee, EventStatuses eventStatus)
+        public bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto employee)
         {
-            throw new System.NotImplementedException();
+            return FireWorkflowTrigger(employeeEvent, employee, EventStatuses.Approved);
         }
 
-        public EventStatuses UpdateWorkflowResponse(EventDto employeeEvent, EmployeeDto employee, EventStatuses eventStatus)
+        public bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto employee)
         {
-            throw new System.NotImplementedException();
+            return FireWorkflowTrigger(employeeEvent, employee, EventStatuses.Rejected);
+        }
+
+        public bool WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto employee)
+        {
+            return FireWorkflowTrigger(employeeEvent, employee, EventStatuses.Cancelled);
+        }
+
+        private bool FireWorkflowTrigger(EventDto employeeEvent, EmployeeDto employee, EventStatuses eventStatuses)
+        {
+            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(x => x.EventId == employeeEvent.EventId);
+            return _fsmWorkflowHandler.FireLeaveResponded(employeeEvent, employee, eventStatuses, eventWorkflow);
         }
     }
 }
