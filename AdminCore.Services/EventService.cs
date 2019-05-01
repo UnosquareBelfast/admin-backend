@@ -442,7 +442,6 @@ namespace AdminCore.Services
         EventStatusId = eventStatusId,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
-        EventWorkflow = _fsmWorkflowHandler.CreateEventWorkflow(eventTypes, "", "", ""),
         LastModified = _dateService.GetCurrentDateTime()
       };
       return newEvent;
