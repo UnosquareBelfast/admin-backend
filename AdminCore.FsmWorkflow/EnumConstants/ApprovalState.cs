@@ -4,6 +4,7 @@ namespace AdminCore.FsmWorkflow.EnumConstants
     {
         Unassigned,
         Approved,
-        Rejected
+        Rejected,
+        Cancelled
     }
 }

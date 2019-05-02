@@ -10,6 +10,6 @@ namespace AdminCore.FsmWorkflow
     {
         EventWorkflow CreateEventWorkflow(int eventId, int eventTypeId);
 
-        bool FireLeaveResponded(EventDto employeeEvent, EmployeeDto employee, EventStatuses eventStatus, EventWorkflow eventWorkflow);
+        bool FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow);
     }
 }

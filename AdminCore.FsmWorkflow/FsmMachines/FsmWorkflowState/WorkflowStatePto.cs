@@ -12,6 +12,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
         public string TeamLead { get; set; }
         public string Client { get; set; }
         public string Cse { get; set; }
+        public string Admin { get; set; }
         
         public Dictionary<string, ApprovalState> ApprovalDict { get; set; }
 
@@ -23,19 +24,21 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
             ApprovalDict = approvalDict;
         } 
         
-        public WorkflowStatePto(string teamLead, string client, string cse, PtoState initialState)
+        public WorkflowStatePto(string teamLead, string client, string cse, string admin, PtoState initialState)
         {
             CurrentState = initialState;
 
             TeamLead = teamLead;
             Client = client;
             Cse = cse;
+            Admin = admin;
             
             ApprovalDict = new Dictionary<string, ApprovalState>
             {
                 {teamLead, ApprovalState.Unassigned},
                 {client, ApprovalState.Unassigned},
-                {cse, ApprovalState.Unassigned}
+                {cse, ApprovalState.Unassigned},
+                {admin, ApprovalState.Unassigned}
             };
         }
     }

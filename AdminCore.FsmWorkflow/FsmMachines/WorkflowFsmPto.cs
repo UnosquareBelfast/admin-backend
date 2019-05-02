@@ -11,20 +11,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     public class WorkflowFsmPto : WorkflowFsm<WorkflowStatePto, PtoState, LeaveTrigger>
     {       
         private StateMachine<PtoState, LeaveTrigger>.TriggerWithParameters<ApprovalState, string> LeaveResponseTrigger;
-        
-//        private string _teamLead, _client, _cse;
 
-        public WorkflowFsmPto()
-        {
-            
-        }
-        
-        public WorkflowFsmPto(string teamLead, string client, string cse, PtoState initialState)
-        {           
-            FsmStateData = new WorkflowStatePto(teamLead, client, cse, initialState);
-
-            ConfigureFsm();
-        }
 
         public WorkflowFsmPto(WorkflowStatePto fsmStateData)
         {
@@ -35,10 +22,6 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         
         protected override void ConfigureFsm()
         {
-//            _teamLead = FsmStateData.TeamLead;
-//            _client = FsmStateData.Client;
-//            _cse = FsmStateData.Cse;
-            
             FsMachine = new StateMachine<PtoState, LeaveTrigger>(() => FsmStateData.CurrentState, s => FsmStateData.CurrentState = s);
             
             LeaveResponseTrigger = FsMachine.SetTriggerParameters<ApprovalState, string>(LeaveTrigger.LeaveResponded);
@@ -48,7 +31,13 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
                 .OnActivate(() =>
                 {
-                    if (IsTeamLeadClientResponsesReceived(FsmStateData.ApprovalDict))
+                    if (IsAdminResponseReceived(FsmStateData.ApprovalDict))
+                    {
+                        FsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
+                            ? LeaveTrigger.AdminApprove
+                            : LeaveTrigger.AdminReject);
+                    }
+                    else if (IsTeamLeadClientResponsesReceived(FsmStateData.ApprovalDict))
                     {
                         FsMachine.Fire(LeaveTrigger.TeamLeadClientResponseReceived);
                     }
@@ -57,6 +46,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTrigger.TeamLeadClientResponseReceived, PtoState.LeaveAwaitingCse)
                 .Permit(LeaveTrigger.LeaveCancelled, PtoState.LeaveCancelled)
+                .Permit(LeaveTrigger.AdminApprove, PtoState.LeaveApproved)
+                .Permit(LeaveTrigger.AdminReject, PtoState.LeaveRejected)
                 .PermitReentry(LeaveTrigger.EvaluateLeaveState);
             
             // Leave Awaiting CSE
@@ -64,6 +55,12 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
                 .OnActivate(() =>
                 {
+                    if (IsAdminResponseReceived(FsmStateData.ApprovalDict))
+                    {
+                        FsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
+                            ? LeaveTrigger.AdminApprove
+                            : LeaveTrigger.AdminReject);
+                    }
                     switch (FsmStateData.ApprovalDict[FsmStateData.Cse])
                     {
                         case ApprovalState.Approved:
@@ -79,6 +76,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Permit(LeaveTrigger.LeaveApproved, PtoState.LeaveApproved)
                 .Permit(LeaveTrigger.LeaveRejected, PtoState.LeaveRejected)
                 .Permit(LeaveTrigger.LeaveCancelled, PtoState.LeaveCancelled)
+                .Permit(LeaveTrigger.AdminApprove, PtoState.LeaveApproved)
+                .Permit(LeaveTrigger.AdminReject, PtoState.LeaveRejected)
                 .PermitReentry(LeaveTrigger.EvaluateLeaveState);
             
             // Leave Approved
@@ -113,6 +112,16 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                    approvalDict[FsmStateData.Client] != ApprovalState.Unassigned;
         }
 
+        private bool IsAdminResponseReceived(Dictionary<string, ApprovalState> approvalDict)
+        {
+            return approvalDict[FsmStateData.Admin] != ApprovalState.Unassigned;
+        }
+        
+        private bool IsAdminResponseApprove(Dictionary<string, ApprovalState> approvalDict)
+        {
+            return approvalDict[FsmStateData.Admin] == ApprovalState.Approved;
+        }
+        
         private void LeaveApproved()
         {
             Console.WriteLine("LEAVE APPROVED");

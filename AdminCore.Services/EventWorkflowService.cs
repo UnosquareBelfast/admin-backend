@@ -46,25 +46,25 @@ namespace AdminCore.Services
             throw new System.NotImplementedException();
         }
 
-        public bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto employee)
+        public bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto respondeeEmployee)
         {
-            return FireWorkflowTrigger(employeeEvent, employee, EventStatuses.Approved);
+            return FireWorkflowTrigger(employeeEvent, respondeeEmployee, EventStatuses.Approved);
         }
 
-        public bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto employee)
+        public bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto respondeeEmployee)
         {
-            return FireWorkflowTrigger(employeeEvent, employee, EventStatuses.Rejected);
+            return FireWorkflowTrigger(employeeEvent, respondeeEmployee, EventStatuses.Rejected);
         }
 
-        public bool WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto employee)
+        public bool WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto respondeeEmployee)
         {
-            return FireWorkflowTrigger(employeeEvent, employee, EventStatuses.Cancelled);
+            return FireWorkflowTrigger(employeeEvent, respondeeEmployee, EventStatuses.Cancelled);
         }
 
-        private bool FireWorkflowTrigger(EventDto employeeEvent, EmployeeDto employee, EventStatuses eventStatuses)
+        private bool FireWorkflowTrigger(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
         {
             var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(x => x.EventId == employeeEvent.EventId);
-            return _fsmWorkflowHandler.FireLeaveResponded(employeeEvent, employee, eventStatuses, eventWorkflow);
+            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow);
         }
     }
 }

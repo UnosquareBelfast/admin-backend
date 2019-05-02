@@ -13,8 +13,8 @@ namespace AdminCore.Common.Interfaces
     IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId);
     IDictionary<EmployeeRoleDto, ApprovalStatusDto> GetWorkflowApprovalStatusDictById(int eventId);
 //    bool WorkflowResponseApprove(int eventId, EmployeeDto employee, EventStatuses eventStatus);
-    bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto employee);
-    bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto employee);
-    bool WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto employee);
+    bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto respondeeEmployee);
+    bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto respondeeEmployee);
+    bool WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto respondeeEmployee);
   }
 }

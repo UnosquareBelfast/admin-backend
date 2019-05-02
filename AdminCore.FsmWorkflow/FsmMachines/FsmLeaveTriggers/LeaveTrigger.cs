@@ -7,6 +7,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers
         LeaveResponded,
         LeaveCancelled,
         EvaluateLeaveState,
-        TeamLeadClientResponseReceived
+        TeamLeadClientResponseReceived,
+        AdminApprove,
+        AdminReject
     }
 }

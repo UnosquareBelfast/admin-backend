@@ -32,9 +32,21 @@ namespace AdminCore.FsmWorkflow
             return workflow;
         }
 
-        public bool FireLeaveResponded(EventDto employeeEvent, EmployeeDto employee, EventStatuses eventStatus, EventWorkflow eventWorkflow)
+        public bool FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow)
         {
-            var 
+            var approvalState = ApprovalState.Unassigned;
+            switch (eventStatus)
+            {
+                case EventStatuses.Approved:
+                    approvalState = ApprovalState.Approved;
+                    break;
+                case EventStatuses.Rejected:
+                    approvalState = ApprovalState.Rejected;
+                    break;
+                case EventStatuses.Cancelled:
+                    approvalState = ApprovalState.Cancelled;
+                    break;
+            }
             
             switch (employeeEvent.EventTypeId)
             {
@@ -44,15 +56,12 @@ namespace AdminCore.FsmWorkflow
                     var workflowStateData = new WorkflowStatePto((PtoState)eventWorkflow.WorkflowState, approvalDict);
                     var workflowFsm = new WorkflowFsmPto(workflowStateData);
                     
-                    return workflowFsm.FireLeaveResponded();
+                    // Cast is not redundant, need the int value of enum as a string
+                    // ReSharper disable once RedundantCast
+                    return workflowFsm.FireLeaveResponded(approvalState, ((int)respondeeEmployee.EmployeeRoleId).ToString());
                 default:
                     return false;
             }
-        }
-
-        private ILeaveWorkflow<State> ReplayWorkflowFsm<State>()
-        {
-            
         }
 
         private Dictionary<string, ApprovalState> RebuildApprovalDictionary(int eventTypeId, EventWorkflow eventWorkflow)
@@ -62,16 +71,19 @@ namespace AdminCore.FsmWorkflow
                 case (int) EventTypes.AnnualLeave:
                     var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.TeamLeader)?.ApprovalStatusId
                                                ?? (int)ApprovalState.Unassigned;
-                    var teamClientResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.ApprovalStatusId
+                    var clientResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.ApprovalStatusId
                                              ?? (int)ApprovalState.Unassigned;
-                    var teamCseResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.ApprovalStatusId 
+                    var cseResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.ApprovalStatusId 
+                                          ?? (int)ApprovalState.Unassigned;
+                    var adminResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.ApprovalStatusId 
                                           ?? (int)ApprovalState.Unassigned;
 
                     return new Dictionary<string, ApprovalState>
                     {
                         {((int) EmployeeRoles.TeamLeader).ToString(), (ApprovalState) teamLeadLastResponse},
-                        {((int) EmployeeRoles.Client).ToString(), (ApprovalState) teamClientResponse},
-                        {((int) EmployeeRoles.Cse).ToString(), (ApprovalState) teamCseResponse}
+                        {((int) EmployeeRoles.Client).ToString(), (ApprovalState) clientResponse},
+                        {((int) EmployeeRoles.Cse).ToString(), (ApprovalState) cseResponse},
+                        {((int) EmployeeRoles.SystemAdministrator).ToString(), (ApprovalState) adminResponse}
                     };
                 default:
                     return new Dictionary<string, ApprovalState>();
@@ -105,19 +117,5 @@ namespace AdminCore.FsmWorkflow
                     return 0;
             }
         }
-        
-//        public void FireLeaveResponded(int eventId, EventTypes eventType, string serializedFsm, ApprovalState approvalState, string responderName)
-//        {
-//            switch (eventType)
-//            {
-//                case EventTypes.AnnualLeave:
-//                    var workflow = new WorkflowFsmPto();
-//                    workflow.FromJson(serializedFsm);
-//                    workflow.FireLeaveResponded(approvalState, responderName);
-//                    break;
-//                default:
-//                    return;
-//            }
-//        }
     }
 }
