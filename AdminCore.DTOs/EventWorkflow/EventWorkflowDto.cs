@@ -16,5 +16,6 @@ namespace AdminCore.DTOs.EventWorkflow
         public int WorkflowState { get; set; }
         
         public virtual ICollection<EmployeeApprovalResponseDto> EventWorkflowApprovalStatuses { get; set; }
+        public virtual ICollection<EventWorkflowResponderDto> EventWorkflowResponders { get; set; }
     }
 }

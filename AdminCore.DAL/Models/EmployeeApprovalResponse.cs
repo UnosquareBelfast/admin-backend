@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AdminCore.DAL.Models
 {
   [Table("employee_approval_response")]
-  public class EmployeeApprovalResponse : ISoftDeletable
+  public class EmployeeApprovalResponse
   {
     [Key]
     [Column("employee_approval_response_id")]
@@ -18,11 +18,11 @@ namespace AdminCore.DAL.Models
     [ForeignKey("EmployeeRoleId")]
     public virtual EmployeeRole EmployeeRole { get; set; }
     
-    [Column("approval_status_id")]
-    public int ApprovalStatusId { get; set; }
+    [Column("event_status_id")]
+    public int EventStatusId { get; set; }
 
-    [ForeignKey("ApprovalStatusId")]
-    public virtual ApprovalStatus ApprovalStatus { get; set; }
+    [ForeignKey("EventStatusId")]
+    public virtual EventStatus EventStatus { get; set; }
     
     [Column("event_workflow_id")]
     public int EventWorkflowId { get; set; }

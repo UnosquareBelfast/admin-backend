@@ -10,6 +10,7 @@ using AdminCore.DTOs.Event;
 using AdminCore.FsmWorkflow;
 using AdminCore.Services.Base;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.Services
 {
@@ -28,7 +29,12 @@ namespace AdminCore.Services
 
         public EventWorkflowDto CreateEventWorkflow(int eventId, int eventTypeId)
         {
-            return _mapper.Map<EventWorkflowDto>(_fsmWorkflowHandler.CreateEventWorkflow(eventId, eventTypeId));
+            var newEventWorkflow = _fsmWorkflowHandler.CreateEventWorkflow(eventId, eventTypeId);
+            
+            DatabaseContext.EventWorkflowRepository.Insert(newEventWorkflow);
+            DatabaseContext.SaveChanges();
+
+            return _mapper.Map<EventWorkflowDto>(newEventWorkflow);
         }
         
         public EventWorkflowDto GetWorkflowByEventId(int eventId)
@@ -41,7 +47,7 @@ namespace AdminCore.Services
             throw new System.NotImplementedException();
         }
 
-        public IDictionary<EmployeeRoleDto, ApprovalStatusDto> GetWorkflowApprovalStatusDictById(int eventId)
+        public IDictionary<EmployeeRoleDto, EventStatusDto> GetWorkflowApprovalStatusDictById(int eventId)
         {
             throw new System.NotImplementedException();
         }
@@ -63,7 +69,12 @@ namespace AdminCore.Services
 
         private bool FireWorkflowTrigger(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
         {
-            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(x => x.EventId == employeeEvent.EventId);
+            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
+                x => x.EventId == employeeEvent.EventId,
+                b => b.Include(c => c.Event)
+                    .Include(c => c.EventWorkflowResponders).ThenInclude(c => c.EmployeeRole)
+                    .Include(c => c.EventWorkflowApprovalStatuses).ThenInclude(c => c.EmployeeRole));
+
             return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow);
         }
     }

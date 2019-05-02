@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using AdminCore.FsmWorkflow.EnumConstants;
+using AdminCore.Constants.Enums;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
@@ -10,7 +10,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
 {
     public class WorkflowFsmPto : WorkflowFsm<WorkflowStatePto, PtoState, LeaveTrigger>
     {       
-        private StateMachine<PtoState, LeaveTrigger>.TriggerWithParameters<ApprovalState, string> LeaveResponseTrigger;
+        private StateMachine<PtoState, LeaveTrigger>.TriggerWithParameters<EventStatuses, string> LeaveResponseTrigger;
 
 
         public WorkflowFsmPto(WorkflowStatePto fsmStateData)
@@ -24,7 +24,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         {
             FsMachine = new StateMachine<PtoState, LeaveTrigger>(() => FsmStateData.CurrentState, s => FsmStateData.CurrentState = s);
             
-            LeaveResponseTrigger = FsMachine.SetTriggerParameters<ApprovalState, string>(LeaveTrigger.LeaveResponded);
+            LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTrigger.LeaveResponded);
 
             // Leave Awaiting Team Lead and Client
             FsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
@@ -63,10 +63,10 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                     }
                     switch (FsmStateData.ApprovalDict[FsmStateData.Cse])
                     {
-                        case ApprovalState.Approved:
+                        case EventStatuses.Approved:
                             FsMachine.Fire(LeaveTrigger.LeaveApproved);
                             break;
-                        case ApprovalState.Rejected:
+                        case EventStatuses.Rejected:
                             FsMachine.Fire(LeaveTrigger.LeaveRejected);
                             break;
                     }
@@ -98,7 +98,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             FsMachine.Activate();
         }
         
-        private void LeaveResponse(ApprovalState approvalState, string responder)
+        private void LeaveResponse(EventStatuses approvalState, string responder)
         {
             if(FsmStateData.ApprovalDict.TryGetValue(responder, out _))
             {
@@ -106,20 +106,20 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             }
         }
         
-        private bool IsTeamLeadClientResponsesReceived(Dictionary<string, ApprovalState> approvalDict)
+        private bool IsTeamLeadClientResponsesReceived(Dictionary<string, EventStatuses> approvalDict)
         {
-            return approvalDict[FsmStateData.TeamLead] != ApprovalState.Unassigned &&
-                   approvalDict[FsmStateData.Client] != ApprovalState.Unassigned;
+            return approvalDict[FsmStateData.TeamLead] != EventStatuses.AwaitingApproval &&
+                   approvalDict[FsmStateData.Client] != EventStatuses.AwaitingApproval;
         }
 
-        private bool IsAdminResponseReceived(Dictionary<string, ApprovalState> approvalDict)
+        private bool IsAdminResponseReceived(Dictionary<string, EventStatuses> approvalDict)
         {
-            return approvalDict[FsmStateData.Admin] != ApprovalState.Unassigned;
+            return approvalDict[FsmStateData.Admin] != EventStatuses.AwaitingApproval;
         }
         
-        private bool IsAdminResponseApprove(Dictionary<string, ApprovalState> approvalDict)
+        private bool IsAdminResponseApprove(Dictionary<string, EventStatuses> approvalDict)
         {
-            return approvalDict[FsmStateData.Admin] == ApprovalState.Approved;
+            return approvalDict[FsmStateData.Admin] == EventStatuses.Approved;
         }
         
         private void LeaveApproved()
@@ -137,7 +137,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             Console.WriteLine("LEAVE CANCELLED");
         }
         
-        public override bool FireLeaveResponded(ApprovalState approvalState, string responder)
+        public override bool FireLeaveResponded(EventStatuses approvalState, string responder)
         {
             // Fire the response trigger first.
             FsMachine.Fire(LeaveResponseTrigger, approvalState, responder);

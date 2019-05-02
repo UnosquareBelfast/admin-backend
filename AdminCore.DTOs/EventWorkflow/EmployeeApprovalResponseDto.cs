@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using AdminCore.DTOs.Employee;
+using AdminCore.DTOs.Event;
 using AdminCore.DTOs.EventWorkflow;
 
 namespace AdminCore.DAL.Models
@@ -12,9 +13,9 @@ namespace AdminCore.DAL.Models
 
     public virtual EmployeeRoleDto EmployeeRole { get; set; }
     
-    public int ApprovalStatusId { get; set; }
+    public int EventStatusId { get; set; }
 
-    public virtual ApprovalStatusDto ApprovalStatus { get; set; }
+    public virtual EventStatusDto EventStatus { get; set; }
     
     public int EventWorkflowId { get; set; }
 

@@ -57,6 +57,8 @@ namespace AdminCore.DAL.Database
     public DbSet<Schedule> Schedules { get; set; }
 
     public DbSet<Team> Teams { get; set; }
+    
+    public DbSet<EventWorkflow> EventWorkflows { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

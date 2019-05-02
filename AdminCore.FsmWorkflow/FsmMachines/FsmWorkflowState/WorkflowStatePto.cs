@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using AdminCore.FsmWorkflow.EnumConstants;
+using AdminCore.Constants.Enums;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using Newtonsoft.Json;
 
@@ -14,10 +14,10 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
         public string Cse { get; set; }
         public string Admin { get; set; }
         
-        public Dictionary<string, ApprovalState> ApprovalDict { get; set; }
+        public Dictionary<string, EventStatuses> ApprovalDict { get; set; }
 
         [JsonConstructor]
-        public WorkflowStatePto(PtoState currentState, Dictionary<string, ApprovalState> approvalDict)
+        public WorkflowStatePto(PtoState currentState, Dictionary<string, EventStatuses> approvalDict)
         {
             CurrentState = currentState;
 
@@ -33,12 +33,12 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
             Cse = cse;
             Admin = admin;
             
-            ApprovalDict = new Dictionary<string, ApprovalState>
+            ApprovalDict = new Dictionary<string, EventStatuses>
             {
-                {teamLead, ApprovalState.Unassigned},
-                {client, ApprovalState.Unassigned},
-                {cse, ApprovalState.Unassigned},
-                {admin, ApprovalState.Unassigned}
+                {teamLead, EventStatuses.AwaitingApproval},
+                {client, EventStatuses.AwaitingApproval},
+                {cse, EventStatuses.AwaitingApproval},
+                {admin, EventStatuses.AwaitingApproval}
             };
         }
     }

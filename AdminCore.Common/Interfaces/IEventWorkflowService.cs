@@ -11,7 +11,7 @@ namespace AdminCore.Common.Interfaces
     EventWorkflowDto CreateEventWorkflow(int eventId, int eventTypeId);
     EventWorkflowDto GetWorkflowByEventId(int eventId);
     IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId);
-    IDictionary<EmployeeRoleDto, ApprovalStatusDto> GetWorkflowApprovalStatusDictById(int eventId);
+    IDictionary<EmployeeRoleDto, EventStatusDto> GetWorkflowApprovalStatusDictById(int eventId);
 //    bool WorkflowResponseApprove(int eventId, EmployeeDto employee, EventStatuses eventStatus);
     bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto respondeeEmployee);
     bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto respondeeEmployee);

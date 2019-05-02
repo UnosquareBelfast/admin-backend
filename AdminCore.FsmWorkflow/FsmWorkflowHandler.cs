@@ -5,7 +5,6 @@ using AdminCore.DAL;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
-using AdminCore.FsmWorkflow.EnumConstants;
 using AdminCore.FsmWorkflow.FsmMachines;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
@@ -22,32 +21,19 @@ namespace AdminCore.FsmWorkflow
        
         public EventWorkflow CreateEventWorkflow(int eventId, int eventTypeId)
         {
-            var workflow = new EventWorkflow
+            var eventWorkflow = new EventWorkflow
             {
                 EventId = eventId,
-                EmployeeRoleResponders = CreateListRoleResponders(eventTypeId),
                 WorkflowState = GetInitialWorkflowState(eventTypeId)
             };
 
-            return workflow;
+            eventWorkflow.EventWorkflowResponders = CreateEventWorkflowResponders(eventTypeId, eventWorkflow);
+            
+            return eventWorkflow;
         }
 
         public bool FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow)
         {
-            var approvalState = ApprovalState.Unassigned;
-            switch (eventStatus)
-            {
-                case EventStatuses.Approved:
-                    approvalState = ApprovalState.Approved;
-                    break;
-                case EventStatuses.Rejected:
-                    approvalState = ApprovalState.Rejected;
-                    break;
-                case EventStatuses.Cancelled:
-                    approvalState = ApprovalState.Cancelled;
-                    break;
-            }
-            
             switch (employeeEvent.EventTypeId)
             {
                 case (int)EventTypes.AnnualLeave:
@@ -58,53 +44,59 @@ namespace AdminCore.FsmWorkflow
                     
                     // Cast is not redundant, need the int value of enum as a string
                     // ReSharper disable once RedundantCast
-                    return workflowFsm.FireLeaveResponded(approvalState, ((int)respondeeEmployee.EmployeeRoleId).ToString());
+                    return workflowFsm.FireLeaveResponded(eventStatus, ((int)respondeeEmployee.EmployeeRoleId).ToString());
                 default:
                     return false;
             }
         }
 
-        private Dictionary<string, ApprovalState> RebuildApprovalDictionary(int eventTypeId, EventWorkflow eventWorkflow)
+        private Dictionary<string, EventStatuses> RebuildApprovalDictionary(int eventTypeId, EventWorkflow eventWorkflow)
         {
             switch (eventTypeId)
             {
                 case (int) EventTypes.AnnualLeave:
-                    var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.TeamLeader)?.ApprovalStatusId
-                                               ?? (int)ApprovalState.Unassigned;
-                    var clientResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.ApprovalStatusId
-                                             ?? (int)ApprovalState.Unassigned;
-                    var cseResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.ApprovalStatusId 
-                                          ?? (int)ApprovalState.Unassigned;
-                    var adminResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.ApprovalStatusId 
-                                          ?? (int)ApprovalState.Unassigned;
+                    var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.TeamLeader)?.EventStatusId
+                                               ?? (int)EventStatuses.AwaitingApproval;
+                    var clientResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.EventStatusId
+                                             ?? (int)EventStatuses.AwaitingApproval;
+                    var cseResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.EventStatusId 
+                                          ?? (int)EventStatuses.AwaitingApproval;
+                    var adminResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.EventStatusId 
+                                          ?? (int)EventStatuses.AwaitingApproval;
 
-                    return new Dictionary<string, ApprovalState>
+                    return new Dictionary<string, EventStatuses>
                     {
-                        {((int) EmployeeRoles.TeamLeader).ToString(), (ApprovalState) teamLeadLastResponse},
-                        {((int) EmployeeRoles.Client).ToString(), (ApprovalState) clientResponse},
-                        {((int) EmployeeRoles.Cse).ToString(), (ApprovalState) cseResponse},
-                        {((int) EmployeeRoles.SystemAdministrator).ToString(), (ApprovalState) adminResponse}
+                        {((int) EmployeeRoles.TeamLeader).ToString(), (EventStatuses) teamLeadLastResponse},
+                        {((int) EmployeeRoles.Client).ToString(), (EventStatuses) clientResponse},
+                        {((int) EmployeeRoles.Cse).ToString(), (EventStatuses) cseResponse},
+                        {((int) EmployeeRoles.SystemAdministrator).ToString(), (EventStatuses) adminResponse}
                     };
                 default:
-                    return new Dictionary<string, ApprovalState>();
+                    return new Dictionary<string, EventStatuses>();
             }
         }
         
-        private ICollection<EmployeeRole> CreateListRoleResponders(int eventTypeId)
+        private ICollection<EventWorkflowResponder> CreateEventWorkflowResponders(int eventTypeId, EventWorkflow eventWorkflow)
         {          
-            var employeeRoleIdList = new List<int>();
+            var workflowRespondersIdList = new List<int>();
             switch (eventTypeId)
             {
                 case (int)EventTypes.AnnualLeave:
-                    employeeRoleIdList = new List<int>{(int)EmployeeRoles.TeamLeader, (int)EmployeeRoles.Client, (int)EmployeeRoles.Cse};
+                    workflowRespondersIdList = new List<int>{(int)EmployeeRoles.TeamLeader, (int)EmployeeRoles.Client, (int)EmployeeRoles.Cse};
                     break;
                 default:
-                    employeeRoleIdList = new List<int>();
+                    workflowRespondersIdList = new List<int>();
                     break;
             }
+
+            var employeeRoleIdList =_dbContext.EmployeeRoleRepository.GetAsQueryable(x => workflowRespondersIdList.Contains(x.EmployeeRoleId))
+                .Select(x => new EventWorkflowResponder
+            {
+                EventWorkflow = eventWorkflow,
+                EmployeeRoleId = x.EmployeeRoleId
+            }).ToList();
             
-            var employeeRoleList = _dbContext.EmployeeRoleRepository.GetAsQueryable(x => employeeRoleIdList.Contains(x.EmployeeRoleId)).ToList();
-            return employeeRoleList;
+            return employeeRoleIdList;
         }
 
         private int GetInitialWorkflowState(int eventTypeId)

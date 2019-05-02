@@ -2,7 +2,6 @@ using AdminCore.Constants.Enums;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
-using AdminCore.FsmWorkflow.EnumConstants;
 
 namespace AdminCore.FsmWorkflow
 {

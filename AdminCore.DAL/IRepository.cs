@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace AdminCore.DAL
 {
@@ -12,12 +13,12 @@ namespace AdminCore.DAL
     void Delete(T entityToDelete);
 
     IList<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        params Expression<Func<T, object>>[] includeProperties);
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null);
 
-    T GetSingle(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes);
+    T GetSingle(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null);
 
     IQueryable<T> GetAsQueryable(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        params Expression<Func<T, object>>[] includes);
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null);
 
     T Insert(T entity);
 

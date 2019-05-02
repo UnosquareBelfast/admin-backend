@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AdminCore.DAL.Models
 {
   [Table("event_workflow")]
-  public class EventWorkflow : ISoftDeletable
+  public class EventWorkflow
   {
     [Key]
     [Column("event_workflow_id")]
@@ -21,6 +21,6 @@ namespace AdminCore.DAL.Models
     public int WorkflowState { get; set; }
     
     public virtual ICollection<EmployeeApprovalResponse> EventWorkflowApprovalStatuses { get; set; }
-    public virtual ICollection<EmployeeRole> EmployeeRoleResponders { get; set; }
+    public virtual ICollection<EventWorkflowResponder> EventWorkflowResponders { get; set; }
   }
 }

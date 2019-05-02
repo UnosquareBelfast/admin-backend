@@ -442,9 +442,9 @@ namespace AdminCore.Services
         EventStatusId = eventStatusId,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
-        EventWorkflow = _mapper.Map<EventWorkflow>(_eventWorkflowService.CreateEventWorkflow(employeeId, (int)eventTypes)),
         LastModified = _dateService.GetCurrentDateTime()
       };
+      
       return newEvent;
     }
 
