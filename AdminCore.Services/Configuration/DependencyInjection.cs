@@ -43,7 +43,7 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
         services.AddTransient<IMailMessageService, MailMessageService>();
-        services.AddTransient<IMailSender, SmtpSender>();
+        services.AddTransient<IMailSender, SmtpMailSender>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

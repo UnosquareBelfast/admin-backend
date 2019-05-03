@@ -1,18 +1,16 @@
-using System.Collections.Generic;
-
 namespace AdminCore.DTOs.MailMessage
 {
     public class MailMessageDto
     {
-        public MailMessageDto()
+        public MailMessageDto(EmailAddressesDto emailAddress, string subject, string content)
         {
-            ToAddresses = new List<EmailAddressDto>();
-            FromAddresses = new List<EmailAddressDto>();
+            EmailAddresses = emailAddress;
+            Subject = subject;
+            Content = content;
         }
         
-        public List<EmailAddressDto> ToAddresses { get; set; }
-        public List<EmailAddressDto> FromAddresses { get; set; }
-        public string Subject { get; set; }
-        public string Content { get; set; }
+        public EmailAddressesDto EmailAddresses { get; }
+        public string Subject { get; }
+        public string Content { get; }
     }
 }
