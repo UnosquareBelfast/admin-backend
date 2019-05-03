@@ -9,4 +9,8 @@
       <PackageReference Include="NETCore.MailKit" Version="2.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
+    </ItemGroup>
+
 </Project>
