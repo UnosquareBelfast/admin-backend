@@ -9,11 +9,11 @@ namespace AdminCore.MailClients.SMTP
     /// </summary>
     public class SmtpSender : IMailSender
     {
-        private readonly ISmtpConfiguration _smtpConfiguration;
+        private readonly IMailServerConfiguration _mailServerConfiguration;
 
-        public SmtpSender(ISmtpConfiguration smtpConfiguration)
+        public SmtpSender(IMailServerConfiguration mailServerConfiguration)
         {
-            _smtpConfiguration = smtpConfiguration;
+            _mailServerConfiguration = mailServerConfiguration;
         }
         
         public void Send(List<MailMessageDto> messages)
