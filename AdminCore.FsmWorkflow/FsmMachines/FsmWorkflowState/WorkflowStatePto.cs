@@ -17,10 +17,15 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
         public Dictionary<string, EventStatuses> ApprovalDict { get; set; }
 
         [JsonConstructor]
-        public WorkflowStatePto(PtoState currentState, Dictionary<string, EventStatuses> approvalDict)
+        public WorkflowStatePto(PtoState currentState, string teamLead, string client, string cse, string admin, Dictionary<string, EventStatuses> approvalDict)
         {
             CurrentState = currentState;
 
+            TeamLead = teamLead;
+            Client = client;
+            Cse = cse;
+            Admin = admin;
+            
             ApprovalDict = approvalDict;
         } 
         

@@ -26,8 +26,6 @@ namespace AdminCore.FsmWorkflow
                 EventId = eventId,
                 WorkflowState = GetInitialWorkflowState(eventTypeId)
             };
-
-            eventWorkflow.EventWorkflowResponders = CreateEventWorkflowResponders(eventTypeId, eventWorkflow);
             
             return eventWorkflow;
         }
@@ -37,9 +35,14 @@ namespace AdminCore.FsmWorkflow
             switch (employeeEvent.EventTypeId)
             {
                 case (int)EventTypes.AnnualLeave:
-                    var approvalDict = RebuildApprovalDictionary(employeeEvent.EventTypeId, eventWorkflow);
+                    var approvalDict = RebuildWorkflowStateData(employeeEvent.EventTypeId, eventWorkflow);
                     
-                    var workflowStateData = new WorkflowStatePto((PtoState)eventWorkflow.WorkflowState, approvalDict);
+                    var workflowStateData = new WorkflowStatePto((PtoState)eventWorkflow.WorkflowState,
+                        ((int)EmployeeRoles.TeamLeader).ToString(),
+                        ((int)EmployeeRoles.Client).ToString(),
+                        ((int)EmployeeRoles.Cse).ToString(),
+                        ((int)EmployeeRoles.SystemAdministrator).ToString(),
+                        approvalDict);
                     var workflowFsm = new WorkflowFsmPto(workflowStateData);
                     
                     // Cast is not redundant, need the int value of enum as a string
@@ -50,7 +53,7 @@ namespace AdminCore.FsmWorkflow
             }
         }
 
-        private Dictionary<string, EventStatuses> RebuildApprovalDictionary(int eventTypeId, EventWorkflow eventWorkflow)
+        private Dictionary<string, EventStatuses> RebuildWorkflowStateData(int eventTypeId, EventWorkflow eventWorkflow)
         {
             switch (eventTypeId)
             {
@@ -76,28 +79,28 @@ namespace AdminCore.FsmWorkflow
             }
         }
         
-        private ICollection<EventWorkflowResponder> CreateEventWorkflowResponders(int eventTypeId, EventWorkflow eventWorkflow)
-        {          
-            var workflowRespondersIdList = new List<int>();
-            switch (eventTypeId)
-            {
-                case (int)EventTypes.AnnualLeave:
-                    workflowRespondersIdList = new List<int>{(int)EmployeeRoles.TeamLeader, (int)EmployeeRoles.Client, (int)EmployeeRoles.Cse};
-                    break;
-                default:
-                    workflowRespondersIdList = new List<int>();
-                    break;
-            }
-
-            var employeeRoleIdList =_dbContext.EmployeeRoleRepository.GetAsQueryable(x => workflowRespondersIdList.Contains(x.EmployeeRoleId))
-                .Select(x => new EventWorkflowResponder
-            {
-                EventWorkflow = eventWorkflow,
-                EmployeeRoleId = x.EmployeeRoleId
-            }).ToList();
-            
-            return employeeRoleIdList;
-        }
+//        private ICollection<EventTypeRequiredResponders> CreateEventWorkflowResponders(int eventTypeId, EventWorkflow eventWorkflow)
+//        {          
+//            var workflowRespondersIdList = new List<int>();
+//            switch (eventTypeId)
+//            {
+//                case (int)EventTypes.AnnualLeave:
+//                    workflowRespondersIdList = new List<int>{(int)EmployeeRoles.TeamLeader, (int)EmployeeRoles.Client, (int)EmployeeRoles.Cse};
+//                    break;
+//                default:
+//                    workflowRespondersIdList = new List<int>();
+//                    break;
+//            }
+//
+//            var employeeRoleIdList =_dbContext.EmployeeRoleRepository.GetAsQueryable(x => workflowRespondersIdList.Contains(x.EmployeeRoleId))
+//                .Select(x => new EventTypeRequiredResponders
+//            {
+//                EventWorkflow = eventWorkflow,
+//                EmployeeRoleId = x.EmployeeRoleId
+//            }).ToList();
+//            
+//            return employeeRoleIdList;
+//        }
 
         private int GetInitialWorkflowState(int eventTypeId)
         {

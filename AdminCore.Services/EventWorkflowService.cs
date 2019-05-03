@@ -69,13 +69,18 @@ namespace AdminCore.Services
 
         private bool FireWorkflowTrigger(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
         {
-            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
-                x => x.EventId == employeeEvent.EventId,
-                b => b.Include(c => c.Event)
-                    .Include(c => c.EventWorkflowResponders).ThenInclude(c => c.EmployeeRole)
-                    .Include(c => c.EventWorkflowApprovalStatuses).ThenInclude(c => c.EmployeeRole));
+            var eventWorkflow = DatabaseContext.EventTypeRepository.GetSingle(
+                x => x.EventTypeId == employeeEvent.EventId,
+                x => x.EventTypeRequiredResponders,
+                b => b.Include(c => c.EventTypeRequiredResponders).ThenInclude(c => c.EmployeeRole));
 
-            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow);
+//            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
+//                x => x.EventId == employeeEvent.EventId,
+//                b => b.Include(c => c.Event)
+//                    .Include(c => c.EventWorkflowResponders).ThenInclude(c => c.EmployeeRole)
+//                    .Include(c => c.EventWorkflowApprovalStatuses).ThenInclude(c => c.EmployeeRole));
+
+//            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow);
         }
     }
 }

@@ -23,9 +23,6 @@ namespace AdminCore.DAL.Models
 
     [Column("event_type_id")]
     public int EventTypeId { get; set; }
-
-//    [Column("event_workflow_id")]
-//    public int EventWorkflowId { get; set; }
     
     [Column("last_modified")]
     public DateTime LastModified { get; set; }
@@ -42,8 +39,7 @@ namespace AdminCore.DAL.Models
     [ForeignKey("EventTypeId")]
     public virtual EventType EventType { get; set; }
     
-//    [ForeignKey("EventWorkflowId")]
-//    public virtual EventWorkflow EventWorkflow { get; set; }
+    public virtual EventWorkflow EventWorkflow { get; set; }
 
     public virtual ICollection<EventDate> EventDates { get; set; }
   }

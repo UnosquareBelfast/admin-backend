@@ -52,25 +52,25 @@ ALTER SEQUENCE employee_employee_id_seq
 ----------------------------------------------------------------------------------------
 
 /*
-                                   EVENT WORKFLOW RESPONDER TABLE
+                                   EVENT TYPE REQUIRED RESPONDERS TABLE
 */
 
 ----------------------------------------------------------------------------------------
-CREATE SEQUENCE IF NOT EXISTS public.event_workflow_responder_event_workflow_responder_id_seq;
+CREATE SEQUENCE IF NOT EXISTS public.event_type_required_responders_event_type_required_responders_id_seq;
 CREATE TABLE IF NOT EXISTS public.event_workflow_responder
 (
-  event_workflow_responder_id integer NOT NULL DEFAULT nextval('event_workflow_responder_event_workflow_responder_id_seq'::regclass),
+  event_type_required_responders_id integer NOT NULL DEFAULT nextval('event_type_required_responders_event_type_required_responders_id_seq'::regclass),
 
-  event_workflow_id integer NOT NULL,
+  event_type_id integer NOT NULL,
   employee_role_id integer NOT NULL,
   
-  CONSTRAINT "event_workflow_responder_pkey" PRIMARY KEY (event_workflow_id, employee_role_id),
+  CONSTRAINT "event_type_required_responders_pkey" PRIMARY KEY (event_type_id, employee_role_id),
   
-  CONSTRAINT event_workflow_responder_event_workflow_id_fkey FOREIGN KEY (event_workflow_id)
-    REFERENCES public.event_workflow (event_workflow_id) MATCH SIMPLE
+  CONSTRAINT event_type_required_responders_event_type_id_fkey FOREIGN KEY (event_type_id)
+    REFERENCES public.event_type (event_type_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
-  CONSTRAINT event_workflow_responder_employee_role_id_fkey FOREIGN KEY (employee_role_id)
+  CONSTRAINT event_type_required_responders_employee_role_id_fkey FOREIGN KEY (employee_role_id)
     REFERENCES public.employee_role (employee_role_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
@@ -122,6 +122,22 @@ CREATE TABLE IF NOT EXISTS public.employee_approval_response
   TABLESPACE pg_default;
   
 -- Add new Data
+
+----------------------------------------------------------------------------------------
+
+/*
+                                   EVENT TYPE REQUIRED RESPONDERS TABLE
+                                   Add the required responders for event types
+*/
+
+----------------------------------------------------------------------------------------
+INSERT INTO public.event_type_required_responders (event_type_required_responders_id, event_type_id, employee_role_id)
+VALUES  (0, 1, 1),
+        (0, 1, 4),
+        (0, 1, 5)
+ON CONFLICT (event_type_required_responders_id)
+             DO NOTHING;
+
 ----------------------------------------------------------------------------------------
 
 /*

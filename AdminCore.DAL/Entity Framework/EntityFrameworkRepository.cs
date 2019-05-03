@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace AdminCore.DAL.Entity_Framework
 {
@@ -35,12 +34,12 @@ namespace AdminCore.DAL.Entity_Framework
       _dbSet.Remove(entityToDelete);
     }
 
-    public IList<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null)
+    public IList<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
     {
-      return GetAsQueryable(filter, orderBy, includes).ToList();
+      return GetAsQueryable(filter, orderBy, includeProperties).ToList();
     }
 
-    public T GetSingle(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null)
+    public T GetSingle(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes)
     {
       var query = GetAsQueryable(filter, null, includes);
 
@@ -52,7 +51,7 @@ namespace AdminCore.DAL.Entity_Framework
       return _dbSet.Add(entity)?.Entity;
     }
 
-    public IQueryable<T> GetAsQueryable(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> includes = null)
+    public IQueryable<T> GetAsQueryable(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includes)
     {
       var queryableData = _dbSet.AsQueryable();
 
@@ -61,11 +60,7 @@ namespace AdminCore.DAL.Entity_Framework
         queryableData = queryableData.Where(filter);
       }
 
-//      queryableData = IncludeEntities(queryableData, includes);
-      if (includes != null)
-      {
-        queryableData = includes(queryableData);
-      }
+      queryableData = IncludeEntities(queryableData, includes);
 
       if (orderBy != null)
       {
