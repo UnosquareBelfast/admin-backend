@@ -11,7 +11,7 @@ namespace AdminCore.MailClients.SMTP
     /// <summary>
     /// Dispatches email messages to mail server using MailKit SMTP Client.
     /// </summary>
-    public class SmtpMailSender : IMailSender, ISmtpMailSender
+    public class SmtpMailSender : ISmtpMailSender
     {
         private readonly IMailServerConfiguration _serverConfiguration;
 
