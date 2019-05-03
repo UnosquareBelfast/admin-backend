@@ -16,8 +16,12 @@ namespace AdminCore.DAL
 
     T GetSingle(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes);
 
+    T GetSingleThenIncludes(Expression<Func<T, bool>> filter = null,
+        params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[]
+            includeDatas);
+    
     IQueryable<T> GetAsQueryable(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        params Expression<Func<T, object>>[] includes);
+        params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas);
 
     T Insert(T entity);
 

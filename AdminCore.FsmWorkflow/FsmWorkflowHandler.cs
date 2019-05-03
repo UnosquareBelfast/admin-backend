@@ -58,13 +58,13 @@ namespace AdminCore.FsmWorkflow
             switch (eventTypeId)
             {
                 case (int) EventTypes.AnnualLeave:
-                    var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.TeamLeader)?.EventStatusId
+                    var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.TeamLeader)?.EventStatusId
                                                ?? (int)EventStatuses.AwaitingApproval;
-                    var clientResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.EventStatusId
+                    var clientResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.EventStatusId
                                              ?? (int)EventStatuses.AwaitingApproval;
-                    var cseResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.EventStatusId 
+                    var cseResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.EventStatusId 
                                           ?? (int)EventStatuses.AwaitingApproval;
-                    var adminResponse = eventWorkflow.EventWorkflowApprovalStatuses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.EventStatusId 
+                    var adminResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.EventStatusId 
                                           ?? (int)EventStatuses.AwaitingApproval;
 
                     return new Dictionary<string, EventStatuses>

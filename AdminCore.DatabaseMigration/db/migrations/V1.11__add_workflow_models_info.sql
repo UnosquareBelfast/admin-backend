@@ -57,9 +57,9 @@ ALTER SEQUENCE employee_employee_id_seq
 
 ----------------------------------------------------------------------------------------
 CREATE SEQUENCE IF NOT EXISTS public.event_type_required_responders_event_type_required_responders_id_seq;
-CREATE TABLE IF NOT EXISTS public.event_workflow_responder
+CREATE TABLE IF NOT EXISTS public.event_type_required_responders
 (
-  event_type_required_responders_id integer NOT NULL DEFAULT nextval('event_type_required_responders_event_type_required_responders_id_seq'::regclass),
+--   event_type_required_responders_id integer NOT NULL DEFAULT nextval('event_type_required_responders_event_type_required_responders_id_seq'::regclass),
 
   event_type_id integer NOT NULL,
   employee_role_id integer NOT NULL,
@@ -126,21 +126,6 @@ CREATE TABLE IF NOT EXISTS public.employee_approval_response
 ----------------------------------------------------------------------------------------
 
 /*
-                                   EVENT TYPE REQUIRED RESPONDERS TABLE
-                                   Add the required responders for event types
-*/
-
-----------------------------------------------------------------------------------------
-INSERT INTO public.event_type_required_responders (event_type_required_responders_id, event_type_id, employee_role_id)
-VALUES  (0, 1, 1),
-        (0, 1, 4),
-        (0, 1, 5)
-ON CONFLICT (event_type_required_responders_id)
-             DO NOTHING;
-
-----------------------------------------------------------------------------------------
-
-/*
                                    EMPLOYEE ROLE TABLE
                                    Add new employee roles
 */
@@ -151,4 +136,19 @@ VALUES (4, 'Cse'),
        (5, 'Client')
 ON CONFLICT (employee_role_id)
              DO NOTHING;
+  
+----------------------------------------------------------------------------------------
+
+/*
+                                   EVENT TYPE REQUIRED RESPONDERS TABLE
+                                   Add the required responders for event types
+*/
+
+----------------------------------------------------------------------------------------
+INSERT INTO public.event_type_required_responders (event_type_id, employee_role_id)
+VALUES  (1, 1),
+        (1, 4),
+        (1, 5);
+-- ON CONFLICT (event_type_required_responders_pkey)
+--              DO NOTHING;
 

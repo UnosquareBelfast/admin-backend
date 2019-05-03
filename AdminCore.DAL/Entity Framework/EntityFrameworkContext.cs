@@ -42,6 +42,10 @@ namespace AdminCore.DAL.Entity_Framework
     private IRepository<Team> _teamRepository;
     
     private IRepository<EventWorkflow> _eventWorkflowRepository;
+    
+    private IRepository<EventTypeRequiredResponders> _eventTypeRequiredRespondersRepository;
+    
+    private IRepository<EmployeeApprovalResponse> _employeeApprovalResponsesRepository;
 
     public EntityFrameworkContext()
     {
@@ -109,6 +113,12 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<EventWorkflow> EventWorkflowRepository =>
       _eventWorkflowRepository ?? (_eventWorkflowRepository = RetrieveRepository<EventWorkflow>());
 
+    public virtual IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository =>
+      _eventTypeRequiredRespondersRepository ?? (_eventTypeRequiredRespondersRepository = RetrieveRepository<EventTypeRequiredResponders>());
+    
+    public virtual IRepository<EmployeeApprovalResponse> EmployeeApprovalResponsesRepository =>
+      _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<EmployeeApprovalResponse>());
+    
     public virtual void SaveChanges()
     {
       _adminCoreContext.SaveChanges();

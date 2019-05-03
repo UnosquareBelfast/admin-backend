@@ -59,6 +59,8 @@ namespace AdminCore.DAL.Database
     public DbSet<Team> Teams { get; set; }
     
     public DbSet<EventWorkflow> EventWorkflows { get; set; }
+    
+    public DbSet<EventTypeRequiredResponders> EventTypeRequiredResponders { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -68,6 +70,10 @@ namespace AdminCore.DAL.Database
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
+      
+      modelBuilder.Entity<EventTypeRequiredResponders>()
+        .HasKey(o => new { o.EventTypeId, o.EmployeeRoleId });
+      
       foreach (var entityType in modelBuilder.Model.GetEntityTypes())
       {
         if (EntityIsSoftDeletable(entityType.ClrType))

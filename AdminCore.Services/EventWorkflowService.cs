@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Xml.Linq;
+using AdminCore.Common.Exceptions;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL;
@@ -69,18 +73,30 @@ namespace AdminCore.Services
 
         private bool FireWorkflowTrigger(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
         {
-            var eventWorkflow = DatabaseContext.EventTypeRepository.GetSingle(
-                x => x.EventTypeId == employeeEvent.EventId,
-                x => x.EventTypeRequiredResponders,
-                b => b.Include(c => c.EventTypeRequiredResponders).ThenInclude(c => c.EmployeeRole));
+//            var eventWorkflow = DatabaseContext.EventTypeRepository.GetSingleThenIncludes(
+//                x => x.EventTypeId == employeeEvent.EventTypeId,
+//                (x => x.EventTypeRequiredResponders,  new Expression<Func<object, object>>[]
+//                {
+//                    x => ((EventTypeRequiredResponders)x).EmployeeRole 
+//                }));
 
-//            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
-//                x => x.EventId == employeeEvent.EventId,
-//                b => b.Include(c => c.Event)
-//                    .Include(c => c.EventWorkflowResponders).ThenInclude(c => c.EmployeeRole)
-//                    .Include(c => c.EventWorkflowApprovalStatuses).ThenInclude(c => c.EmployeeRole));
+            var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == employeeEvent.EventTypeId)
+                .Select(x => x.EmployeeRoleId);
 
-//            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow);
+            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(x => x.EventId == employeeEvent.EventId, 
+                null,
+                x => x.EventWorkflowApprovalResponses);
+
+            eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.EmployeeApprovalResponsesRepository.Get(
+                x => x.EventWorkflowId == eventWorkflow.EventWorkflowId);
+            
+            if (!requiredResponders.Contains(respondeeEmployee.EmployeeRoleId) && (EmployeeRoles)respondeeEmployee.EmployeeRoleId != EmployeeRoles.SystemAdministrator)
+            {
+                throw new ValidationException("Current user does not have the required role to send an approval response on this event");
+            }
+            
+            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow);
+            return false;
         }
     }
 }

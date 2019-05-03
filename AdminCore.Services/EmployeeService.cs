@@ -171,7 +171,7 @@ namespace AdminCore.Services
       if (startDate.Year == DateTime.Now.Year)
       {
         var northernIrishHolidays = DatabaseContext.EntitledHolidayRepository
-          .GetSingle(x => x.Month == startDate.Month, null).EntitledHolidays;
+          .GetSingle(x => x.Month == startDate.Month).EntitledHolidays;
         return (short)(northernIrishHolidays + 3); //TODO Add public holidays from DB
       }
       holidays += 3; //TODO Add public holidays from DB

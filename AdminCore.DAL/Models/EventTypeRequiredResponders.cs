@@ -6,10 +6,10 @@ namespace AdminCore.DAL.Models
     [Table("event_type_required_responders")]
     public class EventTypeRequiredResponders
     {
-        [Key]
-        [Column("event_type_required_responders_id")]
-        public int EventTypeRequiredRespondersId { get; set; }
-        
+//        [Key]
+//        [Column("event_type_required_responders_id")]
+//        public int EventTypeRequiredRespondersId { get; set; }
+
         [Column("event_type_id")]
         public int EventTypeId { get; set; }
         [ForeignKey("EventTypeId")]
