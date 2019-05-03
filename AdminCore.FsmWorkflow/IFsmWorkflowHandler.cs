@@ -1,7 +1,9 @@
+using AdminCore.Common;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
+using AdminCore.FsmWorkflow.FsmMachines;
 
 namespace AdminCore.FsmWorkflow
 {
@@ -9,6 +11,6 @@ namespace AdminCore.FsmWorkflow
     {
         EventWorkflow CreateEventWorkflow(int eventId, int eventTypeId);
 
-        bool FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow);
+        WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow);
     }
 }

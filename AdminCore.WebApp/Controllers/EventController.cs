@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using AdminCore.Common;
+using Microsoft.AspNetCore.Rewrite.Internal.UrlActions;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -191,14 +193,32 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         var eventToApprove = _eventService.GetEvent(approveEventViewModel.EventId);
+
+        WorkflowFsmStateInfo workflowResultState;
+        try
+        {
+          if (!EventIsBookedByCurrentAdmin(eventToApprove))
+          {
+            workflowResultState = _eventWorkflowService.WorkflowResponseApprove(eventToApprove, _employee);
+          }
+          else
+          {
+            return StatusCode(403,"You may not approve your own Events");
+          }
+        }
+        catch (ValidationException e)
+        {
+          return StatusCode(403, e.ToString());
+        }
         
-        var eventInFinalState = _eventWorkflowService.WorkflowResponseApprove(eventToApprove, _employee);
-        if (eventInFinalState)
+        if (workflowResultState.CurrentEventStatuses == EventStatuses.Approved)
         {
           return ApproveIfEventDoesNotBelongToTheAdmin(approveEventViewModel, eventToApprove);
         }
 
-        return Ok("Approve response sent successfully");
+        return Ok("Approve response sent successfully.\n" +
+                  $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
+                  $"Event workflow message: {workflowResultState.Message}");
       }
       catch (Exception ex)
       {
@@ -215,10 +235,10 @@ namespace AdminCore.WebApi.Controllers
         var eventToCancel = _eventService.GetEvent(cancelEventViewModel.EventId);
         var eventInFinalState = _eventWorkflowService.WorkflowResponseCancel(eventToCancel, _employee);
 
-        if (eventInFinalState)
-        {
+//        if (eventInFinalState)
+//        {
           _eventService.UpdateEventStatus(cancelEventViewModel.EventId, EventStatuses.Cancelled);
-        }
+//        }
 
         return Ok("Cancel response sent successfully");
       }
@@ -238,11 +258,11 @@ namespace AdminCore.WebApi.Controllers
         var eventToReject = _eventService.GetEvent(rejectEventViewModel.EventId);
         var eventInFinalState = _eventWorkflowService.WorkflowResponseReject(eventToReject, _employee);
 
-        if (eventInFinalState)
-        {
+//        if (eventInFinalState)
+//        {
           _eventService.RejectEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
          
-        }
+//        }
         
         return Ok("Reject response sent successfully.");
       }

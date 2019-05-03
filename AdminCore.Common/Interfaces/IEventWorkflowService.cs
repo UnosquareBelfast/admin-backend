@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using AdminCore.Constants.Enums;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
 using AdminCore.DTOs.EventWorkflow;
@@ -13,8 +12,8 @@ namespace AdminCore.Common.Interfaces
     IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId);
     IDictionary<EmployeeRoleDto, EventStatusDto> GetWorkflowApprovalStatusDictById(int eventId);
 //    bool WorkflowResponseApprove(int eventId, EmployeeDto employee, EventStatuses eventStatus);
-    bool WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto respondeeEmployee);
-    bool WorkflowResponseReject(EventDto employeeEvent, EmployeeDto respondeeEmployee);
-    bool WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto respondeeEmployee);
+    WorkflowFsmStateInfo WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto respondeeEmployee);
+    WorkflowFsmStateInfo WorkflowResponseReject(EventDto employeeEvent, EmployeeDto respondeeEmployee);
+    WorkflowFsmStateInfo WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto respondeeEmployee);
   }
 }

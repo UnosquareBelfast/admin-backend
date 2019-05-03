@@ -5,9 +5,9 @@ using Newtonsoft.Json;
 
 namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
 {
-    public class WorkflowStatePto
+    public class WorkflowStateData
     {
-        public PtoState CurrentState { get; set; }
+        public int CurrentState { get; set; }
         
         public string TeamLead { get; set; }
         public string Client { get; set; }
@@ -17,7 +17,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
         public Dictionary<string, EventStatuses> ApprovalDict { get; set; }
 
         [JsonConstructor]
-        public WorkflowStatePto(PtoState currentState, string teamLead, string client, string cse, string admin, Dictionary<string, EventStatuses> approvalDict)
+        public WorkflowStateData(int currentState, string teamLead, string client, string cse, string admin, Dictionary<string, EventStatuses> approvalDict)
         {
             CurrentState = currentState;
 
@@ -29,7 +29,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState
             ApprovalDict = approvalDict;
         } 
         
-        public WorkflowStatePto(string teamLead, string client, string cse, string admin, PtoState initialState)
+        public WorkflowStateData(string teamLead, string client, string cse, string admin, int initialState)
         {
             CurrentState = initialState;
 

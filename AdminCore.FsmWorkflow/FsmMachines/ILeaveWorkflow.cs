@@ -1,3 +1,4 @@
+using AdminCore.Common;
 using AdminCore.Constants.Enums;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
@@ -6,7 +7,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     {
         State CurrentState { get; }
         
-        bool FireLeaveResponded(EventStatuses approvalState, string responder);
+        WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder);
 
         string ToJson();
         

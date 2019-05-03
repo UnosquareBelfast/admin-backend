@@ -1,3 +1,4 @@
+using AdminCore.Common;
 using AdminCore.Constants.Enums;
 using Newtonsoft.Json;
 using Stateless;
@@ -7,11 +8,11 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     public abstract class WorkflowFsm<FsmData, State, Trigger> : ILeaveWorkflow<State>
     {
         public State CurrentState => FsMachine.State;
-        protected FsmData FsmStateData { get; set; }
+        public FsmData FsmStateData { get; protected set; }
         
         protected StateMachine<State, Trigger> FsMachine;
 
-        public abstract bool FireLeaveResponded(EventStatuses approvalState, string responder);
+        public abstract WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder);
         
         public virtual string ToJson()
         {

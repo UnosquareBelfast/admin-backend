@@ -1,28 +1,32 @@
 using System;
 using System.Collections.Generic;
+using AdminCore.Common;
 using AdminCore.Constants.Enums;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
 using Stateless;
+using Stateless.Reflection;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
-    public class WorkflowFsmPto : WorkflowFsm<WorkflowStatePto, PtoState, LeaveTrigger>
+    public class WorkflowFsmPto : WorkflowFsm<WorkflowStateData, PtoState, LeaveTrigger>
     {       
         private StateMachine<PtoState, LeaveTrigger>.TriggerWithParameters<EventStatuses, string> LeaveResponseTrigger;
 
-
-        public WorkflowFsmPto(WorkflowStatePto fsmStateData)
+        private EventStatuses _currentEventStatus = EventStatuses.AwaitingApproval;
+        private string _message = EventStatuses.AwaitingApproval.ToString();
+        
+        public WorkflowFsmPto(WorkflowStateData fsmStateData)
         {
             FsmStateData = fsmStateData;
-
+            
             ConfigureFsm();
         }
         
         protected override void ConfigureFsm()
         {
-            FsMachine = new StateMachine<PtoState, LeaveTrigger>(() => FsmStateData.CurrentState, s => FsmStateData.CurrentState = s);
+            FsMachine = new StateMachine<PtoState, LeaveTrigger>(() => (PtoState)FsmStateData.CurrentState, s => FsmStateData.CurrentState = (int)s);
             
             LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTrigger.LeaveResponded);
 
@@ -124,27 +128,34 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         
         private void LeaveApproved()
         {
-            Console.WriteLine("LEAVE APPROVED");
+            _currentEventStatus = EventStatuses.Approved;
+            _message = "Leave Approved";
         }
 
         private void LeaveRejected()
         {
-            Console.WriteLine("LEAVE REJECTED");
+            _currentEventStatus = EventStatuses.Rejected;
+            _message = "Leave Rejected";
         }
 
         private void LeaveCancelled()
         {
-            Console.WriteLine("LEAVE CANCELLED");
+            _currentEventStatus = EventStatuses.Cancelled;
+            _message = "Leave Cancelled";
         }
         
-        public override bool FireLeaveResponded(EventStatuses approvalState, string responder)
+        public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
         {
             // Fire the response trigger first.
             FsMachine.Fire(LeaveResponseTrigger, approvalState, responder);
             // Then evaluate the changes.
             FsMachine.Fire(LeaveTrigger.EvaluateLeaveState);
-
-            return FsMachine.IsInState(PtoState.LeaveRequestCompleted);
+           
+            var machineStateInfo = new WorkflowFsmStateInfo(FsMachine.IsInState(PtoState.LeaveRequestCompleted),
+                _currentEventStatus,
+                _message);
+            
+            return machineStateInfo;
         }
     }
 }
