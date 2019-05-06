@@ -62,7 +62,7 @@ namespace AdminCore.Services
             return FireWorkflowTrigger(employeeEvent, respondeeEmployee, EventStatuses.Cancelled);
         }
 
-        private WorkflowFsmStateInfo FireWorkflowTrigger(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
+        private WorkflowFsmStateInfo FireWorkflowTrigger(EventDto leaveEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
         {
 //            var eventWorkflow = DatabaseContext.EventTypeRepository.GetSingleThenIncludes(
 //                x => x.EventTypeId == employeeEvent.EventTypeId,
@@ -71,22 +71,23 @@ namespace AdminCore.Services
 //                    x => ((EventTypeRequiredResponders)x).EmployeeRole 
 //                }));
 
-            var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == employeeEvent.EventTypeId)
+            var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == leaveEvent.EventTypeId)
                 .Select(x => x.EmployeeRoleId);
 
-            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(x => x.EventId == employeeEvent.EventId, 
+            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(x => x.EventId == leaveEvent.EventId, 
                 null,
                 x => x.EventWorkflowApprovalResponses);
 
             eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.EmployeeApprovalResponsesRepository.Get(
                 x => x.EventWorkflowId == eventWorkflow.EventWorkflowId);
             
-            if (!requiredResponders.Contains(respondeeEmployee.EmployeeRoleId) && (EmployeeRoles)respondeeEmployee.EmployeeRoleId != EmployeeRoles.SystemAdministrator)
+            if (requiredResponders.Contains(respondeeEmployee.EmployeeRoleId) || (EmployeeRoles)respondeeEmployee.EmployeeRoleId == EmployeeRoles.SystemAdministrator
+                || respondeeEmployee.EmployeeId == leaveEvent.EmployeeId && eventStatuses == EventStatuses.Cancelled)
             {
-                throw new ValidationException("Current user does not have the required role to send an approval response on this event");
+                return _fsmWorkflowHandler.FireLeaveResponse(leaveEvent, respondeeEmployee, eventStatuses, eventWorkflow); 
+                
             }
-           
-            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow); 
+            throw new ValidationException("Current user does not have the required role to send an approval response on this event");
         }
     }
 }

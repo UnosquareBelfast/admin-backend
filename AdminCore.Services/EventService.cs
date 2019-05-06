@@ -516,7 +516,7 @@ namespace AdminCore.Services
         EventMessageTypeId = (int)eventMessageType,
         EmployeeId = employeeId,
         LastModified = _dateService.GetCurrentDateTime(),
-        Message = message,
+        Message = message
       };
 
       return eventMessage;

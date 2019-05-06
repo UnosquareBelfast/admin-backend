@@ -190,137 +190,40 @@ namespace AdminCore.WebApi.Controllers
     [HttpPut("approveEvent")]
     public IActionResult ApproveEvent(ApproveEventViewModel approveEventViewModel)
     {
-      try
-      {
-        var eventToApprove = _eventService.GetEvent(approveEventViewModel.EventId);
-
-        WorkflowFsmStateInfo workflowResultState;
-        try
-        {
-          if (!EventIsBookedByCurrentUser(eventToApprove))
-          {
-            if (eventToApprove.EventStatusId == (int)EventStatuses.AwaitingApproval)
-            {
-              workflowResultState = _eventWorkflowService.WorkflowResponseApprove(eventToApprove, _employee);
-            }
-            else
-            {
-              return StatusCode((int)HttpStatusCode.OK, "Event is already approved.");
-            }
-          }
-          else
-          {
-            return StatusCode((int)HttpStatusCode.Forbidden,"You may not approve your own Events.");
-          }
-        }
-        catch (ValidationException e)
-        {
-          return StatusCode((int)HttpStatusCode.Forbidden, e.Message);
-        }
-        
-        // If the workflow is completed then 
-        UpdateEventStatus(workflowResultState, eventToApprove.EventId, EventStatuses.Approved);
-
-        return Ok($"Approve response sent successfully.{Environment.NewLine}" +
-                  $"Current event state: {workflowResultState.CurrentEventStatuses}{Environment.NewLine}" +
-                  $"Event workflow message: {workflowResultState.Message}");
-      }
-      catch (Exception ex)
-      {
-        Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong approving event");
-      }
+      return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponseApprove, eventDto => !EventIsBookedByCurrentUser(eventDto));
     }
     
     [HttpPut("cancelEvent")]
     public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
     {
-      try
-      {
-        var eventToCancel = _eventService.GetEvent(cancelEventViewModel.EventId);
-        var eventInFinalState = _eventWorkflowService.WorkflowResponseCancel(eventToCancel, _employee);
-
-        // TODO Only let employee do to own events.
-//        if (eventInFinalState)
-//        {
-          _eventService.UpdateEventStatus(cancelEventViewModel.EventId, EventStatuses.Cancelled);
-//        }
-
-        return Ok("Cancel response sent successfully");
-      }
-      catch (Exception ex)
-      {
-        Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong cancelling event");
-      }
-    }
-
-
-    private IActionResult CanProcessEvent(int eventId, Action canProcess, EventTypes eventType, string eventMessage = null)
-    {
-      try
-      {       
-        var eventToReject = _eventService.GetEvent(eventId);
-
-        try
-        {
-          if (!EventIsBookedByCurrentUser(eventToReject))
-          {
-            if (eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval)
-            {
-              // Advance workflow.
-              var workflowResultState = _eventWorkflowService.WorkflowResponseReject(eventToReject, _employee);
-            
-              // Add rejection message to event.
-              _eventService.AddRejectMessageToEvent(eventId, eventMessage, _employee.EmployeeId);
-              
-              // If the workflow is completed then 
-              UpdateEventStatus(workflowResultState, eventId, EventStatuses.Rejected);
-
-              return Ok("Reject response sent successfully.\n" +
-                        $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
-                        $"Event workflow message: {workflowResultState.Message}");
-            }
-
-            return StatusCode((int)HttpStatusCode.OK, "Event is already rejected.");
-          }
-          
-          return StatusCode((int)HttpStatusCode.Forbidden,"You may not reject your own Events.");
-        }
-        catch (ValidationException e)
-        {
-          return StatusCode((int)HttpStatusCode.Forbidden, e.Message);
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong rejecting event");
-      }
+      return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponseCancel, EventIsBookedByCurrentUser);
     }
 
     [Authorize("Admin")]
     [HttpPut("rejectEvent")]
     public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
     {
+      return ProcessEvent(rejectEventViewModel.EventId, _eventWorkflowService.WorkflowResponseReject, eventDto => !EventIsBookedByCurrentUser(eventDto), rejectEventViewModel.Message);
+    }
+
+    private IActionResult ProcessEvent(int eventId, Func<EventDto, EmployeeDto, WorkflowFsmStateInfo> workflowProcessFunc, Func<EventDto, bool> eventBookedByCurrentUser, string eventMessage = null)
+    {
       try
       {       
-        var eventToReject = _eventService.GetEvent(rejectEventViewModel.EventId);
+        var leaveEvent = _eventService.GetEvent(eventId);
 
         try
         {
-          if (!EventIsBookedByCurrentUser(eventToReject))
+          if (eventBookedByCurrentUser(leaveEvent))
           {
-            if (eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval)
+            if (leaveEvent.EventStatusId == (int)EventStatuses.AwaitingApproval)
             {
               // Advance workflow.
-              var workflowResultState = _eventWorkflowService.WorkflowResponseReject(eventToReject, _employee);
-            
-              // Add rejection message to event.
-              _eventService.AddRejectMessageToEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
+              var workflowResultState = workflowProcessFunc(leaveEvent, _employee);
+              // Add message to event.
+              _eventService.AddRejectMessageToEvent(eventId, eventMessage, _employee.EmployeeId);
               
-              // If the workflow is completed then 
-              UpdateEventStatus(workflowResultState, rejectEventViewModel.EventId, EventStatuses.Rejected);
+              UpdateEventStatus(workflowResultState, eventId);
 
               return Ok("Reject response sent successfully.\n" +
                         $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
@@ -343,12 +246,12 @@ namespace AdminCore.WebApi.Controllers
         return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong rejecting event");
       }
     }
-
-    private void UpdateEventStatus(WorkflowFsmStateInfo workflowResultState, int eventId, EventStatuses eventStatus)
+    
+    private void UpdateEventStatus(WorkflowFsmStateInfo workflowResultState, int eventId)
     {
       if (workflowResultState.CurrentEventStatuses != EventStatuses.AwaitingApproval && workflowResultState.Completed)
       {
-        _eventService.UpdateEventStatus(eventId, eventStatus);
+        _eventService.UpdateEventStatus(eventId, workflowResultState.CurrentEventStatuses);
       }
     }
     
@@ -462,7 +365,7 @@ namespace AdminCore.WebApi.Controllers
     {
       return eventToApprove.EmployeeId == _employee.EmployeeId;
     }
-
+    
     private void ValidateIfHolidayEvent(CreateEventViewModel createEventViewModel, EventDateDto eventDates)
     {
       PublicHolidayValidation(createEventViewModel);

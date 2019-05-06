@@ -172,11 +172,18 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         
         public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
         {
-            // Fire the response trigger first.
-            FsMachine.Fire(LeaveResponseTrigger, approvalState, responder);
-            // Then evaluate the changes.
-            FsMachine.Fire(LeaveTriggersPto.EvaluateLeaveState);
-           
+            if (approvalState != EventStatuses.Cancelled)
+            {
+                // Fire the response trigger first.
+                FsMachine.Fire(LeaveResponseTrigger, approvalState, responder);
+                // Then evaluate the changes.
+                FsMachine.Fire(LeaveTriggersPto.EvaluateLeaveState);
+            }
+            else
+            {
+                FsMachine.Fire(LeaveTriggersPto.LeaveCancelled);
+            }
+
             var machineStateInfo = new WorkflowFsmStateInfo(FsMachine.IsInState(PtoState.LeaveRequestCompleted),
                 _currentEventStatus,
                 _message);
