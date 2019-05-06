@@ -771,7 +771,7 @@ namespace AdminCore.Services.Tests
       var employeeIdRejecting = 2;
 
       // Act
-      eventService.RejectEvent(eventId, message, employeeIdRejecting);
+      eventService.AddRejectMessageToEvent(eventId, message, employeeIdRejecting);
 
       // Assert
       databaseContext.Received().SaveChanges();
@@ -795,7 +795,7 @@ namespace AdminCore.Services.Tests
       var employeeIdRejecting = 2;
 
       // Act
-      eventService.RejectEvent(eventId, null, employeeIdRejecting);
+      eventService.AddRejectMessageToEvent(eventId, null, employeeIdRejecting);
 
       // Assert
       databaseContext.Received().SaveChanges();
@@ -821,7 +821,7 @@ namespace AdminCore.Services.Tests
 
       // Act
       var ex = Assert.Throws<Exception>(() =>
-        eventService.RejectEvent(eventId, message, employeeIdRejecting));
+        eventService.AddRejectMessageToEvent(eventId, message, employeeIdRejecting));
 
       // Assert
       Assert.Equal($"Event {eventId} doesn't exist or is already rejected", ex.Message);
@@ -848,7 +848,7 @@ namespace AdminCore.Services.Tests
 
       // Act
       var ex = Assert.Throws<Exception>(() =>
-        eventService.RejectEvent(nonExistentEventId, message, employeeIdRejecting));
+        eventService.AddRejectMessageToEvent(nonExistentEventId, message, employeeIdRejecting));
 
       // Assert
       Assert.Equal($"Event {nonExistentEventId} doesn't exist or is already rejected", ex.Message);

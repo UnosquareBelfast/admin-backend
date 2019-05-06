@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdminCore.Common;
@@ -47,7 +48,7 @@ namespace AdminCore.FsmWorkflow
                     // Cast is not redundant, need the int value of enum as a string
                     // ReSharper disable once RedundantCast
                     workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, ((int)respondeeEmployee.EmployeeRoleId).ToString());
-                    eventWorkflow = RecreateEventWorkflowForSave(employeeEvent, respondeeEmployee, eventWorkflow, workflowStateData, workflowFsmStateInfo.CurrentEventStatuses);
+                    eventWorkflow = RecreateEventWorkflowForSave(employeeEvent, respondeeEmployee, eventWorkflow, workflowStateData, eventStatus);
                     break;
             }
 
@@ -90,7 +91,7 @@ namespace AdminCore.FsmWorkflow
         }
 
         private EventWorkflow RecreateEventWorkflowForSave(EventDto employeeEvent, EmployeeDto respondeeEmployee, 
-            EventWorkflow eventWorkflow, WorkflowStateData workflowStateData, EventStatuses currentEventStatus)
+            EventWorkflow eventWorkflow, WorkflowStateData workflowStateData, EventStatuses employeeResponseEventStatus)
         {
             eventWorkflow.WorkflowState = workflowStateData.CurrentState;
             
@@ -98,8 +99,9 @@ namespace AdminCore.FsmWorkflow
             {
                 EmployeeId = respondeeEmployee.EmployeeId,
                 EmployeeRoleId = respondeeEmployee.EmployeeRoleId,
-                EventStatusId = (int)currentEventStatus,
-                EventWorkflowId = eventWorkflow.EventWorkflowId
+                EventStatusId = (int)employeeResponseEventStatus,
+                EventWorkflowId = eventWorkflow.EventWorkflowId,
+                ResonseSentDate = DateTime.Now
             });
             
             return eventWorkflow;

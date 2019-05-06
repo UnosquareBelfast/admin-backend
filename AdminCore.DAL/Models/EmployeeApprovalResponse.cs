@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AdminCore.DAL.Models.Base;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,6 +13,11 @@ namespace AdminCore.DAL.Models
     [Column("employee_approval_response_id")]
     public int EmployeeApprovalResponseId { get; set; }
 
+    [Column("response_sent_date")]
+    public DateTime ResonseSentDate { get; set; }
+//    [Column("response_message")]
+//    public string ResponseMessage { get; set; }
+    
     [Column("employee_role_id")]
     public int EmployeeRoleId { get; set; }
     [ForeignKey("EmployeeRoleId")]

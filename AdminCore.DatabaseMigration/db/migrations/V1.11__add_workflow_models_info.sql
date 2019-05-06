@@ -93,6 +93,8 @@ CREATE TABLE IF NOT EXISTS public.employee_approval_response
   employee_approval_response_id integer NOT NULL DEFAULT nextval('employee_approval_response_employee_approval_response_id_seq'::regclass),
 
   employee_role_id integer NOT NULL,
+--   response_message text NOT NULL,
+  response_sent_date date NOT NULL,
   event_status_id integer NOT NULL,
   event_workflow_id integer NOT NULL,
   employee_id integer NOT NULL,

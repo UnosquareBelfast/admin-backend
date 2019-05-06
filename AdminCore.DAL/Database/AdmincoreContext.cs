@@ -71,6 +71,7 @@ namespace AdminCore.DAL.Database
     {
       base.OnModelCreating(modelBuilder);
       
+      // Must declare composite primary keys through fluent API.
       modelBuilder.Entity<EventTypeRequiredResponders>()
         .HasKey(o => new { o.EventTypeId, o.EmployeeRoleId });
       

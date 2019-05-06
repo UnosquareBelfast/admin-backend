@@ -1,22 +1,16 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Xml.Linq;
 using AdminCore.Common;
 using AdminCore.Common.Exceptions;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL;
-using AdminCore.DAL.Models;
 using AdminCore.DTOs.EventWorkflow;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
 using AdminCore.FsmWorkflow;
-using AdminCore.FsmWorkflow.FsmMachines;
 using AdminCore.Services.Base;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.Services
 {
@@ -93,8 +87,8 @@ namespace AdminCore.Services
             {
                 throw new ValidationException("Current user does not have the required role to send an approval response on this event");
             }
-            
-            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow);
+           
+            return _fsmWorkflowHandler.FireLeaveResponse(employeeEvent, respondeeEmployee, eventStatuses, eventWorkflow); 
         }
     }
 }

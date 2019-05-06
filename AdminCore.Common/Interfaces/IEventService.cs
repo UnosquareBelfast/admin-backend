@@ -30,7 +30,7 @@ namespace AdminCore.Common.Interfaces
 
     void UpdateEventStatus(int eventId, EventStatuses status);
 
-    void RejectEvent(int eventId, string message, int employeeId);
+    void AddRejectMessageToEvent(int eventId, string message, int employeeId);
 
     void IsEventValid(EventDateDto eventDates, int employeeId);
 

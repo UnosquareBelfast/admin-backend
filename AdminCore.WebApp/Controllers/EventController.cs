@@ -197,24 +197,29 @@ namespace AdminCore.WebApi.Controllers
         WorkflowFsmStateInfo workflowResultState;
         try
         {
-          if (!EventIsBookedByCurrentAdmin(eventToApprove))
+          if (!EventIsBookedByCurrentUser(eventToApprove))
           {
-            workflowResultState = _eventWorkflowService.WorkflowResponseApprove(eventToApprove, _employee);
+            if (eventToApprove.EventStatusId == (int)EventStatuses.AwaitingApproval)
+            {
+              workflowResultState = _eventWorkflowService.WorkflowResponseApprove(eventToApprove, _employee);
+            }
+            else
+            {
+              return StatusCode((int)HttpStatusCode.OK, "Event is already approved.");
+            }
           }
           else
           {
-            return StatusCode(403,"You may not approve your own Events");
+            return StatusCode((int)HttpStatusCode.Forbidden,"You may not approve your own Events.");
           }
         }
         catch (ValidationException e)
         {
-          return StatusCode(403, e.ToString());
+          return StatusCode((int)HttpStatusCode.Forbidden, e.Message);
         }
         
-        if (workflowResultState.CurrentEventStatuses == EventStatuses.Approved)
-        {
-          return ApproveIfEventDoesNotBelongToTheAdmin(approveEventViewModel, eventToApprove);
-        }
+        // If the workflow is completed then 
+        UpdateEventStatus(workflowResultState, eventToApprove.EventId, EventStatuses.Approved);
 
         return Ok("Approve response sent successfully.\n" +
                   $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
@@ -226,7 +231,7 @@ namespace AdminCore.WebApi.Controllers
         return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong approving event");
       }
     }
-
+    
     [HttpPut("cancelEvent")]
     public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
     {
@@ -256,15 +261,41 @@ namespace AdminCore.WebApi.Controllers
       try
       {       
         var eventToReject = _eventService.GetEvent(rejectEventViewModel.EventId);
-        var eventInFinalState = _eventWorkflowService.WorkflowResponseReject(eventToReject, _employee);
 
-//        if (eventInFinalState)
-//        {
-          _eventService.RejectEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
-         
-//        }
-        
-        return Ok("Reject response sent successfully.");
+        WorkflowFsmStateInfo workflowResultState;
+        try
+        {
+          if (!EventIsBookedByCurrentUser(eventToReject))
+          {
+            if (eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval)
+            {
+              // Advance workflow.
+              workflowResultState = _eventWorkflowService.WorkflowResponseReject(eventToReject, _employee);
+            
+              // Add rejection message to event.
+              _eventService.AddRejectMessageToEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
+            }
+            else
+            {
+              return StatusCode((int)HttpStatusCode.OK, "Event is already rejected.");
+            }
+          }
+          else
+          {
+            return StatusCode((int)HttpStatusCode.Forbidden,"You may not reject your own Events.");
+          }
+        }
+        catch (ValidationException e)
+        {
+          return StatusCode((int)HttpStatusCode.Forbidden, e.Message);
+        }
+
+        // If the workflow is completed then 
+        UpdateEventStatus(workflowResultState, rejectEventViewModel.EventId, EventStatuses.Rejected);
+
+        return Ok("Reject response sent successfully.\n" +
+                  $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
+                  $"Event workflow message: {workflowResultState.Message}");
       }
       catch (Exception ex)
       {
@@ -273,6 +304,28 @@ namespace AdminCore.WebApi.Controllers
       }
     }
 
+    private void UpdateEventStatus(WorkflowFsmStateInfo workflowResultState, int eventId, EventStatuses eventStatus)
+    {
+      if (workflowResultState.CurrentEventStatuses != EventStatuses.AwaitingApproval && workflowResultState.Completed)
+      {
+        switch (eventStatus)
+        {
+          case EventStatuses.Approved:
+            _eventService.UpdateEventStatus(eventId, EventStatuses.Approved);
+            break;
+          case EventStatuses.Rejected:
+            _eventService.UpdateEventStatus(eventId, EventStatuses.Rejected);
+            break;
+          case EventStatuses.Cancelled:
+            _eventService.UpdateEventStatus(eventId, EventStatuses.Cancelled);
+            break;
+          case EventStatuses.AwaitingApproval:
+            _eventService.UpdateEventStatus(eventId, EventStatuses.AwaitingApproval);
+            break;
+        }
+      }
+    }
+    
     [HttpPut("addMessageToEvent")]
     public IActionResult AddMessageToEvent(CreateEventMessageViewModel eventMessageViewModel)
     {
@@ -379,19 +432,7 @@ namespace AdminCore.WebApi.Controllers
       return eventTypeId != (int)EventTypes.WorkingFromHome;
     }
 
-    private IActionResult ApproveIfEventDoesNotBelongToTheAdmin(ApproveEventViewModel approveEventViewModel,
-      EventDto eventToApprove)
-    {
-      if (!EventIsBookedByCurrentAdmin(eventToApprove))
-      {
-        _eventService.UpdateEventStatus(approveEventViewModel.EventId, EventStatuses.Approved);
-        return Ok("Successfully Approved");
-      }
-
-      return StatusCode((int)HttpStatusCode.Forbidden, "You may not approve your own Events");
-    }
-
-    private bool EventIsBookedByCurrentAdmin(EventDto eventToApprove)
+    private bool EventIsBookedByCurrentUser(EventDto eventToApprove)
     {
       return eventToApprove.EmployeeId == _employee.EmployeeId;
     }

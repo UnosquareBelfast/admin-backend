@@ -104,13 +104,13 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(events);
     }
 
-    public void RejectEvent(int eventId, string message, int employeeId)
+    public void AddRejectMessageToEvent(int eventId, string message, int employeeId)
     {
       var eventToReject = GetEventById(eventId);
       if (eventToReject != null && eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval
                                 && IsNotPublicHoliday(eventToReject))
       {
-        eventToReject.EventStatusId = (int)EventStatuses.Rejected;
+//        eventToReject.EventStatusId = (int)EventStatuses.Rejected;
         AddEventMessageToReject(eventToReject, EventMessageTypes.Reject, message, employeeId);
         DatabaseContext.SaveChanges();
       }
@@ -119,7 +119,7 @@ namespace AdminCore.Services
         throw new Exception($"Event {eventId} doesn't exist or is already rejected");
       }
     }
-
+    
     public void UpdateEventStatus(int eventId, EventStatuses status)
     {
       var eventToUpdate = GetEventById(eventId);

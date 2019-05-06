@@ -30,6 +30,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             
             LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTrigger.LeaveResponded);
 
+//            FsMachine.OnUnhandledTrigger((states, events) => { });
+            
             // Leave Awaiting Team Lead and Client
             FsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
@@ -83,21 +85,45 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Permit(LeaveTrigger.AdminApprove, PtoState.LeaveApproved)
                 .Permit(LeaveTrigger.AdminReject, PtoState.LeaveRejected)
                 .PermitReentry(LeaveTrigger.EvaluateLeaveState);
-            
+                       
             // Leave Approved
             FsMachine.Configure(PtoState.LeaveApproved)
                 .SubstateOf(PtoState.LeaveRequestCompleted)
-                .OnEntry(LeaveApproved);
+                .OnEntry(LeaveApproved)
+                .PermitReentry(LeaveTrigger.AdminReject)
+                .PermitReentry(LeaveTrigger.AdminApprove)
+                .PermitReentry(LeaveTrigger.LeaveApproved)
+                .PermitReentry(LeaveTrigger.LeaveRejected)
+                .PermitReentry(LeaveTrigger.LeaveCancelled)
+                .PermitReentry(LeaveTrigger.LeaveResponded)
+                .PermitReentry(LeaveTrigger.EvaluateLeaveState)
+                .PermitReentry(LeaveTrigger.TeamLeadClientResponseReceived);
             
             // Leave Rejected
             FsMachine.Configure(PtoState.LeaveRejected)
                 .SubstateOf(PtoState.LeaveRequestCompleted)
-                .OnEntry(LeaveRejected);
+                .OnEntry(LeaveRejected)
+                .PermitReentry(LeaveTrigger.AdminReject)
+                .PermitReentry(LeaveTrigger.AdminApprove)
+                .PermitReentry(LeaveTrigger.LeaveApproved)
+                .PermitReentry(LeaveTrigger.LeaveRejected)
+                .PermitReentry(LeaveTrigger.LeaveCancelled)
+                .PermitReentry(LeaveTrigger.LeaveResponded)
+                .PermitReentry(LeaveTrigger.EvaluateLeaveState)
+                .PermitReentry(LeaveTrigger.TeamLeadClientResponseReceived);
             
             // Leave Cancelled
             FsMachine.Configure(PtoState.LeaveCancelled)
                 .SubstateOf(PtoState.LeaveRequestCompleted)
-                .OnEntry(LeaveCancelled);
+                .OnEntry(LeaveCancelled)
+                .PermitReentry(LeaveTrigger.AdminReject)
+                .PermitReentry(LeaveTrigger.AdminApprove)
+                .PermitReentry(LeaveTrigger.LeaveApproved)
+                .PermitReentry(LeaveTrigger.LeaveRejected)
+                .PermitReentry(LeaveTrigger.LeaveCancelled)
+                .PermitReentry(LeaveTrigger.LeaveResponded)
+                .PermitReentry(LeaveTrigger.EvaluateLeaveState)
+                .PermitReentry(LeaveTrigger.TeamLeadClientResponseReceived);
             
             FsMachine.Activate();
         }

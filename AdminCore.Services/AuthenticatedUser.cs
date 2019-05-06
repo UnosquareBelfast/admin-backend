@@ -28,7 +28,7 @@ namespace AdminCore.Services
     {
       var userDetails = GetLoggedInUserDetails();
       var employee = _employeeService.GetEmployeeByEmail(userDetails[UserDetailsConstants.UserEmail]);
-      GetRoleFromAzure(employee, userDetails);
+//      GetRoleFromAzure(employee, userDetails);
       return employee ?? throw new UserNotRegisteredException($"User with email {userDetails[UserDetailsConstants.UserEmail]} is not registered. Log in first.");
     }
 
