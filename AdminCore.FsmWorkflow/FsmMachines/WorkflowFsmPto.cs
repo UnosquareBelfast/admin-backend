@@ -10,12 +10,9 @@ using Stateless.Reflection;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
-    public class WorkflowFsmPto : WorkflowFsm<WorkflowStateData, PtoState, LeaveTriggersPto>
+    public class WorkflowFsmPto : WorkflowFsm<PtoState, LeaveTriggersPto>
     {       
         private StateMachine<PtoState, LeaveTriggersPto>.TriggerWithParameters<EventStatuses, string> LeaveResponseTrigger;
-
-        private EventStatuses _currentEventStatus = EventStatuses.AwaitingApproval;
-        private string _message = EventStatuses.AwaitingApproval.ToString();
         
         public WorkflowFsmPto(WorkflowStateData fsmStateData)
         {
@@ -29,8 +26,6 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             FsMachine = new StateMachine<PtoState, LeaveTriggersPto>(() => (PtoState)FsmStateData.CurrentState, s => FsmStateData.CurrentState = (int)s);
             
             LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersPto.LeaveResponded);
-
-//            FsMachine.OnUnhandledTrigger((states, events) => { });
             
             // Leave Awaiting Team Lead and Client
             FsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
@@ -128,46 +123,10 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             FsMachine.Activate();
         }
         
-        private void LeaveResponse(EventStatuses approvalState, string responder)
-        {
-            if(FsmStateData.ApprovalDict.TryGetValue(responder, out _))
-            {
-                FsmStateData.ApprovalDict[responder] = approvalState;
-            }
-        }
-        
         private bool IsTeamLeadClientResponsesReceived(Dictionary<string, EventStatuses> approvalDict)
         {
             return approvalDict[FsmStateData.TeamLead] != EventStatuses.AwaitingApproval &&
                    approvalDict[FsmStateData.Client] != EventStatuses.AwaitingApproval;
-        }
-
-        private bool IsAdminResponseReceived(Dictionary<string, EventStatuses> approvalDict)
-        {
-            return approvalDict[FsmStateData.Admin] != EventStatuses.AwaitingApproval;
-        }
-        
-        private bool IsAdminResponseApprove(Dictionary<string, EventStatuses> approvalDict)
-        {
-            return approvalDict[FsmStateData.Admin] == EventStatuses.Approved;
-        }
-        
-        private void LeaveApproved()
-        {
-            _currentEventStatus = EventStatuses.Approved;
-            _message = "Leave Approved";
-        }
-
-        private void LeaveRejected()
-        {
-            _currentEventStatus = EventStatuses.Rejected;
-            _message = "Leave Rejected";
-        }
-
-        private void LeaveCancelled()
-        {
-            _currentEventStatus = EventStatuses.Cancelled;
-            _message = "Leave Cancelled";
         }
         
         public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
@@ -185,8 +144,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             }
 
             var machineStateInfo = new WorkflowFsmStateInfo(FsMachine.IsInState(PtoState.LeaveRequestCompleted),
-                _currentEventStatus,
-                _message);
+                CurrentEventStatus,
+                Message);
             
             return machineStateInfo;
         }
