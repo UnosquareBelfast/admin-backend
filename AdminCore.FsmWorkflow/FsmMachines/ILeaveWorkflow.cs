@@ -3,10 +3,8 @@ using AdminCore.Constants.Enums;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
-    public interface ILeaveWorkflow<State>
+    public interface ILeaveWorkflow
     {
-        State CurrentState { get; }
-        
         WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder);
 
         string ToJson();

@@ -5,9 +5,8 @@ using Stateless;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
-    public abstract class WorkflowFsm<FsmData, State, Trigger> : ILeaveWorkflow<State>
+    public abstract class WorkflowFsm<FsmData, State, Trigger> : ILeaveWorkflow
     {
-        public State CurrentState => FsMachine.State;
         public FsmData FsmStateData { get; protected set; }
         
         protected StateMachine<State, Trigger> FsMachine;

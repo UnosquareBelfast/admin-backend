@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdminCore.Common;
+using AdminCore.Common.Exceptions;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL;
 using AdminCore.DAL.Models;
@@ -38,19 +39,25 @@ namespace AdminCore.FsmWorkflow
 
         public WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow)
         {
-            WorkflowFsmStateInfo workflowFsmStateInfo = null;
+            ILeaveWorkflow workflowFsm;
             var workflowStateData = RebuildWorkflowStateData(eventWorkflow);
+            
             switch (employeeEvent.EventTypeId)
             {
                 case (int)EventTypes.AnnualLeave:
-                    var workflowFsm = new WorkflowFsmPto(workflowStateData);
-                    
-                    // Cast is not redundant, need the int value of enum as a string
-                    // ReSharper disable once RedundantCast
-                    workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, ((int)respondeeEmployee.EmployeeRoleId).ToString());
-                    eventWorkflow = RecreateEventWorkflowForSave(employeeEvent, respondeeEmployee, eventWorkflow, workflowStateData, eventStatus);
+                    workflowFsm = new WorkflowFsmPto(workflowStateData);
                     break;
+                case (int)EventTypes.WorkingFromHome:
+                    workflowFsm = new WorkflowFsmWfh(workflowStateData);
+                    break;
+                default:
+                    throw new WorkflowException($"No workflow FSM exists for {((EventTypes)employeeEvent.EventTypeId).ToString()}");
             }
+            
+            // Cast is not redundant, need the int value of enum as a string
+            // ReSharper disable once RedundantCast
+            var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, ((int)respondeeEmployee.EmployeeRoleId).ToString());
+            eventWorkflow = UpdateEventAddApprovalResponse(respondeeEmployee, eventWorkflow, workflowStateData, eventStatus);
 
             _dbContext.EventWorkflowRepository.Update(eventWorkflow);
             _dbContext.SaveChanges();
@@ -90,7 +97,7 @@ namespace AdminCore.FsmWorkflow
             };
         }
 
-        private EventWorkflow RecreateEventWorkflowForSave(EventDto employeeEvent, EmployeeDto respondeeEmployee, 
+        private EventWorkflow UpdateEventAddApprovalResponse(EmployeeDto respondeeEmployee, 
             EventWorkflow eventWorkflow, WorkflowStateData workflowStateData, EventStatuses employeeResponseEventStatus)
         {
             eventWorkflow.WorkflowState = workflowStateData.CurrentState;
@@ -109,12 +116,14 @@ namespace AdminCore.FsmWorkflow
         
         private int GetInitialWorkflowState(int eventTypeId)
         {
-            switch (eventTypeId)
+            switch ((EventTypes)eventTypeId)
             {
-                case (int)EventTypes.AnnualLeave:
+                case EventTypes.AnnualLeave:
                     return (int) PtoState.LeaveAwaitingTeamLeadClient;
+                case EventTypes.WorkingFromHome:
+                    return (int) WfhState.LeaveAwaitingTeamLead;
                 default:
-                    return 0;
+                    throw new WorkflowException($"No workflow FSM exists for {((EventTypes)eventTypeId).ToString()}");
             }
         }
     }

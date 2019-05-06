@@ -17,13 +17,11 @@ namespace AdminCore.Services
     public class EventWorkflowService : BaseService, IEventWorkflowService
     {
         private readonly IMapper _mapper;
-        private readonly IEmployeeService _employeeService;
         private readonly IFsmWorkflowHandler _fsmWorkflowHandler;
         
-        public EventWorkflowService(IDatabaseContext databaseContext, IMapper mapper, IEmployeeService employeeService, IFsmWorkflowHandler fsmWorkflowHandler) : base(databaseContext)
+        public EventWorkflowService(IDatabaseContext databaseContext, IMapper mapper, IFsmWorkflowHandler fsmWorkflowHandler) : base(databaseContext)
         {
             _mapper = mapper;
-            _employeeService = employeeService;
             _fsmWorkflowHandler = fsmWorkflowHandler;
         }
 

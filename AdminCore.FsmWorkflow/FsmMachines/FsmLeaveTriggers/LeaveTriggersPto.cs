@@ -1,6 +1,6 @@
 namespace AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers
 {
-    public enum LeaveTrigger
+    public enum LeaveTriggersPto
     {
         LeaveApproved,
         LeaveRejected,
