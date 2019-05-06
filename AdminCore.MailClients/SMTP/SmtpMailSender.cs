@@ -20,6 +20,37 @@ namespace AdminCore.MailClients.SMTP
             _serverConfiguration = serverConfiguration;
         }
         
+        /// <summary>
+        /// Sends email messages for an event, given authentication was successful. Disconnects from client once an attempt
+        /// to send messages was made then disposes of the mail client.
+        /// </summary>
+        /// <param name="messages">List of messages to dispatch.</param>
+        /// <exception cref="T:System.ArgumentNullException">
+        /// <para>username is <c>null</c>.</para>
+        /// <para>-or-</para>
+        /// <para>password is <c>null</c>.</para>
+        /// </exception>
+        /// <exception cref="T:System.ObjectDisposedException">
+        /// The <see cref="T:MailKit.MailService" /> has been disposed.
+        /// </exception>
+        /// <exception cref="T:System.InvalidOperationException">
+        /// The <see cref="T:MailKit.MailService" /> is not connected or is already authenticated.
+        /// </exception>
+        /// <exception cref="T:System.OperationCanceledException">
+        /// The operation was canceled via the cancellation token.
+        /// </exception>
+        /// <exception cref="T:MailKit.Security.AuthenticationException">
+        /// Authentication using the supplied credentials has failed.
+        /// </exception>
+        /// <exception cref="T:MailKit.Security.SaslException">
+        /// A SASL authentication error occurred.
+        /// </exception>
+        /// <exception cref="T:System.IO.IOException">
+        /// An I/O error occurred.
+        /// </exception>
+        /// <exception cref="T:MailKit.ProtocolException">
+        /// A protocol error occurred.
+        /// </exception>
         public void SendMessages(List<MailMessageDto> messages)
         {
             using (var client = CreateEmailClient())
@@ -39,10 +70,10 @@ namespace AdminCore.MailClients.SMTP
         {
             var mimeMessage = new MimeMessage();
    
-            AddSenders(mimeMessage, message.EmailAddresses.FromAddresses);
-            AddRecipients(mimeMessage, message.EmailAddresses.ToAddresses);
-            AddRecipients(mimeMessage, message.EmailAddresses.CcAddresses);
-            AddRecipients(mimeMessage, message.EmailAddresses.BccAddresses);
+            AddAddresses(mimeMessage.From, message.EmailAddresses.FromAddresses);
+            AddAddresses(mimeMessage.To, message.EmailAddresses.ToAddresses);
+            AddAddresses(mimeMessage.Cc, message.EmailAddresses.CcAddresses);
+            AddAddresses(mimeMessage.Bcc, message.EmailAddresses.BccAddresses);
 
             mimeMessage.Subject = message.Subject;
 
@@ -51,15 +82,10 @@ namespace AdminCore.MailClients.SMTP
             mimeMessage.Body = builder.ToMessageBody();
             return mimeMessage;
         }
-
-        private void AddSenders(MimeMessage mimeMessage, List<EmailAddressDto> addresses)
-        {
-            mimeMessage.From.AddRange(addresses.Select(destination => new MailboxAddress(destination.Name, destination.Address)));
-        }
         
-        private void AddRecipients(MimeMessage mimeMessage, List<EmailAddressDto> addresses)
+        private static void AddAddresses(InternetAddressList addressList, List<EmailAddressDto> addresses)
         {
-            mimeMessage.To.AddRange(addresses.Select(destination => new MailboxAddress(destination.Name, destination.Address)));
+            addressList.AddRange(addresses.Select(destination => new MailboxAddress(destination.Name, destination.Address)));
         }
 
         private SmtpClient CreateEmailClient()
@@ -72,8 +98,9 @@ namespace AdminCore.MailClients.SMTP
             // SMTP really only uses SSL-wrapped connections on port 465
             // Port 2 and 587 use StartTLS
             client.Connect(_serverConfiguration.ServerAddress, _serverConfiguration.ServerPort, SecureSocketOptions.StartTls);
+
             // Remove any OAuth functionality as it will not be used
-            client.AuthenticationMechanisms.Remove("XOAUTH2");            
+            client.AuthenticationMechanisms.Remove("XOAUTH2");
             return client;
         }
     }
