@@ -143,10 +143,10 @@ namespace AdminCore.Services
 
     public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId)
     {
-      CheckEventTypeAdminLevel(eventTypes, employeeId);
-      ThrowIfDaysNoticeValidationFail((int)eventTypes, dates.StartDate, dates.EndDate);
+      CheckEventTypeAdminLevel(eventTypes, employeeId);   
       var newEvent = BuildNewEvent(employeeId, eventTypes);
       UpdateEventDates(dates, newEvent);
+      ThrowIfDaysNoticeValidationFail((int)eventTypes, newEvent.EventDates);
       return ValidateRemainingHolidaysAndCreate(newEvent, dates);
     }
 
@@ -161,11 +161,15 @@ namespace AdminCore.Services
     /// <param name="leaveStartDate"></param>
     /// <param name="leaveEndDate"></param>
     /// <exception cref="ValidationException"></exception>
-    private void ThrowIfDaysNoticeValidationFail(int eventTypeId, DateTime leaveStartDate, DateTime leaveEndDate)
+    private void ThrowIfDaysNoticeValidationFail(int eventTypeId, ICollection<EventDate> eventDates)
     {
       var currDate = _dateService.GetCurrentDateTime();
-//      int leaveLengthDays = (int)(leaveEndDate - leaveStartDate).TotalDays + 1;
-      int leaveLengthDays = leaveStartDate.BusinessDaysUntil(leaveEndDate); // TODO Take into account bank holidays
+
+      int leaveLengthDays = 0;
+      foreach (var eventDate in eventDates)
+      {
+        leaveLengthDays += eventDate.StartDate.BusinessDaysUntil(eventDate.EndDate); // TODO Take into account bank holidays?
+      } 
       
       var eventTypeDaysNotice = DatabaseContext.EventTypeDaysNoticeRepository.Get(x => x.EventTypeId == eventTypeId && leaveLengthDays >= x.LeaveLengthDays)
         .MaxBy(x => x.LeaveLengthDays).FirstOrDefault();
@@ -177,7 +181,7 @@ namespace AdminCore.Services
       }
 
       // Latest date to book a day is the leave start date minus the notice period days plus the time of day to book by.
-      var latestDateTimeEventTypeBookable = leaveStartDate.Date.AddDays(-eventTypeDaysNotice.DaysNotice) 
+      var latestDateTimeEventTypeBookable = eventDates.FirstOrDefault().StartDate.Date.AddDays(-eventTypeDaysNotice.DaysNotice) 
                                             + (eventTypeDaysNotice.TimeNotice ?? new TimeSpan(0, 0, 0));
       
       

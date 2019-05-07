@@ -120,6 +120,28 @@ namespace AdminCore.Services.Tests.ClassData
                             EventTypeId = TestClassBuilder.AnnualLeaveEventType().EventTypeId
                         }},
                     new DateTime(2019, 06, 3)};
+                // Second EventTypeDaysNotice is used => 14 days notice.
+                // Weekend spanning event, 4 days June 2019 20th => 25th (Thursday => Tuesday)
+                yield return new object[] { 1, 1, new DateTime(2019, 06, 20), new DateTime(2019, 06, 25),
+                    TestClassBuilder.AnnualLeaveEventType(),
+                    new List<EventTypeDaysNotice> {
+                        new EventTypeDaysNotice
+                        {
+                            LeaveLengthDays = 1,
+                            DaysNotice = 7,
+                            TimeNotice = new TimeSpan(0, 0, 0),
+                            EventType = TestClassBuilder.AnnualLeaveEventType(),
+                            EventTypeId = TestClassBuilder.AnnualLeaveEventType().EventTypeId
+                        },
+                        new EventTypeDaysNotice
+                        {
+                            LeaveLengthDays = 4,
+                            DaysNotice = 14,
+                            TimeNotice = new TimeSpan(0, 0, 0),
+                            EventType = TestClassBuilder.AnnualLeaveEventType(),
+                            EventTypeId = TestClassBuilder.AnnualLeaveEventType().EventTypeId
+                        }},
+                    new DateTime(2019, 06, 6)};
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
