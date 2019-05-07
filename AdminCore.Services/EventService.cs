@@ -11,7 +11,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using AdminCore.Common.Exceptions;
+using AdminCore.Common.Extensions;
 using AdminCore.FsmWorkflow;
+using MoreLinq.Extensions;
 
 namespace AdminCore.Services
 {
@@ -19,14 +22,12 @@ namespace AdminCore.Services
   {
     private readonly IMapper _mapper;
     private readonly IDateService _dateService;
-    private readonly IEventWorkflowService _eventWorkflowService;
 
-    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService, IEventWorkflowService eventWorkflowService)
+    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService)
       : base(databaseContext)
     {
       _mapper = mapper;
       _dateService = dateService;
-      _eventWorkflowService = eventWorkflowService;
     }
 
     public IList<EventDto> GetEmployeeEvents(EventTypes eventType)
@@ -143,12 +144,54 @@ namespace AdminCore.Services
     public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId)
     {
       CheckEventTypeAdminLevel(eventTypes, employeeId);
+      ThrowIfDaysNoticeValidationFail((int)eventTypes, dates.StartDate, dates.EndDate);
       var newEvent = BuildNewEvent(employeeId, eventTypes);
       UpdateEventDates(dates, newEvent);
       return ValidateRemainingHolidaysAndCreate(newEvent, dates);
     }
 
-    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
+    /// <summary>
+    /// Throws exception if the leave is requested outside of the required notice period.
+    /// Notice period definitions stored in database.
+    /// Example:
+    /// Today: 20/01/2000, LeaveStart: 21/01/2000, LeaveEnd: 21/01/2000 
+    /// daysToLeaveStart = 1, leaveLengthDays = 1
+    /// </summary>
+    /// <param name="eventTypeId"></param>
+    /// <param name="leaveStartDate"></param>
+    /// <param name="leaveEndDate"></param>
+    /// <exception cref="ValidationException"></exception>
+    private void ThrowIfDaysNoticeValidationFail(int eventTypeId, DateTime leaveStartDate, DateTime leaveEndDate)
+    {
+      var currDate = _dateService.GetCurrentDateTime();
+//      int leaveLengthDays = (int)(leaveEndDate - leaveStartDate).TotalDays + 1;
+      int leaveLengthDays = leaveStartDate.BusinessDaysUntil(leaveEndDate); // TODO Take into account bank holidays
+      
+      var eventTypeDaysNotice = DatabaseContext.EventTypeDaysNoticeRepository.Get(x => x.EventTypeId == eventTypeId && leaveLengthDays >= x.LeaveLengthDays)
+        .MaxBy(x => x.LeaveLengthDays).FirstOrDefault();
+
+      // If no notice period definition exists for this event type, then just return. 
+      if (eventTypeDaysNotice == null)
+      {
+        return;
+      }
+
+      // Latest date to book a day is the leave start date minus the notice period days plus the time of day to book by.
+      var latestDateTimeEventTypeBookable = leaveStartDate.Date.AddDays(-eventTypeDaysNotice.DaysNotice) 
+                                            + (eventTypeDaysNotice.TimeNotice ?? new TimeSpan(0, 0, 0));
+      
+      
+      // If the current time is after the latest date to book then throw a validation exception. 
+      if (currDate > latestDateTimeEventTypeBookable)
+      {
+        throw new ValidationException($"Event not inside required notice period.{Environment.NewLine}" +
+                            $"Days Notice Required: {eventTypeDaysNotice.DaysNotice}.{Environment.NewLine}" +
+                            $"Latest date to book by: {latestDateTimeEventTypeBookable}.{Environment.NewLine}" +
+                            $"Current date: {currDate.ToLongDateString()}.");
+      }
+    }
+    
+    public EventDto CreateAutoApprovedEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
     {
       var newEvent = BuildNewAutoApprovedEvent(employee, eventTypes);
 

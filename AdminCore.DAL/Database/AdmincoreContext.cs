@@ -49,6 +49,8 @@ namespace AdminCore.DAL.Database
     public DbSet<EventStatus> EventStatuses { get; set; }
 
     public DbSet<EventType> EventTypes { get; set; }
+    
+    public DbSet<EventTypeDaysNotice> EventTypeDaysNotice { get; set; }
 
     public DbSet<MandatoryEvent> MandatoryEvents { get; set; }
 

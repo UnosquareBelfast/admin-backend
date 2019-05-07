@@ -72,6 +72,17 @@ namespace AdminCore.Services.Tests
       return databaseContext;
     }
 
+    protected virtual EntityFrameworkContext SetUpEventTypeDaysNoticeRepository(EntityFrameworkContext databaseContext, IList<EventTypeDaysNotice> eventTypeDaysNoticeList)
+    {
+      var mockEmployeeRepository = GetMockedRepository(eventTypeDaysNoticeList);
+      databaseContext.Configure().EventTypeDaysNoticeRepository.Returns(mockEmployeeRepository);
+      databaseContext.When(x => x.RetrieveRepository<EventTypeDaysNotice>()).DoNotCallBase();
+
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+
+      return databaseContext;
+    }
+    
     protected virtual DbSet<T> GetQueryableMockDbSet<T>(IList<T> sourceList) where T : class
     {
       var queryable = sourceList.AsQueryable();

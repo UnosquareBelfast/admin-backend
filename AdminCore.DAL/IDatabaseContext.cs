@@ -27,6 +27,8 @@ namespace AdminCore.DAL
     IRepository<EventStatus> EventStatusRepository { get; }
 
     IRepository<EventType> EventTypeRepository { get; }
+    
+    IRepository<EventTypeDaysNotice> EventTypeDaysNoticeRepository { get; }
 
     IRepository<EntitledHoliday> EntitledHolidayRepository { get; }
 

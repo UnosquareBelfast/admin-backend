@@ -33,6 +33,8 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<EventType> _eventTypeRepository;
 
+    private IRepository<EventTypeDaysNotice> _eventTypeDaysNoticeRepository;
+    
     private IRepository<EntitledHoliday> _entitledHolidayRepository;
 
     private IRepository<MandatoryEvent> _mandatoryEventRepository;
@@ -96,7 +98,10 @@ namespace AdminCore.DAL.Entity_Framework
       _eventStatusRepository ?? (_eventStatusRepository = RetrieveRepository<EventStatus>());
 
     public virtual IRepository<EventType> EventTypeRepository =>
-      _eventTypeRepository ?? (_eventTypeRepository = RetrieveRepository<EventType>());
+      _eventTypeRepository ?? (_eventTypeRepository = RetrieveRepository<EventType>()); 
+    
+    public virtual IRepository<EventTypeDaysNotice> EventTypeDaysNoticeRepository =>
+      _eventTypeDaysNoticeRepository ?? (_eventTypeDaysNoticeRepository = RetrieveRepository<EventTypeDaysNotice>());
 
     public virtual IRepository<MandatoryEvent> MandatoryEventRepository =>
       _mandatoryEventRepository ?? (_mandatoryEventRepository = RetrieveRepository<MandatoryEvent>());

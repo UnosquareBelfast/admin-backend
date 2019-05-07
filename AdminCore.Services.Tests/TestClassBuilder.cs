@@ -52,6 +52,16 @@ namespace AdminCore.Services.Tests
       };
     }
 
+    internal static EventType WorkingFromHomeEventType()
+    {
+      return new EventType
+      {
+        EventTypeId = (int)EventTypes.WorkingFromHome,
+        Description = "Working From Home",
+        EmployeeRoleId = (int)EmployeeRoles.User
+      };
+    }
+    
     internal static EventType SickLeaveEventType()
     {
       return new EventType

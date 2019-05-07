@@ -114,10 +114,10 @@ namespace AdminCore.Services
 
     private void CreatePublicHolidays(Employee employee, IList<MandatoryEvent> publicHolidays)
     {
-      var eventService = new EventService(DatabaseContext, _mapper, new DateService(), new EventWorkflowService(DatabaseContext, _mapper, new FsmWorkflowHandler(DatabaseContext)));
+      var eventService = new EventService(DatabaseContext, _mapper, new DateService());
       foreach (var holiday in publicHolidays)
       {
-        eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,
+        eventService.CreateAutoApprovedEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,
           employee);
       }
     }
