@@ -86,6 +86,18 @@ namespace AdminCore.WebApi.Controllers
       return StatusCode((int)HttpStatusCode.NoContent, $"No event found for employee ID: {employeeId}");
     }
 
+    [HttpGet("findVisibleToEmployeeId/{employeeId}")]
+    public IActionResult GetEventsByVisibleToEmployeeId(int employeeId)
+    {
+      var events = _eventService.GetEventsByVisibleToEmployeeId(employeeId);
+      if (events != null)
+      {
+        return Ok(_mapper.Map<IList<EventViewModel>>(events));
+      }
+
+      return StatusCode((int)HttpStatusCode.NoContent, $"No visible events found for employee ID: {employeeId}");
+    }
+    
     [HttpGet("findEmployeeHolidayStats")]
     public IActionResult GetEmployeeHolidayStats()
     {

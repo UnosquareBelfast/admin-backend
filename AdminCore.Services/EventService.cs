@@ -56,6 +56,16 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
+    public IList<EventDto> GetEventsByVisibleToEmployeeId(int employeeId)
+    {
+      var currEmployee = DatabaseContext.EmployeeRepository.GetSingle(x => x.EmployeeId == employeeId, x => x.Contracts);
+
+      var currEmployeeTeamIds = currEmployee.Contracts.Select(y => y.TeamId);
+      var employeeIdsInTeam = DatabaseContext.ContractRepository.Get(x => currEmployeeTeamIds.Contains(x.TeamId)).Select(x => x.EmployeeId);
+      
+      return _mapper.Map<List<EventDto>>(DatabaseContext.EventRepository.Get(x => employeeIdsInTeam.Contains(x.EmployeeId)).ToList());
+    }
+
     public IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
     {
       var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date

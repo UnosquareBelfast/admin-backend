@@ -7,11 +7,11 @@ using Stateless;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
-    public abstract class WorkflowFsm<State, Trigger> : ILeaveWorkflow
+    public abstract class WorkflowFsm<TState, TTrigger> : ILeaveWorkflow
     {
         protected WorkflowStateData FsmStateData { get; set; }
         
-        protected StateMachine<State, Trigger> FsMachine;
+        protected StateMachine<TState, TTrigger> FsMachine;
 
         protected EventStatuses CurrentEventStatus = EventStatuses.AwaitingApproval;
         protected string Message = EventStatuses.AwaitingApproval.ToString();
