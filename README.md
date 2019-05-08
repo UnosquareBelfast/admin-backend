@@ -122,5 +122,5 @@ Currently it's a bit of handling to update the backend. Here's how to it. Run th
 4. Finally, run the project with `docker-compose up`
 
 ## Back end troubleshooting
-- If you're experiencing problems after running `docker-compose up` it may be due to PostgresQL running locally. Use task manager or the mac equivilent to shut down all the PostgresQL processes.
+- If you're experiencing problems after running `docker-compose up` it may be due to PostgresQL running locally. Use task manager or the mac equivilent to shut down all the PostgresQL processes. 
 
