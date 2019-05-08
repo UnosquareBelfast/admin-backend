@@ -148,8 +148,7 @@ namespace AdminCore.Services
     /// daysToLeaveStart = 1, leaveLengthDays = 1
     /// </summary>
     /// <param name="eventTypeId"></param>
-    /// <param name="leaveStartDate"></param>
-    /// <param name="leaveEndDate"></param>
+    /// <param name="eventDates"></param>
     /// <exception cref="ValidationException"></exception>
     private void ThrowIfDaysNoticeValidationFail(int eventTypeId, ICollection<EventDate> eventDates)
     {

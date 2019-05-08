@@ -74,11 +74,6 @@ namespace AdminCore.Services
             var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == leaveEvent.EventTypeId)
                 .Select(x => x.EmployeeRoleId);
 
-//            var eventWorkflow = DatabaseContext.EventRepository.GetSingle(x => x.EventId == leaveEvent.EventId, 
-//                null,
-//                x => x.EventWorkflow,
-//                x => x.EventWorkflow.EventWorkflowApprovalResponses).EventWorkflow;
-//
             var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
                 x => x.EventWorkflowId == leaveEvent.EventWorkflowId,
                 x => x.EventWorkflowApprovalResponses);

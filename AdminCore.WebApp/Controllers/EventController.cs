@@ -151,8 +151,13 @@ namespace AdminCore.WebApi.Controllers
       {
         ValidateIfHolidayEvent(createEventViewModel, eventDates);
         var eventWorkflowDto = _eventWorkflowService.CreateEventWorkflow(createEventViewModel.EventTypeId, false);
-        var eventDto = _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId, eventWorkflowDto.EventWorkflowId);
+        var eventDto = _eventService.CreateEvent(eventDates, (EventTypes) createEventViewModel.EventTypeId,
+          _employee.EmployeeId, eventWorkflowDto.EventWorkflowId);
         return Ok($"Event has been created successfully");
+      }
+      catch (ValidationException ex)
+      {
+        return Conflict(ex.Message);
       }
       catch (Exception ex)
       {
@@ -190,23 +195,24 @@ namespace AdminCore.WebApi.Controllers
     [HttpPut("approveEvent")]
     public IActionResult ApproveEvent(ApproveEventViewModel approveEventViewModel)
     {
-      return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponseApprove, eventDto => !EventIsBookedByCurrentUser(eventDto));
+      return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponseApprove, EventIsBookedByCurrentUser);
     }
     
     [HttpPut("cancelEvent")]
     public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
     {
-      return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponseCancel, EventIsBookedByCurrentUser);
+      return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponseCancel, eventDto => !EventIsBookedByCurrentUser(eventDto));
     }
 
     [Authorize("Admin")]
     [HttpPut("rejectEvent")]
     public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
     {
-      return ProcessEvent(rejectEventViewModel.EventId, _eventWorkflowService.WorkflowResponseReject, eventDto => !EventIsBookedByCurrentUser(eventDto), rejectEventViewModel.Message);
+      return ProcessEvent(rejectEventViewModel.EventId, _eventWorkflowService.WorkflowResponseReject, EventIsBookedByCurrentUser, rejectEventViewModel.Message);
     }
 
-    private IActionResult ProcessEvent(int eventId, Func<EventDto, EmployeeDto, WorkflowFsmStateInfo> workflowProcessFunc, Func<EventDto, bool> eventBookedByCurrentUser, string eventMessage = null)
+    private IActionResult ProcessEvent(int eventId, Func<EventDto, EmployeeDto, WorkflowFsmStateInfo> workflowProcessFunc,
+      Func<EventDto, bool> eventBookedByCurrentUser, string eventMessage = null)
     {
       try
       {       
@@ -215,25 +221,21 @@ namespace AdminCore.WebApi.Controllers
         try
         {
           if (eventBookedByCurrentUser(leaveEvent))
-          {
-            if (leaveEvent.EventStatusId == (int)EventStatuses.AwaitingApproval)
-            {
-              // Advance workflow.
-              var workflowResultState = workflowProcessFunc(leaveEvent, _employee);
-              // Add message to event.
-              _eventService.AddRejectMessageToEvent(eventId, eventMessage, _employee.EmployeeId);
-              
-              UpdateEventStatus(workflowResultState, eventId);
-
-              return Ok("Leave response sent successfully.\n" +
-                        $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
-                        $"Event workflow message: {workflowResultState.Message}");
-            }
-
-            return StatusCode((int)HttpStatusCode.OK, "Event is not awaiting any approval.");
-          }
+            return StatusCode((int) HttpStatusCode.Forbidden, "You may not respond to your own Events.");
+          if (leaveEvent.EventStatusId != (int) EventStatuses.AwaitingApproval)
+            return StatusCode((int) HttpStatusCode.OK, "Event is not awaiting any approval response.");
           
-          return StatusCode((int)HttpStatusCode.Forbidden,"You may not respond to your own Events.");
+          // Advance workflow.
+          var workflowResultState = workflowProcessFunc(leaveEvent, _employee);
+          // Add message to event.
+          _eventService.AddRejectMessageToEvent(eventId, eventMessage, _employee.EmployeeId);
+              
+          UpdateEventStatus(workflowResultState, eventId);
+
+          return Ok("Leave response sent successfully.\n" +
+                    $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
+                    $"Event workflow message: {workflowResultState.Message}");
+
         }
         catch (ValidationException e)
         {

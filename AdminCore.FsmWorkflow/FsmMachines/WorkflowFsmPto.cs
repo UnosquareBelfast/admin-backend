@@ -16,13 +16,12 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         
         public WorkflowFsmPto(WorkflowStateData fsmStateData)
         {
-            FsmStateData = fsmStateData;
-            
-            ConfigureFsm();
+            ConfigureFsm(fsmStateData);
         }
         
-        protected override void ConfigureFsm()
+        public override void ConfigureFsm(WorkflowStateData fsmStateData)
         {
+            FsmStateData = fsmStateData;
             FsMachine = new StateMachine<PtoState, LeaveTriggersPto>(() => (PtoState)FsmStateData.CurrentState, s => FsmStateData.CurrentState = (int)s);
             
             LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersPto.LeaveResponded);

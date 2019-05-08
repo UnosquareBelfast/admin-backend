@@ -26,10 +26,10 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         public virtual void FromJson(string jsonString)
         {
             FsmStateData = JsonConvert.DeserializeObject<WorkflowStateData>(jsonString);
-            ConfigureFsm();
+            ConfigureFsm(FsmStateData);
         }
 
-        protected abstract void ConfigureFsm();
+        public abstract void ConfigureFsm(WorkflowStateData fsmStateData);
         
         protected void LeaveResponse(EventStatuses approvalState, string responder)
         {

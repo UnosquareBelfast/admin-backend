@@ -15,14 +15,13 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         private StateMachine<WfhState, LeaveTriggersWfh>.TriggerWithParameters<EventStatuses, string> LeaveResponseTrigger;
         
         public WorkflowFsmWfh(WorkflowStateData fsmStateData)
-        {
-            FsmStateData = fsmStateData;
-            
-            ConfigureFsm();
+        {           
+            ConfigureFsm(fsmStateData);
         }
         
-        protected override void ConfigureFsm()
+        public override void ConfigureFsm(WorkflowStateData fsmStateData)
         {
+            FsmStateData = fsmStateData;
             FsMachine = new StateMachine<WfhState, LeaveTriggersWfh>(() => (WfhState)FsmStateData.CurrentState, s => FsmStateData.CurrentState = (int)s);
             
             LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersWfh.LeaveResponded);

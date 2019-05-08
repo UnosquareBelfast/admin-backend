@@ -1,5 +1,6 @@
 using AdminCore.Common;
 using AdminCore.Constants.Enums;
+using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
@@ -7,6 +8,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     {
         WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder);
 
+        void ConfigureFsm(WorkflowStateData fsmStateData);
+        
         string ToJson();
         
         void FromJson(string jsonString);

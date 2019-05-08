@@ -74,9 +74,20 @@ namespace AdminCore.Services.Tests
 
     protected virtual EntityFrameworkContext SetUpEventTypeDaysNoticeRepository(EntityFrameworkContext databaseContext, IList<EventTypeDaysNotice> eventTypeDaysNoticeList)
     {
-      var mockEmployeeRepository = GetMockedRepository(eventTypeDaysNoticeList);
-      databaseContext.Configure().EventTypeDaysNoticeRepository.Returns(mockEmployeeRepository);
+      var mockEventTypeDaysNoticeRepository = GetMockedRepository(eventTypeDaysNoticeList);
+      databaseContext.Configure().EventTypeDaysNoticeRepository.Returns(mockEventTypeDaysNoticeRepository);
       databaseContext.When(x => x.RetrieveRepository<EventTypeDaysNotice>()).DoNotCallBase();
+
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+
+      return databaseContext;
+    }
+    
+    protected virtual EntityFrameworkContext SetUpEventWorkflowRepository(EntityFrameworkContext databaseContext, IList<EventWorkflow> eventWorkflowList)
+    {
+      var mockEventWorkflowRepository = GetMockedRepository(eventWorkflowList);
+      databaseContext.Configure().EventWorkflowRepository.Returns(mockEventWorkflowRepository);
+      databaseContext.When(x => x.RetrieveRepository<EventWorkflow>()).DoNotCallBase();
 
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
 
