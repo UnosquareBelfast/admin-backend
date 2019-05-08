@@ -25,9 +25,9 @@ namespace AdminCore.Services
             _fsmWorkflowHandler = fsmWorkflowHandler;
         }
 
-        public EventWorkflowDto CreateEventWorkflow(int eventId, int eventTypeId)
+        public EventWorkflowDto CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext = true)
         {
-            var newEventWorkflow = _fsmWorkflowHandler.CreateEventWorkflow(eventId, eventTypeId);
+            var newEventWorkflow = _fsmWorkflowHandler.CreateEventWorkflow(eventTypeId, saveChangesToDbContext);
 
             return _mapper.Map<EventWorkflowDto>(newEventWorkflow);
         }
@@ -74,10 +74,20 @@ namespace AdminCore.Services
             var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == leaveEvent.EventTypeId)
                 .Select(x => x.EmployeeRoleId);
 
-            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(x => x.EventId == leaveEvent.EventId, 
-                null,
+//            var eventWorkflow = DatabaseContext.EventRepository.GetSingle(x => x.EventId == leaveEvent.EventId, 
+//                null,
+//                x => x.EventWorkflow,
+//                x => x.EventWorkflow.EventWorkflowApprovalResponses).EventWorkflow;
+//
+            var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
+                x => x.EventWorkflowId == leaveEvent.EventWorkflowId,
                 x => x.EventWorkflowApprovalResponses);
 
+            if (eventWorkflow == null)
+            {
+                throw new ValidationException("Event does not contain reference to event workflow.");
+            }
+            
             eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.EmployeeApprovalResponsesRepository.Get(
                 x => x.EventWorkflowId == eventWorkflow.EventWorkflowId);
             

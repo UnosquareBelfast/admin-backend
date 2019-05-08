@@ -2,6 +2,7 @@
 using AdminCore.DTOs.EventMessage;
 using System;
 using System.Collections.Generic;
+using AdminCore.DTOs.EventWorkflow;
 
 namespace AdminCore.DTOs.Event
 {
@@ -19,6 +20,9 @@ namespace AdminCore.DTOs.Event
 
     public EventStatusDto EventStatus { get; set; }
 
+    public int EventWorkflowId { get; set; }
+    public virtual EventWorkflowDto EventWorkflow { get; set; }
+    
     public int EventTypeId { get; set; }
 
     public EventTypeDto EventType { get; set; }

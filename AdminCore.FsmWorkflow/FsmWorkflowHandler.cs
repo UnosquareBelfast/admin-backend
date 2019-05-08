@@ -23,17 +23,20 @@ namespace AdminCore.FsmWorkflow
             _dbContext = dbContext;
         }
         
-        public EventWorkflow CreateEventWorkflow(int eventId, int eventTypeId)
+        public EventWorkflow CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext)
         {
             var eventWorkflow = new EventWorkflow
             {
-                EventId = eventId,
+//                EventId = eventId,
                 WorkflowState = GetInitialWorkflowState(eventTypeId)
             };
             
             _dbContext.EventWorkflowRepository.Insert(eventWorkflow);
-            _dbContext.SaveChanges();
-            
+            if (saveChangesToDbContext)
+            {
+                _dbContext.SaveChanges();
+            }
+
             return eventWorkflow;
         }
 

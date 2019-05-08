@@ -12,9 +12,9 @@ namespace AdminCore.DAL.Models
     [Column("event_workflow_id")]
     public int EventWorkflowId { get; set; }
 
-    [Column("event_id")]
-    public int EventId { get; set; }
-    public virtual Event Event { get; set; }
+//    [Column("event_id")]
+//    public int EventId { get; set; }
+//    public virtual Event Event { get; set; }
     
     [Column("workflow_state")]
     public int WorkflowState { get; set; }

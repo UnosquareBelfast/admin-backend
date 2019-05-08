@@ -7,7 +7,7 @@ namespace AdminCore.Common.Interfaces
 {
   public interface IEventWorkflowService
   {
-    EventWorkflowDto CreateEventWorkflow(int eventId, int eventTypeId);
+    EventWorkflowDto CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext = true);
     EventWorkflowDto GetWorkflowByEventId(int eventId);
     IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId);
     IDictionary<EmployeeRoleDto, EventStatusDto> GetWorkflowApprovalStatusDictById(int eventId);

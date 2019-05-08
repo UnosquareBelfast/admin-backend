@@ -85,18 +85,6 @@ namespace AdminCore.WebApi.Controllers
 
       return StatusCode((int)HttpStatusCode.NoContent, $"No event found for employee ID: {employeeId}");
     }
-
-    [HttpGet("findVisibleToEmployeeId/{employeeId}")]
-    public IActionResult GetEventsByVisibleToEmployeeId(int employeeId)
-    {
-      var events = _eventService.GetEventsByVisibleToEmployeeId(employeeId);
-      if (events != null)
-      {
-        return Ok(_mapper.Map<IList<EventViewModel>>(events));
-      }
-
-      return StatusCode((int)HttpStatusCode.NoContent, $"No visible events found for employee ID: {employeeId}");
-    }
     
     [HttpGet("findEmployeeHolidayStats")]
     public IActionResult GetEmployeeHolidayStats()
@@ -162,8 +150,8 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         ValidateIfHolidayEvent(createEventViewModel, eventDates);
-        var eventDto = _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
-        _eventWorkflowService.CreateEventWorkflow(eventDto.EventId, eventDto.EventTypeId);
+        var eventWorkflowDto = _eventWorkflowService.CreateEventWorkflow(createEventViewModel.EventTypeId, false);
+        var eventDto = _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId, eventWorkflowDto.EventWorkflowId);
         return Ok($"Event has been created successfully");
       }
       catch (Exception ex)
@@ -237,15 +225,15 @@ namespace AdminCore.WebApi.Controllers
               
               UpdateEventStatus(workflowResultState, eventId);
 
-              return Ok("Reject response sent successfully.\n" +
+              return Ok("Leave response sent successfully.\n" +
                         $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
                         $"Event workflow message: {workflowResultState.Message}");
             }
 
-            return StatusCode((int)HttpStatusCode.OK, "Event is already rejected.");
+            return StatusCode((int)HttpStatusCode.OK, "Event is not awaiting any approval.");
           }
           
-          return StatusCode((int)HttpStatusCode.Forbidden,"You may not reject your own Events.");
+          return StatusCode((int)HttpStatusCode.Forbidden,"You may not respond to your own Events.");
         }
         catch (ValidationException e)
         {
@@ -255,7 +243,7 @@ namespace AdminCore.WebApi.Controllers
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong rejecting event");
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong sending leave response for event");
       }
     }
     

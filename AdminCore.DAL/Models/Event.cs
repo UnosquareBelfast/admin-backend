@@ -39,6 +39,8 @@ namespace AdminCore.DAL.Models
     [ForeignKey("EventTypeId")]
     public virtual EventType EventType { get; set; }
     
+    [Column("event_workflow_id")]
+    public int? EventWorkflowId { get; set; }
     public virtual EventWorkflow EventWorkflow { get; set; }
 
     public virtual ICollection<EventDate> EventDates { get; set; }

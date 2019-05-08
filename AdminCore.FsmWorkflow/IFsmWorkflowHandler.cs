@@ -9,7 +9,7 @@ namespace AdminCore.FsmWorkflow
 {
     public interface IFsmWorkflowHandler
     {
-        EventWorkflow CreateEventWorkflow(int eventId, int eventTypeId);
+        EventWorkflow CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext);
 
         WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow);
     }

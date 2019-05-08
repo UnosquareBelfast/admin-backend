@@ -13,7 +13,6 @@ namespace AdminCore.Common.Interfaces
     IList<EventDto> GetByDateBetween(DateTime startDate, DateTime endDate, EventTypes eventType);
 
     IList<EventDto> GetEventsByEmployeeId(int employeeId, EventTypes eventType);
-    IList<EventDto> GetEventsByVisibleToEmployeeId(int employeeId);
 
     IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId);
 
@@ -25,7 +24,7 @@ namespace AdminCore.Common.Interfaces
 
     HolidayStatsDto GetHolidayStatsForUser(int employeeId);
 
-    EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId);
+    EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId, int eventWorkflowId);
 
     void UpdateEvent(EventDateDto eventDateDto, string message, int employeeId);
 

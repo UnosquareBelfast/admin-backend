@@ -57,16 +57,6 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDto> GetEventsByVisibleToEmployeeId(int employeeId)
-    {
-      var currEmployee = DatabaseContext.EmployeeRepository.GetSingle(x => x.EmployeeId == employeeId, x => x.Contracts);
-
-      var currEmployeeTeamIds = currEmployee.Contracts.Select(y => y.TeamId);
-      var employeeIdsInTeam = DatabaseContext.ContractRepository.Get(x => currEmployeeTeamIds.Contains(x.TeamId)).Select(x => x.EmployeeId);
-      
-      return _mapper.Map<List<EventDto>>(DatabaseContext.EventRepository.Get(x => employeeIdsInTeam.Contains(x.EmployeeId)).ToList());
-    }
-
     public IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
     {
       var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date
@@ -141,10 +131,10 @@ namespace AdminCore.Services
       }
     }
 
-    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId)
+    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId, int eventWorkflowId)
     {
       CheckEventTypeAdminLevel(eventTypes, employeeId);   
-      var newEvent = BuildNewEvent(employeeId, eventTypes);
+      var newEvent = BuildNewEvent(employeeId, eventTypes, eventWorkflowId);
       UpdateEventDates(dates, newEvent);
       ThrowIfDaysNoticeValidationFail((int)eventTypes, newEvent.EventDates);
       return ValidateRemainingHolidaysAndCreate(newEvent, dates);
@@ -488,7 +478,7 @@ namespace AdminCore.Services
       throw new Exception("Not enough holidays to book");
     }
 
-    private Event BuildNewEvent(int employeeId, EventTypes eventTypes)
+    private Event BuildNewEvent(int employeeId, EventTypes eventTypes, int eventWorkflowId)
     {
       var eventStatusId = AutoApproveEventsNotNeedingAdminApproval(eventTypes);
 
@@ -499,6 +489,7 @@ namespace AdminCore.Services
         EventStatusId = eventStatusId,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
+        EventWorkflowId = eventWorkflowId,
         LastModified = _dateService.GetCurrentDateTime()
       };
       

@@ -7,7 +7,7 @@ Adds new data to existing tables:
 */ 
   
 -- Add new schema
-
+  
 ----------------------------------------------------------------------------------------
 
 /*
@@ -52,15 +52,15 @@ CREATE TABLE IF NOT EXISTS public.event_workflow
 (
   event_workflow_id integer NOT NULL DEFAULT nextval('event_workflow_event_workflow_id_seq'::regclass),
 
-  event_id integer NOT NULL,
+--   event_id integer NOT NULL,
   workflow_state integer NOT NULL,
 
-  CONSTRAINT event_workflow_pkey PRIMARY KEY (event_workflow_id),
+  CONSTRAINT event_workflow_pkey PRIMARY KEY (event_workflow_id)
 
-  CONSTRAINT event_workflow_event_id_fkey FOREIGN KEY (event_id)
-    REFERENCES public.event (event_id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION
+--   CONSTRAINT event_workflow_event_id_fkey FOREIGN KEY (event_id)
+--     REFERENCES public.event (event_id) MATCH SIMPLE
+--     ON UPDATE NO ACTION
+--     ON DELETE NO ACTION
 )
   WITH (
     OIDS = FALSE
@@ -159,10 +159,15 @@ ALTER SEQUENCE employee_approval_response_employee_approval_response_id_seq
 */
 
 ----------------------------------------------------------------------------------------
--- ALTER TABLE public.event_type
---   ADD days_notice integer NOT NULL;
+ALTER TABLE public.event
+  ADD event_workflow_id integer,
 
--- Add new Data
+  ADD CONSTRAINT event_event_workflow_id_fkey FOREIGN KEY (event_workflow_id)
+    REFERENCES public.event_workflow (event_workflow_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+-- Add new data
 
 ----------------------------------------------------------------------------------------
 
