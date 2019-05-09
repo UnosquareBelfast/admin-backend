@@ -25,9 +25,16 @@ namespace AdminCore.Services.Tests
     private static readonly IConfiguration Configuration = Substitute.For<IConfiguration>();
     private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
 
+    private readonly Fixture _fixture;
+    
     public EventWorkflowServiceTests()
     {
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+      
+      _fixture = new Fixture();
+      _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => _fixture.Behaviors.Remove(b));
+      _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
 
     [Fact]
@@ -36,13 +43,8 @@ namespace AdminCore.Services.Tests
       // Arrange
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
 
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var eventTypeIdFixture = fixture.Create<int>();
-      var eventWorkflowFixture = fixture.Create<EventWorkflow>();
+      var eventTypeIdFixture = _fixture.Create<int>();
+      var eventWorkflowFixture = _fixture.Create<EventWorkflow>();
       
       var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
       fsmWorkflowHandlerMock.CreateEventWorkflow(Arg.Any<int>(), Arg.Any<bool>()).Returns(eventWorkflowFixture);
@@ -65,15 +67,10 @@ namespace AdminCore.Services.Tests
       int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
       // Arrange
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var eventDto = fixture.Create<EventDto>();
+      var eventDto = _fixture.Create<EventDto>();
       eventDto.EmployeeId = employeeDto.EmployeeId;
       eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
       
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
@@ -81,7 +78,7 @@ namespace AdminCore.Services.Tests
       databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
       databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
 
-      var workflowFsmStateInfoMock = fixture.Create<WorkflowFsmStateInfo>();
+      var workflowFsmStateInfoMock = _fixture.Create<WorkflowFsmStateInfo>();
       
       var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
       fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
@@ -101,16 +98,11 @@ namespace AdminCore.Services.Tests
     public void WorkflowResponseReject_ValidUserRoleForEventType_CallMadeToFsmHandler(
       int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
-      // Arrange      
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var eventDto = fixture.Create<EventDto>();
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
       eventDto.EmployeeId = employeeDto.EmployeeId;
       eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
       
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
@@ -118,7 +110,7 @@ namespace AdminCore.Services.Tests
       databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
       databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
 
-      var workflowFsmStateInfoMock = fixture.Create<WorkflowFsmStateInfo>();
+      var workflowFsmStateInfoMock = _fixture.Create<WorkflowFsmStateInfo>();
       
       var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
       fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
@@ -138,16 +130,11 @@ namespace AdminCore.Services.Tests
     public void WorkflowResponseCancel_ValidUserRoleForEventType_CallMadeToFsmHandler(
       int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
-      // Arrange      
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var eventDto = fixture.Create<EventDto>();
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
       eventDto.EmployeeId = employeeDto.EmployeeId;
       eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
       
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
@@ -155,7 +142,7 @@ namespace AdminCore.Services.Tests
       databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
       databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
 
-      var workflowFsmStateInfoMock = fixture.Create<WorkflowFsmStateInfo>();
+      var workflowFsmStateInfoMock = _fixture.Create<WorkflowFsmStateInfo>();
       
       var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
       fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
@@ -179,16 +166,11 @@ namespace AdminCore.Services.Tests
     public void WorkflowResponseApprove_InvalidUserRoleForEventType_ThrowsValidationException(
       int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
-      // Arrange      
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var eventDto = fixture.Create<EventDto>();
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
       eventDto.EmployeeId = employeeDto.EmployeeId;
       eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
       
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
@@ -208,16 +190,11 @@ namespace AdminCore.Services.Tests
     public void WorkflowResponseReject_InvalidUserRoleForEventType_ThrowsValidationException(
       int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
-      // Arrange      
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var eventDto = fixture.Create<EventDto>();
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
       eventDto.EmployeeId = employeeDto.EmployeeId;
       eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
       
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
@@ -237,17 +214,12 @@ namespace AdminCore.Services.Tests
     public void WorkflowResponseCancel_InvalidUserRoleForEventType_ThrowsValidationException(
       int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
-      // Arrange      
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var eventDto = fixture.Create<EventDto>();
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
       // Event must be created by same same user as sending the cancel response. Set as + 1 to ensure a failure.
       eventDto.EmployeeId = employeeDto.EmployeeId + 1;
       eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
       
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
@@ -268,14 +240,9 @@ namespace AdminCore.Services.Tests
     public void WorkflowResponseApprove_EventWorkflowWithIdDoesNotExistInDb_ThrowsValidationException()
     {
       // Arrange      
-      var fixture = new Fixture();
-      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => fixture.Behaviors.Remove(b));
-      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-      var employeeDto = fixture.Create<EmployeeDto>();
-      var eventDto = fixture.Create<EventDto>();
-      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      var employeeDto = _fixture.Create<EmployeeDto>();
+      var eventDto = _fixture.Create<EventDto>();
+      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       // EventWorkflow id does not match foreign key in Event.
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId + 1;
       
