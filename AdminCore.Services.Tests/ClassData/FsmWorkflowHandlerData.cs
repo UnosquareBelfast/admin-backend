@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using AdminCore.DAL.Models;
 
 namespace AdminCore.Services.Tests.ClassData
 {
@@ -20,7 +18,7 @@ namespace AdminCore.Services.Tests.ClassData
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
-        public class CreateEventWorkflow_EventTypesProvidedDoNotHaveAssociatedWorkflows_ThrowsWorkflowException : IEnumerable<object[]>
+        public class CreateEventWorkflow_EventTypesProvidedDoNotHaveAssociatedWorkflow_ThrowsWorkflowException : IEnumerable<object[]>
         {
             public IEnumerator<object[]> GetEnumerator()
             {

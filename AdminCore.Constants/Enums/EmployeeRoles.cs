@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AdminCore.Constants.Enums
+﻿namespace AdminCore.Constants.Enums
 {
   public enum EmployeeRoles
   {

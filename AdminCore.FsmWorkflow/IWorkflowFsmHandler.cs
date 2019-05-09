@@ -3,11 +3,10 @@ using AdminCore.Constants.Enums;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
-using AdminCore.FsmWorkflow.FsmMachines;
 
 namespace AdminCore.FsmWorkflow
 {
-    public interface IFsmWorkflowHandler
+    public interface IWorkflowFsmHandler
     {
         EventWorkflow CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext);
 

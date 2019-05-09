@@ -1,6 +1,5 @@
 ﻿using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
-using AdminCore.DAL;
 using AdminCore.DAL.Database;
 using AdminCore.DAL.Entity_Framework;
 using AdminCore.DAL.Models;
@@ -8,19 +7,21 @@ using AdminCore.DTOs.Event;
 using AdminCore.Services.Mappings;
 using AutoMapper;
 using NSubstitute;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdminCore.Common;
+using AdminCore.DTOs.Employee;
 using AdminCore.FsmWorkflow;
 using AdminCore.Services.Tests.ClassData;
-using Microsoft.AspNetCore.Http.Features;
+using AutoFixture;
 using Xunit;
+using ValidationException = AdminCore.Common.Exceptions.ValidationException;
 
 namespace AdminCore.Services.Tests
 {
   public sealed class EventWorkflowServiceTests : BaseMockedDatabaseSetUp
   {
-    private static readonly IMapper Mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new EventMapperProfile())));
+    private static readonly IMapper Mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new EventWorkflowMapperProfile())));
     private static readonly IConfiguration Configuration = Substitute.For<IConfiguration>();
     private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
 
@@ -29,47 +30,263 @@ namespace AdminCore.Services.Tests
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
     }
 
-    [Theory]
-    [ClassData(typeof(EventServiceClassData.CreateEvent_ValidNewEventOfOneDay_SuccessfullyInsertsNewEventIntoDb_ClassData))]
-    public void CreateEvent_ValidNewEventOfOneDay_SuccessfullyInsertsNewEventIntoDb(
-      int employeeId, int eventId, DateTime startDate, DateTime endDate, EventType eventType, IList<EventTypeDaysNotice> eventTypeDaysNoticeList, DateTime dateServiceNow)
+    [Fact]
+    public void CreateEvent_ValidNewEventOfOneDay_SuccessfullyInsertsNewEventIntoDb()
     {
       // Arrange
-      var eventTypesList = new List<EventType> { eventType };
-      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
-
-      var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
-      var employeeList = new List<Employee> { employee };
-
-      var eventDateDto = new EventDateDto
-      {
-        StartDate = startDate,
-        EndDate = endDate,
-        EventId = eventId,
-        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
-        IsHalfDay = false
-      };
-      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
-      
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
 
-      var fsmWorkflowHandlerMock = Substitute.For<IFsmWorkflowHandler>();
-      fsmWorkflowHandlerMock.CreateEventWorkflow(eventId, Arg.Any<bool>()).Returns(
-        new EventWorkflow
-        {
-          EventWorkflowId = 0,
-          EventWorkflowApprovalResponses = null,
-          WorkflowState = 0
-        });
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var eventTypeIdFixture = fixture.Create<int>();
+      var eventWorkflowFixture = fixture.Create<EventWorkflow>();
       
-      var eventService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
+      var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      fsmWorkflowHandlerMock.CreateEventWorkflow(Arg.Any<int>(), Arg.Any<bool>()).Returns(eventWorkflowFixture);
+      
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
 
       // Act
-      eventService.CreateEventWorkflow(eventType.EventTypeId, false);
+      var eventWorkflowDto = eventWorkflowService.CreateEventWorkflow(eventTypeIdFixture, false);
 
       // Assert
-      databaseContextMock.Received().EventRepository.Insert(Arg.Any<Event>());
+      fsmWorkflowHandlerMock.Received(1).CreateEventWorkflow(Arg.Any<int>(), Arg.Any<bool>());
+      Assert.NotNull(eventWorkflowDto);
+    }
+
+    #region WorkflowResponse ValidUserRole
+    
+    [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
+    public void WorkflowResponseApprove_ValidUserRoleForEventType_CallMadeToFsmHandler(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var eventDto = fixture.Create<EventDto>();
+      eventDto.EmployeeId = employeeDto.EmployeeId;
+      eventDto.EventTypeId = eventTypeId;
+      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
+      
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
+      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
+      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
+
+      var workflowFsmStateInfoMock = fixture.Create<WorkflowFsmStateInfo>();
+      
+      var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
+      
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
+
+      // Act
+      var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto);
+      
+      // Assert
+      Assert.NotNull(workflowFsmStateInfo);
+      fsmWorkflowHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
+    public void WorkflowResponseReject_ValidUserRoleForEventType_CallMadeToFsmHandler(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange      
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var eventDto = fixture.Create<EventDto>();
+      eventDto.EmployeeId = employeeDto.EmployeeId;
+      eventDto.EventTypeId = eventTypeId;
+      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
+      
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
+      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
+      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
+
+      var workflowFsmStateInfoMock = fixture.Create<WorkflowFsmStateInfo>();
+      
+      var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
+      
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
+
+      // Act
+      var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseReject(eventDto, employeeDto);
+      
+      // Assert
+      Assert.NotNull(workflowFsmStateInfo);
+      fsmWorkflowHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
+    }
+
+        [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
+    public void WorkflowResponseCancel_ValidUserRoleForEventType_CallMadeToFsmHandler(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange      
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var eventDto = fixture.Create<EventDto>();
+      eventDto.EmployeeId = employeeDto.EmployeeId;
+      eventDto.EventTypeId = eventTypeId;
+      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
+      
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
+      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
+      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
+
+      var workflowFsmStateInfoMock = fixture.Create<WorkflowFsmStateInfo>();
+      
+      var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
+      
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
+
+      // Act
+      var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseCancel(eventDto, employeeDto);
+      
+      // Assert
+      Assert.NotNull(workflowFsmStateInfo);
+      fsmWorkflowHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
+    }
+    
+    #endregion
+    
+    #region WorkflowResponse InvalidUserRole
+    
+    [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_InvalidUserRoleForEventType_ThrowsValidationException))]
+    public void WorkflowResponseApprove_InvalidUserRoleForEventType_ThrowsValidationException(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange      
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var eventDto = fixture.Create<EventDto>();
+      eventDto.EmployeeId = employeeDto.EmployeeId;
+      eventDto.EventTypeId = eventTypeId;
+      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
+      
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
+      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
+      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
+           
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, null);
+
+      // Act
+      // Assert
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto));
+    }
+
+    [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_InvalidUserRoleForEventType_ThrowsValidationException))]
+    public void WorkflowResponseReject_InvalidUserRoleForEventType_ThrowsValidationException(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange      
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var eventDto = fixture.Create<EventDto>();
+      eventDto.EmployeeId = employeeDto.EmployeeId;
+      eventDto.EventTypeId = eventTypeId;
+      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
+      
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
+      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
+      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
+           
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, null);
+
+      // Act
+      // Assert
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseReject(eventDto, employeeDto));
+    }
+    
+    [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_InvalidUserRoleForEventType_ThrowsValidationException))]
+    public void WorkflowResponseCancel_InvalidUserRoleForEventType_ThrowsValidationException(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange      
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var eventDto = fixture.Create<EventDto>();
+      // Event must be created by same same user as sending the cancel response. Set as + 1 to ensure a failure.
+      eventDto.EmployeeId = employeeDto.EmployeeId + 1;
+      eventDto.EventTypeId = eventTypeId;
+      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
+      
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
+      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
+      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
+           
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, null);
+
+      // Act
+      // Assert
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseCancel(eventDto, employeeDto));
+    }
+    
+    #endregion
+    
+    [Fact]
+    public void WorkflowResponseApprove_EventWorkflowWithIdDoesNotExistInDb_ThrowsValidationException()
+    {
+      // Arrange      
+      var fixture = new Fixture();
+      fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+        .ForEach(b => fixture.Behaviors.Remove(b));
+      fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+      var employeeDto = fixture.Create<EmployeeDto>();
+      var eventDto = fixture.Create<EventDto>();
+      var eventWorkflowDto = fixture.Create<EventWorkflow>();
+      // EventWorkflow id does not match foreign key in Event.
+      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId + 1;
+      
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
+           
+      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, null);
+
+      // Act
+      // Assert
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto));
     }
   }
 }

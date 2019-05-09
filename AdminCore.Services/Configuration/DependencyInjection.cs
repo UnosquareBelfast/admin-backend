@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using AdminCore.FsmWorkflow;
+using AdminCore.FsmWorkflow.Factory;
+using AdminCore.FsmWorkflow.FsmMachines;
 
 namespace AdminCore.Services.Configuration
 {
@@ -43,7 +45,8 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
         
-        services.AddTransient<IFsmWorkflowHandler, FsmWorkflowHandler>();
+        services.AddTransient<IWorkflowFsmHandler, WorkflowFsmHandler>();
+        services.AddScoped<IWorkflowFsmFactory<ILeaveWorkflow>, WorkflowFsmFactory>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

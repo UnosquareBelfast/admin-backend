@@ -17,6 +17,11 @@ namespace AdminCore.Services.Tests
     private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
     private static readonly EntityFrameworkContext DatabaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
 
+    public BaseMockedDatabaseSetUp()
+    {
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+    }
+    
     protected virtual EntityFrameworkContext SetUpEventRepository(EntityFrameworkContext databaseContext, IList<Event> eventList)
     {
       var mockEventRepository = GetMockedRepository(eventList);
@@ -88,6 +93,28 @@ namespace AdminCore.Services.Tests
       var mockEventWorkflowRepository = GetMockedRepository(eventWorkflowList);
       databaseContext.Configure().EventWorkflowRepository.Returns(mockEventWorkflowRepository);
       databaseContext.When(x => x.RetrieveRepository<EventWorkflow>()).DoNotCallBase();
+
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+
+      return databaseContext;
+    }
+    
+    protected virtual EntityFrameworkContext SetUpEventTypeRequiredRespondersRepository(EntityFrameworkContext databaseContext, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      var mockRepository = GetMockedRepository(eventTypeRequiredRespondersList);
+      databaseContext.Configure().EventTypeRequiredRespondersRepository.Returns(mockRepository);
+      databaseContext.When(x => x.RetrieveRepository<EventTypeRequiredResponders>()).DoNotCallBase();
+
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+
+      return databaseContext;
+    }
+    
+    protected virtual EntityFrameworkContext SetUpEmployeeApprovalResponseRepository(EntityFrameworkContext databaseContext, IList<EmployeeApprovalResponse> employeeApprovalResponseList)
+    {
+      var mockRepository = GetMockedRepository(employeeApprovalResponseList);
+      databaseContext.Configure().EmployeeApprovalResponsesRepository.Returns(mockRepository);
+      databaseContext.When(x => x.RetrieveRepository<EmployeeApprovalResponse>()).DoNotCallBase();
 
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
 

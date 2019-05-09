@@ -8,19 +8,21 @@ using AdminCore.DAL;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
+using AdminCore.FsmWorkflow.Factory;
 using AdminCore.FsmWorkflow.FsmMachines;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
-using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.FsmWorkflow
 {
-    public class FsmWorkflowHandler : IFsmWorkflowHandler
+    public class WorkflowFsmHandler : IWorkflowFsmHandler
     {
         private IDatabaseContext _dbContext;
-        public FsmWorkflowHandler(IDatabaseContext dbContext)
+        private IWorkflowFsmFactory<ILeaveWorkflow> _workflowFsmFactory;
+        public WorkflowFsmHandler(IDatabaseContext dbContext, IWorkflowFsmFactory<ILeaveWorkflow> workflowFsmFactory)
         {
             _dbContext = dbContext;
+            _workflowFsmFactory = workflowFsmFactory;
         }
         
         public EventWorkflow CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext)
@@ -48,10 +50,12 @@ namespace AdminCore.FsmWorkflow
             switch (employeeEvent.EventTypeId)
             {
                 case (int)EventTypes.AnnualLeave:
-                    workflowFsm = new WorkflowFsmPto(workflowStateData);
+//                    workflowFsm = new WorkflowFsmPto(workflowStateData);
+                    workflowFsm = _workflowFsmFactory.GetWorkflowPto(workflowStateData);
                     break;
                 case (int)EventTypes.WorkingFromHome:
-                    workflowFsm = new WorkflowFsmWfh(workflowStateData);
+//                    workflowFsm = new WorkflowFsmWfh(workflowStateData);
+                    workflowFsm = _workflowFsmFactory.GetWorkflowWfh(workflowStateData);
                     break;
                 default:
                     throw new WorkflowException($"No workflow FSM exists for {((EventTypes)employeeEvent.EventTypeId).ToString()}");

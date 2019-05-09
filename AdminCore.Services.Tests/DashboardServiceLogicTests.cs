@@ -18,10 +18,10 @@ namespace AdminCore.Services.Tests
     [Fact]
     public void TestEmployeeDashboardEventsLogic_Check1ResultComesBackForEmployeeId1ForDecember()
     {
-      // Employee 1 has 2 December 2018 events. One approved and one cancelled. This query should only return the one that is approved.
+      // Employee 1 has 2 December 2018 events. One awaiting approval and one cancelled. This query should only return the one that is approved.
       var resultList = _mockDatabase.EventRepository.Where(evnt => DashboardService.EmployeeDashboardEventsQuery(1, new DateTime(2018, 12, 5), evnt)).ToList();
       Assert.Single(resultList);
-      Assert.Equal((int)EventStatuses.Approved, resultList.First().EventStatusId);
+      Assert.Equal((int)EventStatuses.AwaitingApproval, resultList.First().EventStatusId);
     }
 
     [Fact]

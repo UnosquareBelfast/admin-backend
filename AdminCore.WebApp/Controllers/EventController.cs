@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using AdminCore.Common;
-using Microsoft.AspNetCore.Rewrite.Internal.UrlActions;
 
 namespace AdminCore.WebApi.Controllers
 {

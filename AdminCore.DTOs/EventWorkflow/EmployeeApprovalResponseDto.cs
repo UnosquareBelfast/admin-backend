@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using AdminCore.DTOs.Employee;
+﻿using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
 using AdminCore.DTOs.EventWorkflow;
 
