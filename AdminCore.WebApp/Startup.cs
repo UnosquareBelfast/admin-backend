@@ -1,14 +1,15 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AdminCore.Services.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
-using System.Text;
+using AdminCore.MailClients.Interfaces;
+using AdminCore.MailClients.SMTP.Adapters;
+using AdminCore.MailClients.SMTP.Configuration;
+using AdminCore.MailClients.SMTP.Interfaces;
 
 namespace AdminCore.WebApi
 {
@@ -57,6 +58,9 @@ namespace AdminCore.WebApi
           Type = "apiKey"
         });
       });
+
+      services.AddSingleton<IMailServerConfiguration>(
+        Configuration.GetSection("SmtpServerConfiguration").Get<SmtpServerConfiguration>());
 
       DependencyInjection.RegisterWebDependencyInjection(services);
     }

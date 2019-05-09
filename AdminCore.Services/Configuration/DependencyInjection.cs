@@ -12,6 +12,8 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using AdminCore.MailClients.Interfaces;
 using AdminCore.MailClients.SMTP;
+using AdminCore.MailClients.SMTP.Adapters;
+using AdminCore.MailClients.SMTP.Interfaces;
 
 namespace AdminCore.Services.Configuration
 {
@@ -43,7 +45,8 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
         services.AddTransient<IMailMessageService, MailMessageService>();
-        services.AddTransient<IMailSender, SmtpMailSender>();
+        services.AddSingleton<ISmtpClient, SmtpMailKitClientAdapter>();
+        services.AddScoped<IMailSender, SmtpMailSender>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

@@ -1,25 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AdminCore.DTOs.MailMessage;
 using AdminCore.MailClients.Interfaces;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
+using AdminCore.MailClients.SMTP.Interfaces;
 
 namespace AdminCore.MailClients.SMTP
 {
     /// <summary>
-    /// Dispatches email messages to mail server using MailKit SMTP Client.
+    /// Dispatches email messages to mail server using an SMTP Client.
     /// </summary>
-    public class SmtpMailSender : ISmtpMailSender
+    public class SmtpMailSender : IMailSender
     {
-        private readonly IMailServerConfiguration _serverConfiguration;
+        private readonly ISmtpClient _smtpClient;
 
-        public SmtpMailSender(IMailServerConfiguration serverConfiguration)
+        public SmtpMailSender(ISmtpClient smtpClient)
         {
-            _serverConfiguration = serverConfiguration;
+            _smtpClient = smtpClient;
         }
-        
+
         /// <summary>
         /// Sends email messages for an event, given authentication was successful. Disconnects from client once an attempt
         /// to send messages was made then disposes of the mail client.
@@ -51,57 +51,10 @@ namespace AdminCore.MailClients.SMTP
         /// <exception cref="T:MailKit.ProtocolException">
         /// A protocol error occurred.
         /// </exception>
-        public void SendMessages(List<MailMessageDto> messages)
+        public async void SendMessages(List<MailMessageDto> messages)
         {
-            using (var client = CreateEmailClient())
-            {
-                client.Authenticate(_serverConfiguration.ServerUsername, _serverConfiguration.ServerPassword);
-                messages.ForEach(message => Send(message, client));
-                client.Disconnect(true);
-            }
-        }
-
-        public void Send(MailMessageDto message, SmtpClient client)
-        {
-            client.Send(GenerateMessage(message));
-        }
-
-        private MimeMessage GenerateMessage(MailMessageDto message)
-        {
-            var mimeMessage = new MimeMessage();
-   
-            AddAddresses(mimeMessage.From, message.EmailAddresses.FromAddresses);
-            AddAddresses(mimeMessage.To, message.EmailAddresses.ToAddresses);
-            AddAddresses(mimeMessage.Cc, message.EmailAddresses.CcAddresses);
-            AddAddresses(mimeMessage.Bcc, message.EmailAddresses.BccAddresses);
-
-            mimeMessage.Subject = message.Subject;
-
-            var builder = new BodyBuilder {HtmlBody = message.Content};
-
-            mimeMessage.Body = builder.ToMessageBody();
-            return mimeMessage;
-        }
-        
-        private static void AddAddresses(InternetAddressList addressList, List<EmailAddressDto> addresses)
-        {
-            addressList.AddRange(addresses.Select(destination => new MailboxAddress(destination.Name, destination.Address)));
-        }
-
-        private SmtpClient CreateEmailClient()
-        {
-            return ConfigureEmailClient(new SmtpClient());
-        }
-
-        private SmtpClient ConfigureEmailClient(SmtpClient client)
-        {
-            // SMTP really only uses SSL-wrapped connections on port 465
-            // Port 2 and 587 use StartTLS
-            client.Connect(_serverConfiguration.ServerAddress, _serverConfiguration.ServerPort, SecureSocketOptions.StartTls);
-
-            // Remove any OAuth functionality as it will not be used
-            client.AuthenticationMechanisms.Remove("XOAUTH2");
-            return client;
+            _smtpClient.ClientConnectAndAuth();
+            await Task.WhenAll(messages.Select(message => _smtpClient.SendAsync(message)));
         }
     }
 }
