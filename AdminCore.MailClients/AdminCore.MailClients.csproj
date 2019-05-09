@@ -12,9 +12,5 @@
     <ItemGroup>
       <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Extensions" />
-    </ItemGroup>
-
+    
 </Project>

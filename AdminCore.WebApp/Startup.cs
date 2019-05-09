@@ -7,9 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using AdminCore.MailClients.Interfaces;
-using AdminCore.MailClients.SMTP.Adapters;
 using AdminCore.MailClients.SMTP.Configuration;
-using AdminCore.MailClients.SMTP.Interfaces;
 
 namespace AdminCore.WebApi
 {

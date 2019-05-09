@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AdminCore.DTOs.MailMessage;
-using MailKit.Net.Smtp;
 
 namespace AdminCore.MailClients.SMTP.Interfaces
 {
