@@ -191,38 +191,7 @@ namespace AdminCore.MailClients.SMTP.Adapters
                 _disposed = true;
             }
         }
-        
-        /// <summary>
-        /// Establish a connection to the specified SMTP or SMTP/S server using the provided socket.
-        /// Authenticate using the specified user name and password.
-        /// 
-        /// Calls <see cref="M:AdminCore.MailClients.SMTP.Adapters.SmtpMailKitClientAdapter.Connect"/> method.
-        /// Calls <see cref="M:AdminCore.MailClients.SMTP.Adapters.SmtpMailKitClientAdapter.Authenticate"/> method.
-        /// </summary>
-        /// <exception cref="T:MailKit.Security.SslHandshakeException">
-        /// An error occurred during the SSL/TLS negotiations.
-        /// </exception>
-        /// <exception cref="T:MailKit.Net.Smtp.SmtpCommandException">
-        /// An SMTP command failed.
-        /// </exception>
-        /// <exception cref="T:MailKit.Net.Smtp.SmtpProtocolException">
-        /// An SMTP protocol error occurred.
-        /// </exception>
-        /// <exception cref="T:System.InvalidOperationException">
-        /// The <see cref="T:MailKit.MailService" /> is not connected or is already authenticated.
-        /// </exception>
-        /// <exception cref="T:MailKit.Security.AuthenticationException">
-        /// Authentication using the supplied credentials has failed.
-        /// </exception>
-        /// <exception cref="T:MailKit.Security.SaslException">
-        /// A SASL authentication error occurred.
-        /// </exception>
-        /// <exception cref="T:System.IO.IOException">
-        /// An I/O error occurred.
-        /// </exception>
-        /// <exception cref="T:MailKit.ProtocolException">
-        /// A protocol error occurred.
-        /// </exception>
+
         public void ClientConnectAndAuth()
         {
             if (!IsConnected())
