@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AdminCore.DataETL;
 
 namespace AdminCore.Services.Configuration
 {
@@ -21,7 +22,7 @@ namespace AdminCore.Services.Configuration
     public static void RegisterWebDependencyInjection(IServiceCollection services = null)
     {
       if (!_registered)
-      {
+      {        
         if (services == null) services = new ServiceCollection();
         services.AddAutoMapper();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
@@ -40,7 +41,8 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
-
+        services.AddTransient<IDataEtlAdapter, ChoEtlAdapter>();
+        
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 
         _registered = true;

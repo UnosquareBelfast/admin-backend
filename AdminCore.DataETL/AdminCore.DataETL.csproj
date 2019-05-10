@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AdminCore.Common\AdminCore.Common.csproj" />
+      <ProjectReference Include="..\AdminCore.DAL\AdminCore.DAL.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="7.0.1" />
+      <PackageReference Include="ChoETL" Version="1.1.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Config" />
+      <Folder Include="MappingProfiles\TypeConverters" />
+    </ItemGroup>
+
+</Project>

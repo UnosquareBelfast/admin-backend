@@ -19,6 +19,8 @@ namespace AdminCore.Common.Interfaces
 
     IList<EventDto> GetEventByStatus(EventStatuses eventStatus, EventTypes eventType);
 
+    string GetEventByStatusCsv(EventStatuses eventStatus, EventTypes eventType);
+    
     IList<EventDto> GetEventByType(EventTypes eventType);
 
     HolidayStatsDto GetHolidayStatsForUser(int employeeId);

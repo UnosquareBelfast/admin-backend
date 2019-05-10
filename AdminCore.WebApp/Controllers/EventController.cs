@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using ChoETL;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -115,6 +116,14 @@ namespace AdminCore.WebApi.Controllers
       return StatusCode((int)HttpStatusCode.NoContent, "No Event exists");
     }
 
+    [HttpGet("findByEventStatus/{eventStatusId}/{eventTypeId}/csv")]
+    public IActionResult GetEventByStatusTypeCsv(int eventStatusId, int eventTypeId)
+    {
+      var eventsCsv = _eventService.GetEventByStatusCsv((EventStatuses)eventStatusId, (EventTypes)eventTypeId);
+
+      return Ok(eventsCsv);
+    }
+    
     [HttpGet("findEventMessages/{eventId}")]
     public IActionResult GetEventMessages(int eventId)
     {
