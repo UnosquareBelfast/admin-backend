@@ -62,7 +62,7 @@ namespace AdminCore.MailClients.SMTP
         public void SendMessages(List<MailMessageDto> messages)
         {
             // authentication per each request is slow and it is a temporary solution,
-            // this will change when smtp impl will be moved to its own micro-service
+            // this will change once smtp impl is moved to its own micro-service.
             _smtpClient.ClientConnectAndAuth();
 
            Task
