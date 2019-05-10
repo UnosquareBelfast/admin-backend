@@ -1,8 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AdminCore.DTOs.MailMessage;
@@ -29,18 +26,6 @@ namespace AdminCore.MailClients.SMTP.Adapters
             _serverConfiguration = mailServerConfiguration;
         }
 
-        public void Connect(string host, int port, bool useSsl,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            _smtpClient.Connect(host, port, useSsl, cancellationToken);
-        }
-
-        public Task ConnectAsync(string host, int port, bool useSsl,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            return _smtpClient.ConnectAsync(host, port, useSsl, cancellationToken);
-        }
-
         public void Connect(string host, int port = 0, CancellationToken cancellationToken = new CancellationToken())
         {
             _smtpClient.Connect(host, port, SecureSocketOptions.StartTls, cancellationToken);
@@ -50,53 +35,6 @@ namespace AdminCore.MailClients.SMTP.Adapters
             CancellationToken cancellationToken = new CancellationToken())
         {
             return _smtpClient.ConnectAsync(host, port, SecureSocketOptions.StartTls, cancellationToken);
-        }
-
-        public void Connect(Socket socket, string host, int port = 0, CancellationToken cancellationToken = new CancellationToken())
-        {
-            _smtpClient.Connect(socket, host, port, SecureSocketOptions.StartTls, cancellationToken);
-        }
-
-        public Task ConnectAsync(Socket socket, string host, int port = 0,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            return _smtpClient.ConnectAsync(socket, host, port, SecureSocketOptions.StartTls, cancellationToken);
-        }
-
-        public void Authenticate(ICredentials credentials,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            _smtpClient.Authenticate(credentials, cancellationToken);
-        }
-
-        public Task AuthenticateAsync(ICredentials credentials,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            return _smtpClient.AuthenticateAsync(credentials, cancellationToken);
-        }
-
-        public void Authenticate(Encoding encoding, ICredentials credentials,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            _smtpClient.Authenticate(encoding, credentials, cancellationToken);
-        }
-
-        public Task AuthenticateAsync(Encoding encoding, ICredentials credentials,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            return _smtpClient.AuthenticateAsync(encoding, credentials, cancellationToken);
-        }
-
-        public void Authenticate(Encoding encoding, string userName, string password,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            _smtpClient.Authenticate(encoding, userName, password, cancellationToken);
-        }
-
-        public Task AuthenticateAsync(Encoding encoding, string userName, string password,
-            CancellationToken cancellationToken = new CancellationToken())
-        {
-            return _smtpClient.AuthenticateAsync(encoding, userName, password, cancellationToken);
         }
 
         public void Authenticate(string userName, string password,
@@ -159,7 +97,7 @@ namespace AdminCore.MailClients.SMTP.Adapters
             return _smtpClient.IsAuthenticated;
         }
 
-        private MimeMessage GenerateMimeMessage(MailMessageDto message)
+        private static MimeMessage GenerateMimeMessage(MailMessageDto message)
         {
             var mimeMessage = new MimeMessage();
 
@@ -196,12 +134,12 @@ namespace AdminCore.MailClients.SMTP.Adapters
         {
             if (!IsConnected())
             {
-                _smtpClient.Connect(_serverConfiguration.ServerAddress, _serverConfiguration.ServerPort);
+                Connect(_serverConfiguration.ServerAddress, _serverConfiguration.ServerPort);
             }
 
             if (!IsAuthenticated())
             {
-                _smtpClient.Authenticate(_serverConfiguration.ServerUsername, _serverConfiguration.ServerPassword);
+                Authenticate(_serverConfiguration.ServerUsername, _serverConfiguration.ServerPassword);
             }
         }
     }
