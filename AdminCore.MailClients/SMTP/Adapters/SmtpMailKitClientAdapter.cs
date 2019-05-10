@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -22,21 +21,18 @@ namespace AdminCore.MailClients.SMTP.Adapters
     public class SmtpMailKitClientAdapter : ISmtpClient
     {
         private bool _disposed;
-        private readonly SmtpClient _smtpClient;
+        private readonly SmtpClient _smtpClient = new SmtpClient();
         private readonly IMailServerConfiguration _serverConfiguration;
 
         public SmtpMailKitClientAdapter(IMailServerConfiguration mailServerConfiguration)
         {
             _serverConfiguration = mailServerConfiguration;
-            _smtpClient = new SmtpClient();
-            ClientConnectAndAuth();
         }
 
         public void Connect(string host, int port, bool useSsl,
             CancellationToken cancellationToken = new CancellationToken())
         {
             _smtpClient.Connect(host, port, useSsl, cancellationToken);
- 
         }
 
         public Task ConnectAsync(string host, int port, bool useSsl,
@@ -56,8 +52,7 @@ namespace AdminCore.MailClients.SMTP.Adapters
             return _smtpClient.ConnectAsync(host, port, SecureSocketOptions.StartTls, cancellationToken);
         }
 
-        public void Connect(Socket socket, string host, int port = 0,
-            CancellationToken cancellationToken = new CancellationToken())
+        public void Connect(Socket socket, string host, int port = 0, CancellationToken cancellationToken = new CancellationToken())
         {
             _smtpClient.Connect(socket, host, port, SecureSocketOptions.StartTls, cancellationToken);
         }
@@ -141,9 +136,9 @@ namespace AdminCore.MailClients.SMTP.Adapters
             _smtpClient.Send(GenerateMimeMessage(message), cancellationToken);
         }
 
-        public Task SendAsync(MailMessageDto message, CancellationToken cancellationToken = new CancellationToken())
+        public async Task SendAsync(MailMessageDto message, CancellationToken cancellationToken = new CancellationToken())
         {
-            return _smtpClient.SendAsync(GenerateMimeMessage(message), cancellationToken);
+            await _smtpClient.SendAsync(GenerateMimeMessage(message), cancellationToken);
         }
 
         /// <summary>
@@ -196,42 +191,48 @@ namespace AdminCore.MailClients.SMTP.Adapters
                 _disposed = true;
             }
         }
-
+        
+        /// <summary>
+        /// Establish a connection to the specified SMTP or SMTP/S server using the provided socket.
+        /// Authenticate using the specified user name and password.
+        /// 
+        /// Calls <see cref="M:AdminCore.MailClients.SMTP.Adapters.SmtpMailKitClientAdapter.Connect"/> method.
+        /// Calls <see cref="M:AdminCore.MailClients.SMTP.Adapters.SmtpMailKitClientAdapter.Authenticate"/> method.
+        /// </summary>
+        /// <exception cref="T:MailKit.Security.SslHandshakeException">
+        /// An error occurred during the SSL/TLS negotiations.
+        /// </exception>
+        /// <exception cref="T:MailKit.Net.Smtp.SmtpCommandException">
+        /// An SMTP command failed.
+        /// </exception>
+        /// <exception cref="T:MailKit.Net.Smtp.SmtpProtocolException">
+        /// An SMTP protocol error occurred.
+        /// </exception>
+        /// <exception cref="T:System.InvalidOperationException">
+        /// The <see cref="T:MailKit.MailService" /> is not connected or is already authenticated.
+        /// </exception>
+        /// <exception cref="T:MailKit.Security.AuthenticationException">
+        /// Authentication using the supplied credentials has failed.
+        /// </exception>
+        /// <exception cref="T:MailKit.Security.SaslException">
+        /// A SASL authentication error occurred.
+        /// </exception>
+        /// <exception cref="T:System.IO.IOException">
+        /// An I/O error occurred.
+        /// </exception>
+        /// <exception cref="T:MailKit.ProtocolException">
+        /// A protocol error occurred.
+        /// </exception>
         public void ClientConnectAndAuth()
         {
-            var cancellationToken = new CancellationToken();
             if (!IsConnected())
             {
-                Connect(_serverConfiguration.ServerAddress, _serverConfiguration.ServerPort, cancellationToken);
+                _smtpClient.Connect(_serverConfiguration.ServerAddress, _serverConfiguration.ServerPort);
             }
+
             if (!IsAuthenticated())
             {
-                Authenticate(_serverConfiguration.ServerUsername, _serverConfiguration.ServerPassword, cancellationToken);
-            }
-            KeepConnAlive(cancellationToken);
-        }
-
-        private void KeepConnAlive(CancellationToken cancellationToken)
-        {
-            if (IsConnected() && IsAuthenticated())
-            {
-                Task.Factory.StartNew(() => Watch(cancellationToken), cancellationToken);
-            }
-        }
-        
-        private void Watch(CancellationToken cancellationToken = new CancellationToken())
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    _smtpClient.NoOp(cancellationToken);
-                    Thread.Sleep(_serverConfiguration.SleepKeepConnAliveMs);
-                }
-                catch (IOException)
-                {
-                    break;
-                }
+                _smtpClient.Authenticate(_serverConfiguration.ServerUsername, _serverConfiguration.ServerPassword);
             }
         }
     }

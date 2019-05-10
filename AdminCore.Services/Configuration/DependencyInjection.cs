@@ -45,7 +45,7 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
         services.AddTransient<IMailMessageService, MailMessageService>();
-        services.AddSingleton<ISmtpClient, SmtpMailKitClientAdapter>();
+        services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
         services.AddScoped<IMailSender, SmtpMailSender>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
@@ -81,7 +81,7 @@ namespace AdminCore.Services.Configuration
     }
 
     [ExcludeFromCodeCoverage]
-    public class DependencyInjectionContainer : IContainer
+    private class DependencyInjectionContainer : IContainer
     {
       private readonly IServiceProvider _container;
 
