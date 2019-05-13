@@ -19,7 +19,8 @@ namespace AdminCore.MailClients.SMTP.Configuration
 
         public int ServerPort()
         {
-            return (int.TryParse(Environment.GetEnvironmentVariable("SERV_PORT"), out var v) ? v : default(int?)) ?? 587;
+            return (int.TryParse(Environment.GetEnvironmentVariable("SERV_PORT"), out var v) ? v : default(int?))
+                   ?? 587;
         }
 
         public string ServerUsername()
