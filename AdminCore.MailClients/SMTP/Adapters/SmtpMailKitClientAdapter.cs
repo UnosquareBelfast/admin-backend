@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AdminCore.Common.Interfaces;
 using AdminCore.DTOs.MailMessage;
-using AdminCore.MailClients.Interfaces;
 using AdminCore.MailClients.SMTP.Interfaces;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -21,9 +21,9 @@ namespace AdminCore.MailClients.SMTP.Adapters
         private readonly SmtpClient _smtpClient = new SmtpClient();
         private readonly IMailServerConfiguration _serverConfiguration;
 
-        public SmtpMailKitClientAdapter(IMailServerConfiguration mailServerConfiguration)
+        public SmtpMailKitClientAdapter(IConfiguration serverConfiguration)
         {
-            _serverConfiguration = mailServerConfiguration;
+            _serverConfiguration = serverConfiguration.RetrieveMailServiceConfig();
         }
 
         public void Connect(string host, int port = 0, CancellationToken cancellationToken = new CancellationToken())
@@ -134,12 +134,12 @@ namespace AdminCore.MailClients.SMTP.Adapters
         {
             if (!IsConnected())
             {
-                Connect(_serverConfiguration.ServerAddress, _serverConfiguration.ServerPort);
+                Connect(_serverConfiguration.ServerAddress(), _serverConfiguration.ServerPort());
             }
 
             if (!IsAuthenticated())
             {
-                Authenticate(_serverConfiguration.ServerUsername, _serverConfiguration.ServerPassword);
+                Authenticate(_serverConfiguration.ServerUsername(), _serverConfiguration.ServerPassword());
             }
         }
     }

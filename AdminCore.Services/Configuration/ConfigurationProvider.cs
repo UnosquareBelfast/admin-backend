@@ -2,6 +2,7 @@
 using AdminCore.Constants;
 using AdminCore.Constants.Enums;
 using System;
+using AdminCore.MailClients.SMTP.Configuration;
 
 namespace AdminCore.Services.Configuration
 {
@@ -20,6 +21,11 @@ namespace AdminCore.Services.Configuration
       if (Enum.TryParse(typeof(MigrationTypes), migrationType, out var migration)) return (MigrationTypes)migration;
 
       return MigrationTypes.Migrate;
+    }
+
+    public IMailServerConfiguration RetrieveMailServiceConfig()
+    {
+      return new SmtpServerConfiguration();
     }
   }
 }

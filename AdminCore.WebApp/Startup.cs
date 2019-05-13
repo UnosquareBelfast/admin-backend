@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
-using AdminCore.MailClients.Interfaces;
-using AdminCore.MailClients.SMTP.Configuration;
 
 namespace AdminCore.WebApi
 {
@@ -56,9 +54,6 @@ namespace AdminCore.WebApi
           Type = "apiKey"
         });
       });
-
-      services.AddSingleton<IMailServerConfiguration>(
-        Configuration.GetSection("SmtpServerConfiguration").Get<SmtpServerConfiguration>());
 
       DependencyInjection.RegisterWebDependencyInjection(services);
     }
