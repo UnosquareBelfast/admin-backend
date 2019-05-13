@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AdminCore.Common.Attributes.DataEtl
 {
@@ -19,11 +20,11 @@ namespace AdminCore.Common.Attributes.DataEtl
             
             var list = (List<T>) value;
             
-            if (list.Count == 0)
+            if (!list.Any())
             {
                 return _defaultIfNull;
             }
-            return string.Join($"{Environment.NewLine}", list);
+            return string.Join(Environment.NewLine, list);
         }
     }
 }

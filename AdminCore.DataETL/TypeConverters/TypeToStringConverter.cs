@@ -7,8 +7,8 @@ namespace AdminCore.Common.Attributes.DataEtl
     {
         public object ConvertTo(object value)
         {
-            string enumValue = ((T)value)?.ToString();
-            return enumValue;
+            string stringValue = ((T)value)?.ToString();
+            return stringValue;
         }
     }
 }

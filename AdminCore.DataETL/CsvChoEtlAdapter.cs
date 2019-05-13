@@ -13,6 +13,10 @@ using ChoETL;
 
 namespace AdminCore.DataETL
 {
+    /// <summary>
+    /// Implements the ETL Library ChoEtl for conversion of data to csv.
+    /// https://github.com/Cinchoo/ChoETL
+    /// </summary>
     public class CsvChoEtlAdapter : IDataEtlAdapter
     {
         public byte[] GenerateByteArray<T>(IList<T> data) 
