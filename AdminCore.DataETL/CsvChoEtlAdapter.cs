@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using AdminCore.Common.Attributes.DataEtl;
@@ -20,7 +21,7 @@ namespace AdminCore.DataETL
             var objectsToWriteList = CreateExpandoObjectList(data);
 
             var config = CreateConfig<T>();
-            StringBuilder msg = new StringBuilder();
+            var msg = new StringBuilder();
             using (var parser = new ChoCSVWriter(new StringWriter(msg), config))
             {
                 parser.Write(objectsToWriteList);
@@ -36,7 +37,7 @@ namespace AdminCore.DataETL
         /// <returns></returns>
         private ChoCSVRecordConfiguration CreateConfig<T>()
         {
-            ChoCSVRecordConfiguration config = new ChoCSVRecordConfiguration();
+            var config = new ChoCSVRecordConfiguration();
             foreach (var csvRecordField in GetCsvRecordFieldAttributes<T>())
             {
                 config.CSVRecordFieldConfigurations.Add(new ChoCSVRecordFieldConfiguration(csvRecordField.Name, csvRecordField.ColumnPosition));
@@ -54,13 +55,7 @@ namespace AdminCore.DataETL
         /// <returns></returns>
         private List<ExpandoObject> CreateExpandoObjectList<T>(IList<T> data)
         {
-            var objectsToWrite = new List<ExpandoObject>();
-            foreach (var dataItem in data)
-            {
-                objectsToWrite.Add(CreateExpandoObject(dataItem));                
-            }
-
-            return objectsToWrite;
+            return data.Select(CreateExpandoObject).ToList();
         }
         
         /// <summary>
@@ -71,12 +66,12 @@ namespace AdminCore.DataETL
         /// <returns></returns>
         private ExpandoObject CreateExpandoObject<T>(T obj)
         {
-            Type type = obj.GetType();
-            PropertyInfo[] properties = type.GetProperties();
+            var type = obj.GetType();
+            var properties = type.GetProperties();
 
             var exp = new ExpandoObject() as IDictionary<string, Object>;
             
-            foreach (PropertyInfo propertyInfo in properties)
+            foreach (var propertyInfo in properties)
             {
                 var convertedVal = ConvertUsingConverterAttribute(propertyInfo, obj);
                 exp.Add(propertyInfo.Name, convertedVal);
