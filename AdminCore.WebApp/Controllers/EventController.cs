@@ -27,8 +27,10 @@ namespace AdminCore.WebApi.Controllers
     private readonly EmployeeDto _employee;
     private readonly IEventMessageService _eventMessageService;
     private readonly ICsvService _csvService;
+    private readonly IDateService _dateService;
     
-    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser, ICsvService csvService)
+    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser, 
+      ICsvService csvService, IDateService dateService)
       : base(mapper)
     {
       _eventService = wfhEventService;
@@ -36,6 +38,7 @@ namespace AdminCore.WebApi.Controllers
       _mapper = mapper;
       _employee = authenticatedUser.RetrieveLoggedInUser();
       _csvService = csvService;
+      _dateService = dateService;
     }
 
     [HttpGet]
@@ -124,9 +127,10 @@ namespace AdminCore.WebApi.Controllers
     {
       var events = _eventService.GetEventByStatus((EventStatuses)eventStatusId, (EventTypes)eventTypeId);
       var mappedEvents = _mapper.Map<IList<EventDataTransformModel>>(events);
-
+      
       var stream = new MemoryStream(_csvService.Generate(mappedEvents));
-      return File(stream, "application/octet-stream", "Report.csv");
+      return File(stream, "application/octet-stream", 
+        $"{(EventStatuses)eventStatusId}_{(EventTypes)eventTypeId}_Report{_dateService.GetCurrentDateTime():dd/MM/yyyy}.csv");
     }
     
     [HttpGet("findEventMessages/{eventId}")]
