@@ -65,7 +65,6 @@ namespace AdminCore.DataETL
         
         /// <summary>
         /// Creates an ExpandoObject using reflection to iterate over the properties in the specified class of type <see cref="T"/>.
-        /// A 
         /// </summary>
         /// <param name="obj"></param>
         /// <typeparam name="T"></typeparam>

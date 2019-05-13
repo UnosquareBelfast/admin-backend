@@ -85,12 +85,6 @@ namespace AdminCore.Services
         x => x.EventMessages);
       return _mapper.Map<IList<EventDto>>(events);
     }
-
-//    public string GetEventByStatusCsv(EventStatuses eventStatus, EventTypes eventType)
-//    {
-//      var bytes = _dataEtlAdapter.GenerateByteArray<Event, EventChoEtl>(GetEventListByStatus(eventStatus, eventType));
-//      return "";
-//    }
     
     public IList<EventDto> GetEventByType(EventTypes eventType)
     {
