@@ -1,19 +1,13 @@
-using System;
-using System.Globalization;
-using ChoETL;
-
-namespace AdminCore.DataETL.TypeConverters
+namespace AdminCore.Common.Attributes.DataEtl
 {
-    public class TypeToStringConverter<T> : IChoValueConverter
+    /// <summary>
+    /// Converts a type to a string using the ToString() method.
+    /// </summary>
+    public class TypeToStringConverter<T> : ITypeConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertTo(object value)
         {
-            return value;
-        }
- 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            string enumValue = ((T)value).ToString();
+            string enumValue = ((T)value)?.ToString();
             return enumValue;
         }
     }

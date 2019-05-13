@@ -11,7 +11,6 @@ using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdminCore.DataETL;
 using Xunit;
 
 namespace AdminCore.Services.Tests
@@ -1372,7 +1371,7 @@ namespace AdminCore.Services.Tests
     private static EventService GetEventService(IDatabaseContext databaseContext)
     {
       IDateService dateService = new DateService();
-      return new EventService(databaseContext, Mapper, dateService, new ChoEtlAdapter(Mapper));
+      return new EventService(databaseContext, Mapper, dateService);
     }
   }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 using AdminCore.Common;
 using AdminCore.Constants;
 using AdminCore.DTOs.Employee;

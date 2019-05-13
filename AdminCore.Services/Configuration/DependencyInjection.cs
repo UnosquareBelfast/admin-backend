@@ -41,7 +41,9 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
-        services.AddTransient<IDataEtlAdapter, ChoEtlAdapter>();
+        
+        services.AddTransient<IDataEtlAdapter, CsvChoEtlAdapter>();
+        services.AddTransient<ICsvService, CsvService>();
         
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

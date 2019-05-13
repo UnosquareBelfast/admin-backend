@@ -15,7 +15,6 @@ using AdminCore.DTOs.Employee;
 using AdminCore.WebApi.Exceptions;
 using AdminCore.WebApi.Models.Employee;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

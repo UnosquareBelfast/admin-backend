@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using AdminCore.DataETL.Models;
 
 namespace AdminCore.Services
 {
@@ -19,14 +18,12 @@ namespace AdminCore.Services
   {
     private readonly IMapper _mapper;
     private readonly IDateService _dateService;
-    private readonly IDataEtlAdapter _dataEtlAdapter;
 
-    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService, IDataEtlAdapter dataEtlAdapter)
+    public EventService(IDatabaseContext databaseContext, IMapper mapper, IDateService dateService)
       : base(databaseContext)
     {
       _mapper = mapper;
       _dateService = dateService;
-      _dataEtlAdapter = dataEtlAdapter;
     }
 
     public IList<EventDto> GetEmployeeEvents(EventTypes eventType)
@@ -76,17 +73,6 @@ namespace AdminCore.Services
 
     public IList<EventDto> GetEventByStatus(EventStatuses eventStatus, EventTypes eventType)
     {
-      var events = GetEventListByStatus(eventStatus, eventType);
-      return _mapper.Map<IList<EventDto>>(events);
-    }
-
-    public string GetEventByStatusCsv(EventStatuses eventStatus, EventTypes eventType)
-    {
-      return _dataEtlAdapter.ToCsv<Event, EventChoEtl>(GetEventListByStatus(eventStatus, eventType));
-    }
-
-    private IList<Event> GetEventListByStatus(EventStatuses eventStatus, EventTypes eventType)
-    {
       var eventStatusId = (int)eventStatus;
       var eventTypeId = (int)eventType;
       var events = DatabaseContext.EventRepository.Get(x => x.EventStatus.EventStatusId == eventStatusId
@@ -97,9 +83,14 @@ namespace AdminCore.Services
         x => x.EventType,
         x => x.EventStatus,
         x => x.EventMessages);
-
-      return events;
+      return _mapper.Map<IList<EventDto>>(events);
     }
+
+//    public string GetEventByStatusCsv(EventStatuses eventStatus, EventTypes eventType)
+//    {
+//      var bytes = _dataEtlAdapter.GenerateByteArray<Event, EventChoEtl>(GetEventListByStatus(eventStatus, eventType));
+//      return "";
+//    }
     
     public IList<EventDto> GetEventByType(EventTypes eventType)
     {

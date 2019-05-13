@@ -9,7 +9,6 @@ using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdminCore.DataETL;
 
 namespace AdminCore.Services
 {
@@ -114,7 +113,7 @@ namespace AdminCore.Services
 
     private void CreatePublicHolidays(Employee employee, IList<MandatoryEvent> publicHolidays)
     {
-      var eventService = new EventService(DatabaseContext, _mapper, new DateService(), new ChoEtlAdapter(_mapper));
+      var eventService = new EventService(DatabaseContext, _mapper, new DateService());
       foreach (var holiday in publicHolidays)
       {
         eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,

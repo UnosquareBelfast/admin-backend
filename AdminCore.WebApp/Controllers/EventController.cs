@@ -11,8 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
-using ChoETL;
+using AdminCore.WebApi.Models;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -25,14 +26,16 @@ namespace AdminCore.WebApi.Controllers
     private readonly IMapper _mapper;
     private readonly EmployeeDto _employee;
     private readonly IEventMessageService _eventMessageService;
-
-    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser)
+    private readonly ICsvService _csvService;
+    
+    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser, ICsvService csvService)
       : base(mapper)
     {
       _eventService = wfhEventService;
       _eventMessageService = eventMessageService;
       _mapper = mapper;
       _employee = authenticatedUser.RetrieveLoggedInUser();
+      _csvService = csvService;
     }
 
     [HttpGet]
@@ -119,9 +122,11 @@ namespace AdminCore.WebApi.Controllers
     [HttpGet("findByEventStatus/{eventStatusId}/{eventTypeId}/csv")]
     public IActionResult GetEventByStatusTypeCsv(int eventStatusId, int eventTypeId)
     {
-      var eventsCsv = _eventService.GetEventByStatusCsv((EventStatuses)eventStatusId, (EventTypes)eventTypeId);
+      var events = _eventService.GetEventByStatus((EventStatuses)eventStatusId, (EventTypes)eventTypeId);
+      var mappedEvents = _mapper.Map<IList<EventDataTransformModel>>(events);
 
-      return Ok(eventsCsv);
+      var stream = new MemoryStream(_csvService.Generate(mappedEvents));
+      return File(stream, "application/octet-stream", "Report.csv");
     }
     
     [HttpGet("findEventMessages/{eventId}")]
