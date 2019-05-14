@@ -1,9 +1,9 @@
 using System;
 
-namespace AdminCore.Common.Attributes.DataEtl
+namespace AdminCore.DataETL.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class CsvRecordFieldAttribute : Attribute
+    public class ExportableRecordFieldAttribute : Attribute
     {
         public string Name { get; set; }
         public int ColumnPosition { get; set; }

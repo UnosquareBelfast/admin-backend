@@ -5,9 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using AdminCore.Common.Attributes.DataEtl;
 using AdminCore.Common.Interfaces;
-using AutoMapper;
+using AdminCore.DataETL.Attributes;
 using Castle.Core.Internal;
 using ChoETL;
 
@@ -22,16 +21,20 @@ namespace AdminCore.DataETL
         public byte[] GenerateByteArray<T>(IList<T> data) 
             where T : class
         {
-            var objectsToWriteList = CreateExpandoObjectList(data);
-
-            var config = CreateConfig<T>();
             var msg = new StringBuilder();
-            using (var parser = new ChoCSVWriter(new StringWriter(msg), config))
+
+            if (data != null && data.Any())
             {
-                parser.Write(objectsToWriteList);
+                var objectsToWriteList = CreateExpandoObjectList(data);
+
+                var config = CreateConfig<T>();
+                using (var parser = new ChoCSVWriter(new StringWriter(msg), config))
+                {
+                    parser.Write(objectsToWriteList);
+                }
             }
-            
-            return ASCIIEncoding.UTF32.GetBytes(msg.ToString());
+
+            return ASCIIEncoding.UTF8.GetBytes(msg.ToString());
         }
 
         /// <summary>
@@ -101,14 +104,14 @@ namespace AdminCore.DataETL
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private IEnumerable<CsvRecordFieldAttribute> GetCsvRecordFieldAttributes<T>()
+        private IEnumerable<ExportableRecordFieldAttribute> GetCsvRecordFieldAttributes<T>()
         {
             int i = 0;
             var properties = typeof(T).GetProperties();
             foreach (var propertyInfo in properties)
             {
-                var style = propertyInfo.GetAttribute<CsvRecordFieldAttribute>();
-                yield return style ?? new CsvRecordFieldAttribute { Name = propertyInfo.Name, ColumnPosition = i++};
+                var style = propertyInfo.GetAttribute<ExportableRecordFieldAttribute>();
+                yield return style ?? new ExportableRecordFieldAttribute { Name = propertyInfo.Name, ColumnPosition = i++};
             }
         }
     }

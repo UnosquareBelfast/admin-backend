@@ -1,6 +1,6 @@
 using System;
 
-namespace AdminCore.Common.Attributes.DataEtl
+namespace AdminCore.DataETL.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class TypeConverterAttribute : Attribute

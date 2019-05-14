@@ -1,4 +1,4 @@
-namespace AdminCore.Common.Attributes.DataEtl
+namespace AdminCore.DataETL.Attributes
 {
     public interface ITypeConverter
     {

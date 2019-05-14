@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdminCore.DataETL.Attributes;
 
-namespace AdminCore.Common.Attributes.DataEtl
+namespace AdminCore.DataETL.TypeConverters
 {
     /// <summary>
     /// Converts a type to a string using the ToString() method.

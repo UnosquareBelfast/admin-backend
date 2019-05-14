@@ -4,6 +4,7 @@ using System.Linq;
 using AdminCore.Constants.Enums;
 using AdminCore.DTOs.Event;
 using AdminCore.WebApi.Models;
+using AdminCore.WebApi.Models.DataTransform;
 using AutoMapper;
 
 namespace AdminCore.WebApi.Mappings

@@ -1,4 +1,6 @@
-namespace AdminCore.Common.Attributes.DataEtl
+using AdminCore.DataETL.Attributes;
+
+namespace AdminCore.DataETL.TypeConverters
 {
     /// <summary>
     /// Converts a type to a string using the ToString() method.
