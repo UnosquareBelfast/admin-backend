@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AdminCore.Common.Interfaces;
 using AdminCore.DTOs.MailMessage;
 using AdminCore.MailClients.SMTP.Interfaces;
+using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
@@ -17,13 +18,15 @@ namespace AdminCore.MailClients.SMTP.Adapters
     /// </summary>
     public class SmtpMailKitClientAdapter : ISmtpClient
     {
-        private bool _disposed;
-        private readonly SmtpClient _smtpClient = new SmtpClient();
+        private readonly IMailTransport _smtpClient;
         private readonly IMailServerConfiguration _serverConfiguration;
 
-        public SmtpMailKitClientAdapter(IConfiguration serverConfiguration)
+        public bool Disposed { get; set; }
+
+        public SmtpMailKitClientAdapter(IConfiguration serverConfiguration, IMailTransport smtpClient = null)
         {
             _serverConfiguration = serverConfiguration.RetrieveMailServiceConfig();
+            _smtpClient = smtpClient ?? new SmtpClient();
         }
 
         public void Connect(string host, int port = 0, CancellationToken cancellationToken = new CancellationToken())
@@ -116,31 +119,28 @@ namespace AdminCore.MailClients.SMTP.Adapters
 
         private static void AddAddresses(InternetAddressList addressList, List<EmailAddressDto> addresses)
         {
-            addressList.AddRange(addresses.Select(destination =>
-                new MailboxAddress(destination.Name, destination.Address)));
+            addressList.AddRange(addresses.Select(destination => new MailboxAddress(destination.Name, destination.Address)));
         }
 
         public void Dispose()
         {
-            if (_smtpClient == null || !_disposed)
-            {
-                _smtpClient?.Disconnect(true);
-                _smtpClient?.Dispose();
-                _disposed = true;
-            }
+            if (Disposed) return;
+
+            _smtpClient?.Disconnect(true);
+            _smtpClient?.Dispose();
+            Disposed = true;
         }
 
+        // need to be connected to authenticate.
         public void ClientConnectAndAuth()
         {
+            if (IsAuthenticated()) return;
+
             if (!IsConnected())
             {
                 Connect(_serverConfiguration.ServerAddress(), _serverConfiguration.ServerPort());
             }
-
-            if (!IsAuthenticated())
-            {
-                Authenticate(_serverConfiguration.ServerUsername(), _serverConfiguration.ServerPassword());
-            }
+            Authenticate(_serverConfiguration.ServerUsername(), _serverConfiguration.ServerPassword());
         }
     }
 }
