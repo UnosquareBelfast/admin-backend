@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AdminCore.DTOs.MailMessage;
 using AdminCore.MailClients.Interfaces;
@@ -20,13 +22,20 @@ namespace AdminCore.MailClients.SMTP
 
         public void SendMessages(List<MailMessageDto> messages)
         {
-            // authentication per each request is slow and it is a temporary solution,
-            // this will change once smtp impl is moved to its own micro-service
-            _smtpClient.ClientConnectAndAuth();
+            if (messages?.Any() == true)
+            {
+                // authentication per each request is slow and it is a temporary solution,
+                // this will change once smtp impl is moved to its own micro-service
+                _smtpClient.ClientConnectAndAuth();
 
-           Task
-               .Run(() => messages.ForEach(message => _smtpClient.Send(message)))
-               .Wait();
+                Task
+                    .Run(() => messages.ForEach(message => _smtpClient.Send(message)))
+                    .Wait();
+            }
+            else
+            {
+                throw new InvalidOperationException("Messages object cannot be null or empty");
+            }
         }
     }
 }
