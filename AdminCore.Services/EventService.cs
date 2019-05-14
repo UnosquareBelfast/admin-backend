@@ -144,7 +144,8 @@ namespace AdminCore.Services
     /// Notice period definitions stored in database.
     /// Example:
     /// Today: 20/01/2000, LeaveStart: 21/01/2000, LeaveEnd: 21/01/2000 
-    /// daysToLeaveStart = 1, leaveLengthDays = 1
+    /// leaveLengthDays = 1
+    /// Doesn't take into account weekends.
     /// </summary>
     /// <param name="eventTypeId"></param>
     /// <param name="eventDates"></param>
@@ -154,9 +155,10 @@ namespace AdminCore.Services
       var currDate = _dateService.GetCurrentDateTime();
 
       int leaveLengthDays = 0;
+      // Iterate over eventDates collection and sum difference between start and end dates.
       foreach (var eventDate in eventDates)
       {
-        leaveLengthDays += eventDate.StartDate.BusinessDaysUntil(eventDate.EndDate); // TODO Take into account bank holidays?
+        leaveLengthDays += eventDate.StartDate.BusinessDaysUntil(eventDate.EndDate); // TODO Take into account bank holidays or already handled?
       } 
       
       var eventTypeDaysNotice = DatabaseContext.EventTypeDaysNoticeRepository.Get(x => x.EventTypeId == eventTypeId && leaveLengthDays >= x.LeaveLengthDays)
