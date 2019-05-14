@@ -64,6 +64,8 @@ namespace AdminCore.DAL.Database
     
     public DbSet<EventTypeRequiredResponders> EventTypeRequiredResponders { get; set; }
 
+    public DbSet<EmployeeApprovalResponse> EmployeeApprovalResponses { get; set; }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       optionsBuilder.UseNpgsql(_configuration.RetrieveConnectionString());

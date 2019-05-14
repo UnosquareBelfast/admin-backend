@@ -807,7 +807,7 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void RejectEvent_WithValidEvent_RejectsTheEventOfEventIdProvided()
+    public void AddRejectMessageToEvent_WithValidEvent_SavesChangesToDb()
     {
       // Arrange
       var eventId = 1;
@@ -832,7 +832,7 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void RejectEvent_WithValidEventAndNoRejectMessage_RejectsTheEventOfEventIdProvided()
+    public void AddRejectMessageToEvent_WithValidEventAndNoRejectMessage_SavesChangesToDb()
     {
       // Arrange
       var eventId = 1;
@@ -856,7 +856,7 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void RejectEvent_WhenCalledWithEventAlreadyRejected_ThrowsException()
+    public void AddRejectMessageToEvent_WhenCalledWithEventAlreadyRejected_ThrowsException()
     {
       // Arrange
       var eventId = 1;
@@ -882,7 +882,7 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void RejectEvent_WhenCalledWithEventIdNotExisting_ThrowsException()
+    public void AddRejectMessageToEvent_WhenCalledWithEventIdNotExisting_ThrowsException()
     {
       // Arrange
       var eventId = 1;

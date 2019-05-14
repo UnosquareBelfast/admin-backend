@@ -29,7 +29,6 @@ namespace AdminCore.FsmWorkflow
         {
             var eventWorkflow = new EventWorkflow
             {
-//                EventId = eventId,
                 WorkflowState = GetInitialWorkflowState(eventTypeId)
             };
             
@@ -50,11 +49,9 @@ namespace AdminCore.FsmWorkflow
             switch (employeeEvent.EventTypeId)
             {
                 case (int)EventTypes.AnnualLeave:
-//                    workflowFsm = new WorkflowFsmPto(workflowStateData);
                     workflowFsm = _workflowFsmFactory.GetWorkflowPto(workflowStateData);
                     break;
                 case (int)EventTypes.WorkingFromHome:
-//                    workflowFsm = new WorkflowFsmWfh(workflowStateData);
                     workflowFsm = _workflowFsmFactory.GetWorkflowWfh(workflowStateData);
                     break;
                 default:

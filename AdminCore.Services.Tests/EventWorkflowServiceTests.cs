@@ -59,7 +59,7 @@ namespace AdminCore.Services.Tests
       Assert.NotNull(eventWorkflowDto);
     }
 
-    #region WorkflowResponse ValidUserRole
+    #region WorkflowResponseApprove/Reject ValidUserRole
     
     [Theory]
     [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
@@ -68,29 +68,16 @@ namespace AdminCore.Services.Tests
     {
       // Arrange
       var eventDto = _fixture.Create<EventDto>();
-      eventDto.EmployeeId = employeeDto.EmployeeId;
-      eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
-      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
-      
-      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
-      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
-
-      var workflowFsmStateInfoMock = _fixture.Create<WorkflowFsmStateInfo>();
-      
-      var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
-      fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
-      
-      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
+      var workflowFsmHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      var eventWorkflowService = ConstructEventWorkflowService_ForWorkflowResponse(eventTypeId, employeeDto, eventTypeRequiredRespondersList, 
+        eventDto, workflowFsmHandlerMock, employeeDto.EmployeeId+1);
 
       // Act
       var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto);
       
       // Assert
       Assert.NotNull(workflowFsmStateInfo);
-      fsmWorkflowHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
+      workflowFsmHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
     }
     
     [Theory]
@@ -100,40 +87,25 @@ namespace AdminCore.Services.Tests
     {
       // Arrange
       var eventDto = _fixture.Create<EventDto>();
-      eventDto.EmployeeId = employeeDto.EmployeeId;
-      eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
-      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
-      
-      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
-      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
-
-      var workflowFsmStateInfoMock = _fixture.Create<WorkflowFsmStateInfo>();
-      
-      var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
-      fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
-      
-      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
+      var workflowFsmHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      var eventWorkflowService = ConstructEventWorkflowService_ForWorkflowResponse(eventTypeId, employeeDto, eventTypeRequiredRespondersList, 
+        eventDto, workflowFsmHandlerMock, employeeDto.EmployeeId+1);
 
       // Act
       var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseReject(eventDto, employeeDto);
       
       // Assert
       Assert.NotNull(workflowFsmStateInfo);
-      fsmWorkflowHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
+      workflowFsmHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
     }
-
-        [Theory]
-    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
-    public void WorkflowResponseCancel_ValidUserRoleForEventType_CallMadeToFsmHandler(
-      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    
+    private EventWorkflowService ConstructEventWorkflowService_ForWorkflowResponse(int eventTypeId, EmployeeDto employeeDto,
+      IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList, EventDto eventDto, IWorkflowFsmHandler workflowFsmHandlerMock, int eventEmployeeId)
     {
       // Arrange
-      var eventDto = _fixture.Create<EventDto>();
-      eventDto.EmployeeId = employeeDto.EmployeeId;
+      eventDto.EmployeeId = eventEmployeeId;
       eventDto.EventTypeId = eventTypeId;
+      
       var eventWorkflowDto = _fixture.Create<EventWorkflow>();
       eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
       
@@ -144,22 +116,14 @@ namespace AdminCore.Services.Tests
 
       var workflowFsmStateInfoMock = _fixture.Create<WorkflowFsmStateInfo>();
       
-      var fsmWorkflowHandlerMock = Substitute.For<IWorkflowFsmHandler>();
-      fsmWorkflowHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
+      workflowFsmHandlerMock.FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>()).Returns(workflowFsmStateInfoMock);
       
-      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, fsmWorkflowHandlerMock);
-
-      // Act
-      var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseCancel(eventDto, employeeDto);
-      
-      // Assert
-      Assert.NotNull(workflowFsmStateInfo);
-      fsmWorkflowHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
+      return new EventWorkflowService(databaseContextMock, Mapper, workflowFsmHandlerMock);
     }
     
     #endregion
     
-    #region WorkflowResponse InvalidUserRole
+    #region WorkflowResponseApprove/Reject InvalidUserRole
     
     [Theory]
     [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_InvalidUserRoleForEventType_ThrowsValidationException))]
@@ -209,31 +173,81 @@ namespace AdminCore.Services.Tests
       Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseReject(eventDto, employeeDto));
     }
     
+    #endregion
+
+    #region WorkflowResponseCancel EmployeeIdCorrect
+
     [Theory]
-    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_InvalidUserRoleForEventType_ThrowsValidationException))]
-    public void WorkflowResponseCancel_InvalidUserRoleForEventType_ThrowsValidationException(
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
+    public void WorkflowResponseCancel_EmployeeCancelsEventBySameEmployee_CallMadeToFsmHandler(
       int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
       // Arrange
       var eventDto = _fixture.Create<EventDto>();
-      // Event must be created by same same user as sending the cancel response. Set as + 1 to ensure a failure.
-      eventDto.EmployeeId = employeeDto.EmployeeId + 1;
-      eventDto.EventTypeId = eventTypeId;
-      var eventWorkflowDto = _fixture.Create<EventWorkflow>();
-      eventWorkflowDto.EventWorkflowId = eventDto.EventWorkflowId;
+      var workflowFsmHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      var eventWorkflowService = ConstructEventWorkflowService_ForWorkflowResponse(eventTypeId, employeeDto, eventTypeRequiredRespondersList, 
+        eventDto, workflowFsmHandlerMock, employeeDto.EmployeeId);
+
+      // Act
+      var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseCancel(eventDto, employeeDto);
       
-      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventTypeRequiredRespondersRepository(databaseContextMock, eventTypeRequiredRespondersList);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow> {eventWorkflowDto});
-      databaseContextMock = SetUpEmployeeApprovalResponseRepository(databaseContextMock, new List<EmployeeApprovalResponse>());
-           
-      var eventWorkflowService = new EventWorkflowService(databaseContextMock, Mapper, null);
+      // Assert
+      Assert.NotNull(workflowFsmStateInfo);
+      workflowFsmHandlerMock.Received(1).FireLeaveResponse(Arg.Any<EventDto>(), Arg.Any<EmployeeDto>(), Arg.Any<EventStatuses>(), Arg.Any<EventWorkflow>());
+    }
+
+    #endregion
+    
+    #region WorkflowResponseApprove/Reject/Cancel EmployeeIdIncorrect
+    
+        [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
+    public void WorkflowResponseApprove_EmployeeCancelsOtherEmployeeEvent_CallMadeToFsmHandler(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
+      var workflowFsmHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      var eventWorkflowService = ConstructEventWorkflowService_ForWorkflowResponse(eventTypeId, employeeDto, eventTypeRequiredRespondersList, 
+        eventDto, workflowFsmHandlerMock, employeeDto.EmployeeId);
+      
+      // Act
+      // Assert
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto));
+    }
+    
+    [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
+    public void WorkflowResponseReject_EmployeeCancelsOtherEmployeeEvent_CallMadeToFsmHandler(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
+      var workflowFsmHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      var eventWorkflowService = ConstructEventWorkflowService_ForWorkflowResponse(eventTypeId, employeeDto, eventTypeRequiredRespondersList, 
+        eventDto, workflowFsmHandlerMock, employeeDto.EmployeeId);
+
+      // Act
+      // Assert
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseReject(eventDto, employeeDto));
+    }
+    
+    [Theory]
+    [ClassData(typeof(EventWorkflowServiceClassData.WorkflowResponse_ValidUserRoleForEventType_CallMadeToFsmHandler))]
+    public void WorkflowResponseCancel_EmployeeCancelsOtherEmployeeEvent_ThrowsValidationException(
+      int eventTypeId, EmployeeDto employeeDto, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
+    {
+      // Arrange
+      var eventDto = _fixture.Create<EventDto>();
+      var workflowFsmHandlerMock = Substitute.For<IWorkflowFsmHandler>();
+      var eventWorkflowService = ConstructEventWorkflowService_ForWorkflowResponse(eventTypeId, employeeDto, eventTypeRequiredRespondersList, 
+        eventDto, workflowFsmHandlerMock, employeeDto.EmployeeId + 1);
 
       // Act
       // Assert
       Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseCancel(eventDto, employeeDto));
     }
-    
+
     #endregion
     
     [Fact]

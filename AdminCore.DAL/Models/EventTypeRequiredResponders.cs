@@ -5,10 +5,8 @@ namespace AdminCore.DAL.Models
     [Table("event_type_required_responders")]
     public class EventTypeRequiredResponders
     {
-//        [Key]
-//        [Column("event_type_required_responders_id")]
-//        public int EventTypeRequiredRespondersId { get; set; }
-
+        // Composite primary key declared using fluent api in DbContext.
+        
         [Column("event_type_id")]
         public int EventTypeId { get; set; }
         [ForeignKey("EventTypeId")]

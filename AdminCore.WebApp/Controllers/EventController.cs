@@ -150,8 +150,7 @@ namespace AdminCore.WebApi.Controllers
       {
         ValidateIfHolidayEvent(createEventViewModel, eventDates);
         var eventWorkflowDto = _eventWorkflowService.CreateEventWorkflow(createEventViewModel.EventTypeId, false);
-        var eventDto = _eventService.CreateEvent(eventDates, (EventTypes) createEventViewModel.EventTypeId,
-          _employee.EmployeeId, eventWorkflowDto.EventWorkflowId);
+        _eventService.CreateEvent(eventDates, (EventTypes) createEventViewModel.EventTypeId, _employee.EmployeeId, eventWorkflowDto.EventWorkflowId);
         return Ok($"Event has been created successfully");
       }
       catch (ValidationException ex)
@@ -219,11 +218,11 @@ namespace AdminCore.WebApi.Controllers
 
         try
         {
-          if (eventBookedByCurrentUser(leaveEvent))
-            return StatusCode((int) HttpStatusCode.Forbidden, "You may not respond to your own Events.");
           if (leaveEvent.EventStatusId != (int) EventStatuses.AwaitingApproval)
+          {
             return StatusCode((int) HttpStatusCode.OK, "Event is not awaiting any approval response.");
-          
+          }
+
           // Advance workflow.
           var workflowResultState = workflowProcessFunc(leaveEvent, _employee);
           // Add message to event.
@@ -244,7 +243,7 @@ namespace AdminCore.WebApi.Controllers
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong sending leave response for event");
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong sending leave response for event.");
       }
     }
     

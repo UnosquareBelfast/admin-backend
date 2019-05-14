@@ -65,13 +65,6 @@ namespace AdminCore.Services
 
         private WorkflowFsmStateInfo FireWorkflowTrigger(EventDto leaveEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
         {
-//            var eventWorkflow = DatabaseContext.EventTypeRepository.GetSingleThenIncludes(
-//                x => x.EventTypeId == employeeEvent.EventTypeId,
-//                (x => x.EventTypeRequiredResponders,  new Expression<Func<object, object>>[]
-//                {
-//                    x => ((EventTypeRequiredResponders)x).EmployeeRole 
-//                }));
-
             var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
                 x => x.EventWorkflowId == leaveEvent.EventWorkflowId,
                 x => x.EventWorkflowApprovalResponses);
@@ -86,16 +79,25 @@ namespace AdminCore.Services
             
             eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.EmployeeApprovalResponsesRepository.Get(
                 x => x.EventWorkflowId == eventWorkflow.EventWorkflowId);
-            
-            if (requiredResponders.Contains(respondeeEmployee.EmployeeRoleId) || (EmployeeRoles)respondeeEmployee.EmployeeRoleId == EmployeeRoles.SystemAdministrator
-                || respondeeEmployee.EmployeeId == leaveEvent.EmployeeId && eventStatuses == EventStatuses.Cancelled)
+
+            if (respondeeEmployee.EmployeeId == leaveEvent.EmployeeId && eventStatuses == EventStatuses.Cancelled)
             {
                 return _workflowFsmHandler.FireLeaveResponse(leaveEvent, respondeeEmployee, eventStatuses, eventWorkflow); 
             }
-            throw new ValidationException($"Current user does not have the required role to send an approval response on this event.{Environment.NewLine}" +
-                                          $"Employee Role: {respondeeEmployee.EmployeeRoleId}{Environment.NewLine}" +
-                                          $"Required Roles: {string.Join(", ", requiredResponders)}{Environment.NewLine}" +
-                                          $"Event Type: {leaveEvent.EventTypeId}");
+            else if (respondeeEmployee.EmployeeId != leaveEvent.EmployeeId && eventStatuses != EventStatuses.Cancelled)
+            {
+                if (requiredResponders.Contains(respondeeEmployee.EmployeeRoleId) || (EmployeeRoles)respondeeEmployee.EmployeeRoleId == EmployeeRoles.SystemAdministrator)
+                {
+                    return _workflowFsmHandler.FireLeaveResponse(leaveEvent, respondeeEmployee, eventStatuses, eventWorkflow); 
+                }
+            }
+            throw new ValidationException(
+                $"Current user does not have the required role or employee id is incorrect to send workflow response.{Environment.NewLine}" +
+                $"Employee Role: {respondeeEmployee.EmployeeRoleId}{Environment.NewLine}" +
+                $"Required Roles: {string.Join(", ", requiredResponders)}{Environment.NewLine}" +
+                $"Event Type: {leaveEvent.EventTypeId}{Environment.NewLine}" +
+                $"Employee Id: {respondeeEmployee.EmployeeId}{Environment.NewLine}" +
+                $"Event Employee Id: {leaveEvent.EmployeeId}");
         }
     }
 }

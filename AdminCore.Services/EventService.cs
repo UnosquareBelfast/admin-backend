@@ -108,9 +108,8 @@ namespace AdminCore.Services
     {
       var eventToReject = GetEventById(eventId);
       if (eventToReject != null && eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval
-                                && IsNotPublicHoliday(eventToReject))
+          && IsNotPublicHoliday(eventToReject))
       {
-//        eventToReject.EventStatusId = (int)EventStatuses.Rejected;
         AddEventMessageToReject(eventToReject, EventMessageTypes.Reject, message, employeeId);
         DatabaseContext.SaveChanges();
       }

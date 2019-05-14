@@ -57,6 +57,11 @@ namespace AdminCore.DAL.Entity_Framework
       return query.SingleOrDefault();
     }
     
+    public IList<T> GetThenIncludes(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
+    {
+      return GetAsQueryable(filter, orderBy, includeDatas).ToList();
+    }
+    
     public T Insert(T entity)
     {
       return _dbSet.Add(entity)?.Entity;

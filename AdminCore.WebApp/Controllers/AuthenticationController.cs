@@ -56,7 +56,6 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         _authenticatedUser.RetrieveLoggedInUser();
-        // TODO update user if any changes between Azure AD and db. i.e TeamLead, CSE changes.
         return Ok();
       }
       catch (UserNotRegisteredException)

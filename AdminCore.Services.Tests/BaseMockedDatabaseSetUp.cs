@@ -16,12 +16,7 @@ namespace AdminCore.Services.Tests
     private static readonly IConfiguration Configuration = Substitute.For<IConfiguration>();
     private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
     private static readonly EntityFrameworkContext DatabaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-
-    public BaseMockedDatabaseSetUp()
-    {
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-    }
-    
+   
     protected virtual EntityFrameworkContext SetUpEventRepository(EntityFrameworkContext databaseContext, IList<Event> eventList)
     {
       var mockEventRepository = GetMockedRepository(eventList);

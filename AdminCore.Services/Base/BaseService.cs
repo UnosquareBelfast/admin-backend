@@ -4,7 +4,7 @@ namespace AdminCore.Services.Base
 {
   public abstract class BaseService
   {
-    protected readonly IDatabaseContext DatabaseContext;
+    protected IDatabaseContext DatabaseContext { get; }
 
     protected BaseService(IDatabaseContext databaseContext)
     {
