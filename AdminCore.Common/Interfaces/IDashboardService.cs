@@ -16,8 +16,6 @@ namespace AdminCore.Common.Interfaces
 
     IDictionary<string, List<EmployeeSnapshotDto>> GetTeamSnapshotDashboardEvents();
 
-    IList<EventMessageDto> GetEventMessagesByEventId(int eventId);
-
     IList<ClientSnapshotDto> GetTeamDashboardEvents(int employeeId, DateTime date);
 
     IList<EventDto> GetEmployeeTeamEvents(int employeeId, DateTime date);

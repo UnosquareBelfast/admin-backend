@@ -73,12 +73,6 @@ namespace AdminCore.Services
       return ConvertContractListToEmployeeSnapshotDtoMap(contractList);
     }
 
-    public IList<EventMessageDto> GetEventMessagesByEventId(int eventId)
-    {
-      var eventMessages = DatabaseContext.EventMessageRepository.Get(eventMessage => eventMessage.Event.EventId == eventId);
-      return _mapper.Map<IList<EventMessageDto>>(eventMessages);
-    }
-
     public IList<ClientSnapshotDto> GetTeamDashboardEvents(int employeeId, DateTime date)
     {
       var teamsForEmployee = GetTeamIdsForEmployee(employeeId, date);
