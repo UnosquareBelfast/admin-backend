@@ -2,17 +2,18 @@
 using AdminCore.Constants;
 using AdminCore.Constants.Enums;
 using System;
-using AdminCore.MailClients.SMTP.Configuration;
 
 namespace AdminCore.Services.Configuration
 {
   public class ConfigurationProvider : IConfiguration
   {
     private readonly IMailServerConfiguration _mailServerConfiguration;
+
     public ConfigurationProvider(IMailServerConfiguration mailServerConfiguration)
     {
       _mailServerConfiguration = mailServerConfiguration;
     }
+
     public string RetrieveConnectionString()
     {
       return Environment.GetEnvironmentVariable(EnvironmentVariables.DbConnectionString) ??
