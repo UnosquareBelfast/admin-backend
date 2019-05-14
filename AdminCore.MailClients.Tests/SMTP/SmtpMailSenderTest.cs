@@ -7,7 +7,6 @@ using AdminCore.MailClients.SMTP.Interfaces;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using NSubstitute;
-using NSubstitute.ClearExtensions;
 using Xunit;
 
 namespace AdminCore.MailClients.Tests.SMTP
