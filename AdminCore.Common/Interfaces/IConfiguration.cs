@@ -7,5 +7,7 @@ namespace AdminCore.Common.Interfaces
     string RetrieveConnectionString();
 
     MigrationTypes RetrieveMigrationType();
+    
+    IMailServerConfiguration RetrieveMailServiceConfig();
   }
 }

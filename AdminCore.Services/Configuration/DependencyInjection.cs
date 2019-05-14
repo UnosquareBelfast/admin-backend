@@ -10,6 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AdminCore.MailClients.Interfaces;
+using AdminCore.MailClients.SMTP;
+using AdminCore.MailClients.SMTP.Adapters;
+using AdminCore.MailClients.SMTP.Configuration;
+using AdminCore.MailClients.SMTP.Interfaces;
 
 namespace AdminCore.Services.Configuration
 {
@@ -40,6 +45,9 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
+        services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
+        services.AddScoped<IMailSender, SmtpMailSender>();
+        services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 
@@ -74,7 +82,7 @@ namespace AdminCore.Services.Configuration
     }
 
     [ExcludeFromCodeCoverage]
-    public class DependencyInjectionContainer : IContainer
+    private class DependencyInjectionContainer : IContainer
     {
       private readonly IServiceProvider _container;
 
