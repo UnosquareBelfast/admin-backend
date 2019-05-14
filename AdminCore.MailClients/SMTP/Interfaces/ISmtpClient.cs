@@ -1,7 +1,4 @@
 using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AdminCore.DTOs.MailMessage;
@@ -33,5 +30,7 @@ namespace AdminCore.MailClients.SMTP.Interfaces
         bool IsConnected();
 
         bool IsAuthenticated();
+
+        bool Disposed { get; set; }
     }
 }
