@@ -13,7 +13,7 @@ namespace AdminCore.Common.Interfaces
 
     IList<EventDto> GetEventsByEmployeeId(int employeeId, EventTypes eventType);
 
-    IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId);
+    IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatus);
 
     EventDto GetEvent(int id);
 
@@ -23,7 +23,7 @@ namespace AdminCore.Common.Interfaces
 
     HolidayStatsDto GetHolidayStatsForUser(int employeeId);
 
-    EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId);
+    void CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId);
 
     void UpdateEvent(EventDateDto eventDateDto, string message, int employeeId);
 

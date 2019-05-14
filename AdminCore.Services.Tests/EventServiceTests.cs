@@ -659,7 +659,7 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
-      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDates(startDate, endDate, employeeId);
+      var eventsByEmployeeId = eventService.GetBookedEventDatesByEmployeeAndStartAndEndDates(startDate, endDate, employeeId, EventStatuses.Approved);
 
       // Assert
       Assert.Equal(1, eventsByEmployeeId.Count);
