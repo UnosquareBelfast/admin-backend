@@ -194,7 +194,8 @@ ON CONFLICT (employee_role_id)
 INSERT INTO public.event_type_required_responders (event_type_id, employee_role_id)
 VALUES  (1, 1),
         (1, 4),
-        (1, 5);
+        (1, 5),
+        (2, 1);
 -- ON CONFLICT (event_type_required_responders_pkey)
 --              DO NOTHING;
   

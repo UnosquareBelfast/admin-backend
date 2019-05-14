@@ -665,10 +665,10 @@ namespace AdminCore.Services
     private static int AutoApproveEventsNotNeedingAdminApproval(EventTypes eventTypes)
     {
       var eventStatusId = (int)EventStatuses.AwaitingApproval;
-      if (eventTypes == EventTypes.WorkingFromHome || eventTypes == EventTypes.Sickness)
-      {
-        eventStatusId = (int)EventStatuses.Approved;
-      }
+//      if (eventTypes == EventTypes.WorkingFromHome || eventTypes == EventTypes.Sickness)
+//      {
+//        eventStatusId = (int)EventStatuses.Approved;
+//      }
 
       return eventStatusId;
     }

@@ -193,24 +193,23 @@ namespace AdminCore.WebApi.Controllers
     [HttpPut("approveEvent")]
     public IActionResult ApproveEvent(ApproveEventViewModel approveEventViewModel)
     {
-      return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponseApprove, EventIsBookedByCurrentUser);
+      return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponseApprove);
     }
     
     [HttpPut("cancelEvent")]
     public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
     {
-      return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponseCancel, eventDto => !EventIsBookedByCurrentUser(eventDto));
+      return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponseCancel);
     }
 
     [Authorize("Admin")]
     [HttpPut("rejectEvent")]
     public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
     {
-      return ProcessEvent(rejectEventViewModel.EventId, _eventWorkflowService.WorkflowResponseReject, EventIsBookedByCurrentUser, rejectEventViewModel.Message);
+      return ProcessEvent(rejectEventViewModel.EventId, _eventWorkflowService.WorkflowResponseReject, rejectEventViewModel.Message);
     }
 
-    private IActionResult ProcessEvent(int eventId, Func<EventDto, EmployeeDto, WorkflowFsmStateInfo> workflowProcessFunc,
-      Func<EventDto, bool> eventBookedByCurrentUser, string eventMessage = null)
+    private IActionResult ProcessEvent(int eventId, Func<EventDto, EmployeeDto, WorkflowFsmStateInfo> workflowProcessFunc, string eventMessage = null)
     {
       try
       {       
