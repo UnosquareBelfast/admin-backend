@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AdminCore.DTOs.MailMessage;
 using AdminCore.MailClients.Interfaces;
@@ -6,6 +7,7 @@ using AdminCore.MailClients.SMTP.Interfaces;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using NSubstitute;
+using NSubstitute.ClearExtensions;
 using Xunit;
 
 namespace AdminCore.MailClients.Tests.SMTP
@@ -15,10 +17,11 @@ namespace AdminCore.MailClients.Tests.SMTP
         private readonly IFixture _fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
         [Fact]
-        public void SendMessages_CallsSendCorrectNoOfTimesGivenListOfMessages()
+        public void SendMessages_WithTwoMessageDtoObjectsInList_CallsSendOnSmtpClientTwoTimes()
         {
             // Arrange
-            var messageDto = _fixture.Create<MailMessageDto>();
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+            var messageDto = fixture.Create<MailMessageDto>();
 
             var smtpClient = Substitute.For<ISmtpClient>();
             IMailSender smtpSender = GetSmtpMailSender(smtpClient);
@@ -31,12 +34,13 @@ namespace AdminCore.MailClients.Tests.SMTP
         }
 
         [Fact]
-        public void SendMessages_CallsSendOncePerEachUniqueMessageGivenListOfMessages()
+        public void SendMessages_WithThreeUniqueMessageDtoObjectsInList_CallsSendOnSmtpClientOnceOnEachMessageDtoObject()
         {
             // Arrange
-            var messageDtoA = _fixture.Create<MailMessageDto>();
-            var messageDtoB = _fixture.Create<MailMessageDto>();
-            var messageDtoC = _fixture.Create<MailMessageDto>();
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+            var messageDtoA = fixture.Create<MailMessageDto>();
+            var messageDtoB = fixture.Create<MailMessageDto>();
+            var messageDtoC = fixture.Create<MailMessageDto>();
 
             var smtpClient = Substitute.For<ISmtpClient>();
             IMailSender smtpSender = GetSmtpMailSender(smtpClient);
@@ -51,31 +55,31 @@ namespace AdminCore.MailClients.Tests.SMTP
         }
 
         [Fact]
-        public void SendMessages_NoOpsOnSendGivenEmptyListOfMessages()
+        public void SendMessages_WithEmptyList_DoesNotInvokeClientConnectAndAuth()
         {
             // Arrange
             var smtpClient = Substitute.For<ISmtpClient>();
             IMailSender smtpSender = GetSmtpMailSender(smtpClient);
 
             // Act
-            smtpSender.SendMessages(new List<MailMessageDto>());
+            var ex = Assert.Throws<InvalidOperationException>(() => smtpSender.SendMessages(new List<MailMessageDto>{}));
 
             // Assert
-            smtpClient.Received(0).Send(Arg.Any<MailMessageDto>());
+            Assert.Equal("Messages object cannot be null or empty", ex.Message);
         }
 
         [Fact]
-        public void SendMessages_CallsClientConnectAndAuth()
+        public void SendMessages_WithNull_DoesNotInvokeClientConnectAndAuth()
         {
             // Arrange
             var smtpClient = Substitute.For<ISmtpClient>();
             IMailSender smtpSender = GetSmtpMailSender(smtpClient);
 
             // Act
-            smtpSender.SendMessages(new List<MailMessageDto>());
+            var ex = Assert.Throws<InvalidOperationException>(() => smtpSender.SendMessages(null));
 
             // Assert
-            smtpClient.Received(1).ClientConnectAndAuth();
+            Assert.Equal("Messages object cannot be null or empty", ex.Message);
         }
 
         private static SmtpMailSender GetSmtpMailSender(ISmtpClient client)
