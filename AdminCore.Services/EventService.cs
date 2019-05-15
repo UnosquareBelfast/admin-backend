@@ -118,7 +118,7 @@ namespace AdminCore.Services
         throw new Exception($"Event {eventId} doesn't exist or is already rejected");
       }
     }
-    
+
     public void UpdateEventStatus(int eventId, EventStatuses status)
     {
       var eventToUpdate = GetEventById(eventId);
@@ -131,7 +131,7 @@ namespace AdminCore.Services
 
     public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId, int eventWorkflowId)
     {
-      CheckEventTypeAdminLevel(eventTypes, employeeId);   
+      CheckEventTypeAdminLevel(eventTypes, employeeId);
       var newEvent = BuildNewEvent(employeeId, eventTypes, eventWorkflowId);
       UpdateEventDates(dates, newEvent);
       ThrowIfDaysNoticeValidationFail((int)eventTypes, newEvent.EventDates);
@@ -142,7 +142,7 @@ namespace AdminCore.Services
     /// Throws exception if the leave is requested outside of the required notice period.
     /// Notice period definitions stored in database.
     /// Example:
-    /// Today: 20/01/2000, LeaveStart: 21/01/2000, LeaveEnd: 21/01/2000 
+    /// Today: 20/01/2000, LeaveStart: 21/01/2000, LeaveEnd: 21/01/2000
     /// leaveLengthDays = 1
     /// Doesn't take into account weekends.
     /// </summary>
@@ -158,23 +158,22 @@ namespace AdminCore.Services
       foreach (var eventDate in eventDates)
       {
         leaveLengthDays += eventDate.StartDate.BusinessDaysUntil(eventDate.EndDate); // TODO Take into account bank holidays or already handled?
-      } 
-      
+      }
+
       var eventTypeDaysNotice = DatabaseContext.EventTypeDaysNoticeRepository.Get(x => x.EventTypeId == eventTypeId && leaveLengthDays >= x.LeaveLengthDays)
         .MaxBy(x => x.LeaveLengthDays).FirstOrDefault();
 
-      // If no notice period definition exists for this event type, then just return. 
+      // If no notice period definition exists for this event type, then just return.
       if (eventTypeDaysNotice == null)
       {
         return;
       }
 
       // Latest date to book a day is the leave start date minus the notice period days plus the time of day to book by.
-      var latestDateTimeEventTypeBookable = eventDates.FirstOrDefault().StartDate.Date.AddDays(-eventTypeDaysNotice.DaysNotice) 
+      var latestDateTimeEventTypeBookable = eventDates.FirstOrDefault().StartDate.Date.AddDays(-eventTypeDaysNotice.DaysNotice)
                                             + (eventTypeDaysNotice.TimeNotice ?? new TimeSpan(0, 0, 0));
-      
-      
-      // If the current time is after the latest date to book then throw a validation exception. 
+
+      // If the current time is after the latest date to book then throw a validation exception.
       if (currDate > latestDateTimeEventTypeBookable)
       {
         throw new ValidationException($"Event not inside required notice period.{Environment.NewLine}" +
@@ -183,7 +182,7 @@ namespace AdminCore.Services
                             $"Current date: {currDate.ToLongDateString()}.");
       }
     }
-    
+
     public EventDto CreateAutoApprovedEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
     {
       var newEvent = BuildNewAutoApprovedEvent(employee, eventTypes);
@@ -479,19 +478,17 @@ namespace AdminCore.Services
 
     private Event BuildNewEvent(int employeeId, EventTypes eventTypes, int eventWorkflowId)
     {
-      var eventStatusId = AutoApproveEventsNotNeedingAdminApproval(eventTypes);
-
       var newEvent = new Event
       {
         DateCreated = DateTime.Now,
         EmployeeId = employeeId,
-        EventStatusId = eventStatusId,
+        EventStatusId = (int)EventStatuses.Approved,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
         EventWorkflowId = eventWorkflowId,
         LastModified = _dateService.GetCurrentDateTime()
       };
-      
+
       return newEvent;
     }
 
@@ -660,17 +657,6 @@ namespace AdminCore.Services
     private static bool IsNotPublicHoliday(Event eventToUpdate)
     {
       return eventToUpdate.EventTypeId != (int)EventTypes.PublicHoliday;
-    }
-
-    private static int AutoApproveEventsNotNeedingAdminApproval(EventTypes eventTypes)
-    {
-      var eventStatusId = (int)EventStatuses.AwaitingApproval;
-//      if (eventTypes == EventTypes.WorkingFromHome || eventTypes == EventTypes.Sickness)
-//      {
-//        eventStatusId = (int)EventStatuses.Approved;
-//      }
-
-      return eventStatusId;
     }
 
     private void CheckEventTypeAdminLevel(EventTypes eventTypes, int employeeId)
