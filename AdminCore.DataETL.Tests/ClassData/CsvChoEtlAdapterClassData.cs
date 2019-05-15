@@ -7,11 +7,11 @@ namespace AdminCore.DataETL.Tests.ClassData
 {
     public class CsvChoEtlAdapterClassData
     {
-        public class GenerateByteArray_DataETLTestModelSimpleWithValidData_ValidByteArrayReturned_ClassData : IEnumerable<object[]>
+        public class GenerateByteArray_DataETLTestModelSimpleWithValidData_ReturnedByteArrayMatchesExpected_ClassData : IEnumerable<object[]>
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                // List<DataETLTestModelSimple>, expectedCsv
+                // ARGS: inputDataList: List<DataETLTestModelSimple>, expectedCsv: string
                 yield return new object[]
                 {
                     new List<DataETLTestModelSimple>
@@ -23,10 +23,9 @@ namespace AdminCore.DataETL.Tests.ClassData
                             Field_Float = 2.5f,
                             Field_String = "testString",
                             Field_DateTime = new DateTime()
-                        }   
+                        }
                     },
-                    "Field1,Field2,Field3,Field4,Field5\r\n" +
-                    "1,01/01/0001 00:00:00,testString,True,2.5"
+                    CsvChoEtlAdapterConstants.PrimitivesDataCsv1
                 };
                 yield return new object[]
                 {
@@ -39,20 +38,19 @@ namespace AdminCore.DataETL.Tests.ClassData
                             Field_Float = 19239381f,
                             Field_String = "2(*10=3@~}?><!\"£$\"%^&*()",
                             Field_DateTime = new DateTime(1970, 1, 1)
-                        }   
+                        }
                     },
-                    "Field1,Field2,Field3,Field4,Field5\r\n" +
-                    "-10,01/01/1970 00:00:00,\"2(*10=3@~}?><!\"\"\"\"£$\"\"\"\"%^&*()\",False,1.923938E+07"
+                    CsvChoEtlAdapterConstants.PrimitivesDataCsv2
                 };
             }
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
-        
+
         public class GenerateByteArray_DataETLTestModelTypeToStringConverter_ReturnedByteArrayMatchesExpected_ClassData : IEnumerable<object[]>
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                // List<DataETLTestModelTypeToStringConverter>, expectedCsv
+                // ARGS: inputDataList: List<DataETLTestModelSimple>, expectedCsv: string
                 yield return new object[]
                 {
                     new List<DataETLTestModelTypeToStringConverter>
@@ -60,19 +58,19 @@ namespace AdminCore.DataETL.Tests.ClassData
                         new DataETLTestModelTypeToStringConverter
                         {
                             DataETLTestEnum1 = 2
-                        }   
+                        }
                     },
-                    "Field1\r\ncEnum"
+                    CsvChoEtlAdapterConstants.EnumDataCsv1
                 };
             }
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
-        
+
         public class GenerateByteArray_DataETLTestModelListToStringConverter_ReturnedByteArrayMatchesExpected_ClassData : IEnumerable<object[]>
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                // List<DataETLTestModelListToStringConverter>, expectedCsv
+                // ARGS: inputDataList: List<DataETLTestModelSimple>, expectedCsv: string
                 yield return new object[]
                 {
                     new List<DataETLTestModelListToStringConverter>
@@ -80,9 +78,9 @@ namespace AdminCore.DataETL.Tests.ClassData
                         new DataETLTestModelListToStringConverter
                         {
                             StringCollection = new List<string> { "A", "B", "C" }
-                        }   
+                        }
                     },
-                    "Field1\r\n\"A\r\nB\r\nC\""
+                    CsvChoEtlAdapterConstants.ListStringDataCsv1
                 };
             }
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -25,7 +25,7 @@ namespace AdminCore.DataETL.Tests
         }
         
         [Theory]
-        [ClassData(typeof(CsvChoEtlAdapterClassData.GenerateByteArray_DataETLTestModelSimpleWithValidData_ValidByteArrayReturned_ClassData))]
+        [ClassData(typeof(CsvChoEtlAdapterClassData.GenerateByteArray_DataETLTestModelSimpleWithValidData_ReturnedByteArrayMatchesExpected_ClassData))]
         public void GenerateByteArray_DataETLTestModelSimpleWithValidData_ReturnedByteArrayMatchesExpected(
             IList<DataETLTestModelSimple> inputDataList, string expectedCsv)
         {
