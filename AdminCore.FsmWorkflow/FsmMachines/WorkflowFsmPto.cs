@@ -9,21 +9,21 @@ using Stateless;
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
     public class WorkflowFsmPto : WorkflowFsm<PtoState, LeaveTriggersPto>
-    {       
-        private StateMachine<PtoState, LeaveTriggersPto>.TriggerWithParameters<EventStatuses, string> LeaveResponseTrigger;
-        
+    {
+        private StateMachine<PtoState, LeaveTriggersPto>.TriggerWithParameters<EventStatuses, string> _leaveResponseTrigger;
+
         public WorkflowFsmPto(WorkflowStateData fsmStateData)
         {
             ConfigureFsm(fsmStateData);
         }
-        
+
         public override void ConfigureFsm(WorkflowStateData fsmStateData)
         {
             FsmStateData = fsmStateData;
-            FsMachine = new StateMachine<PtoState, LeaveTriggersPto>(() => (PtoState)FsmStateData.CurrentState, s => FsmStateData.CurrentState = (int)s);
-            
-            LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersPto.LeaveResponded);
-            
+            FsMachine = new StateMachine<PtoState, LeaveTriggersPto>(() => (PtoState)FsmStateData.CurrentState, currentState => FsmStateData.CurrentState = (int)currentState);
+
+            _leaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersPto.LeaveResponded);
+
             // Leave Awaiting Team Lead and Client
             FsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
@@ -40,14 +40,14 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                         FsMachine.Fire(LeaveTriggersPto.TeamLeadClientResponseReceived);
                     }
                 })
-                .InternalTransition(LeaveResponseTrigger,
+                .InternalTransition(_leaveResponseTrigger,
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTriggersPto.TeamLeadClientResponseReceived, PtoState.LeaveAwaitingCse)
                 .Permit(LeaveTriggersPto.LeaveCancelled, PtoState.LeaveCancelled)
                 .Permit(LeaveTriggersPto.AdminApprove, PtoState.LeaveApproved)
                 .Permit(LeaveTriggersPto.AdminReject, PtoState.LeaveRejected)
                 .PermitReentry(LeaveTriggersPto.EvaluateLeaveState);
-            
+
             // Leave Awaiting CSE
             FsMachine.Configure(PtoState.LeaveAwaitingCse)
                 .SubstateOf(PtoState.LeaveAwaitingResponses)
@@ -69,7 +69,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                             break;
                     }
                 })
-                .InternalTransition(LeaveResponseTrigger,
+                .InternalTransition(_leaveResponseTrigger,
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTriggersPto.LeaveApproved, PtoState.LeaveApproved)
                 .Permit(LeaveTriggersPto.LeaveRejected, PtoState.LeaveRejected)
@@ -77,7 +77,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Permit(LeaveTriggersPto.AdminApprove, PtoState.LeaveApproved)
                 .Permit(LeaveTriggersPto.AdminReject, PtoState.LeaveRejected)
                 .PermitReentry(LeaveTriggersPto.EvaluateLeaveState);
-                       
+
             // Leave Approved
             FsMachine.Configure(PtoState.LeaveApproved)
                 .SubstateOf(PtoState.LeaveRequestCompleted)
@@ -90,7 +90,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersPto.LeaveResponded)
                 .Ignore(LeaveTriggersPto.EvaluateLeaveState)
                 .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
-            
+
             // Leave Rejected
             FsMachine.Configure(PtoState.LeaveRejected)
                 .SubstateOf(PtoState.LeaveRequestCompleted)
@@ -103,7 +103,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersPto.LeaveResponded)
                 .Ignore(LeaveTriggersPto.EvaluateLeaveState)
                 .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
-            
+
             // Leave Cancelled
             FsMachine.Configure(PtoState.LeaveCancelled)
                 .SubstateOf(PtoState.LeaveRequestCompleted)
@@ -116,22 +116,22 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersPto.LeaveResponded)
                 .Ignore(LeaveTriggersPto.EvaluateLeaveState)
                 .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
-            
+
             FsMachine.Activate();
         }
-        
+
         private bool IsTeamLeadClientResponsesReceived(Dictionary<string, EventStatuses> approvalDict)
         {
             return approvalDict[FsmStateData.TeamLead] != EventStatuses.AwaitingApproval &&
                    approvalDict[FsmStateData.Client] != EventStatuses.AwaitingApproval;
         }
-        
+
         public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
         {
             if (approvalState != EventStatuses.Cancelled)
             {
                 // Fire the response trigger first.
-                FsMachine.Fire(LeaveResponseTrigger, approvalState, responder);
+                FsMachine.Fire(_leaveResponseTrigger, approvalState, responder);
                 // Then evaluate the changes.
                 FsMachine.Fire(LeaveTriggersPto.EvaluateLeaveState);
             }
@@ -143,7 +143,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             var machineStateInfo = new WorkflowFsmStateInfo(FsMachine.IsInState(PtoState.LeaveRequestCompleted),
                 CurrentEventStatus,
                 Message);
-            
+
             return machineStateInfo;
         }
     }
