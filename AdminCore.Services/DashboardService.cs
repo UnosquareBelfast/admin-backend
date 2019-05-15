@@ -4,7 +4,6 @@ using AdminCore.DAL;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Dashboard;
 using AdminCore.DTOs.Event;
-using AdminCore.DTOs.EventMessage;
 using AdminCore.Services.Base;
 using AutoMapper;
 using System;
@@ -12,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AdminCore.Constants;
-using AdminCore.DAL.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.Services
