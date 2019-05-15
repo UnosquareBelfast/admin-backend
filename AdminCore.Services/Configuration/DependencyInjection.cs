@@ -11,6 +11,11 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using AdminCore.DataETL;
+using AdminCore.MailClients.Interfaces;
+using AdminCore.MailClients.SMTP;
+using AdminCore.MailClients.SMTP.Adapters;
+using AdminCore.MailClients.SMTP.Configuration;
+using AdminCore.MailClients.SMTP.Interfaces;
 
 namespace AdminCore.Services.Configuration
 {
@@ -45,6 +50,10 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDataEtlAdapter, CsvChoEtlAdapter>();
         services.AddTransient<ICsvService, CsvService>();
         
+        services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
+        services.AddScoped<IMailSender, SmtpMailSender>();
+        services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
+
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 
         _registered = true;
@@ -78,7 +87,7 @@ namespace AdminCore.Services.Configuration
     }
 
     [ExcludeFromCodeCoverage]
-    public class DependencyInjectionContainer : IContainer
+    private class DependencyInjectionContainer : IContainer
     {
       private readonly IServiceProvider _container;
 

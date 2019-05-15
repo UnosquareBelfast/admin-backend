@@ -19,6 +19,7 @@
     <ProjectReference Include="..\AdminCore.DataETL\AdminCore.DataETL.csproj" />
     <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
     <ProjectReference Include="..\AdminCore.Extensions\AdminCore.Extensions.csproj" />
+    <ProjectReference Include="..\AdminCore.MailClients\AdminCore.MailClients.csproj" />
   </ItemGroup>
 
   <ItemGroup>

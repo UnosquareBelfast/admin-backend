@@ -7,6 +7,13 @@ namespace AdminCore.Services.Configuration
 {
   public class ConfigurationProvider : IConfiguration
   {
+    private readonly IMailServerConfiguration _mailServerConfiguration;
+
+    public ConfigurationProvider(IMailServerConfiguration mailServerConfiguration)
+    {
+      _mailServerConfiguration = mailServerConfiguration;
+    }
+
     public string RetrieveConnectionString()
     {
       return Environment.GetEnvironmentVariable(EnvironmentVariables.DbConnectionString) ??
@@ -20,6 +27,11 @@ namespace AdminCore.Services.Configuration
       if (Enum.TryParse(typeof(MigrationTypes), migrationType, out var migration)) return (MigrationTypes)migration;
 
       return MigrationTypes.Migrate;
+    }
+
+    public IMailServerConfiguration RetrieveMailServiceConfig()
+    {
+      return _mailServerConfiguration;
     }
   }
 }
