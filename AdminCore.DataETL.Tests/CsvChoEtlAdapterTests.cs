@@ -40,17 +40,56 @@ namespace AdminCore.DataETL.Tests
             Assert.Equal(expectedCsv, actualCsv);
         }
         
-        [Theory]
-        [ClassData(typeof(CsvChoEtlAdapterClassData.GenerateByteArray_DataETLTestModelSimpleDuplicateRecordField_ReturnedByteArrayMatchesExpected_ClassData))]
-        public void GenerateByteArray_DataETLTestModelSimpleDuplicateRecordField_ThrowsChoRecordConfigurationException(
-            IList<DataETLTestModelSimpleDuplicateRecordField> inputDataList)
+        [Fact]
+        public void GenerateByteArray_DataETLTestModelSimpleDuplicateRecordField_ThrowsChoRecordConfigurationException()
         {
             //Arrange
+            var inputDataList = new List<DataETLTestModelSimpleDuplicateRecordField>
+            {
+                new DataETLTestModelSimpleDuplicateRecordField
+                {
+                    Field_Int1 = 1,
+                    Field_Int2 = 2
+                }
+            };
+            
             var csvChoEtlAdapter = new CsvChoEtlAdapter();
             
             // Act
             // Assert
             Assert.Throws<ChoRecordConfigurationException>(() => csvChoEtlAdapter.GenerateByteArray(inputDataList));           
+        }
+
+        [Theory]
+        [ClassData(typeof(CsvChoEtlAdapterClassData.GenerateByteArray_DataETLTestModelTypeToStringConverter_ReturnedByteArrayMatchesExpected_ClassData))]
+        public void GenerateByteArray_DataETLTestModelTypeToStringConverter_ReturnedByteArrayMatchesExpected(
+            IList<DataETLTestModelTypeToStringConverter> inputDataList, string expectedCsv)
+        {
+            //Arrange
+            var csvChoEtlAdapter = new CsvChoEtlAdapter();
+
+            // Act
+            var csvResult = csvChoEtlAdapter.GenerateByteArray(inputDataList);
+            var actualCsv = System.Text.Encoding.Default.GetString(csvResult);
+
+            // Assert
+            Assert.Equal(expectedCsv, actualCsv);
+        }
+
+        [Theory]
+        [ClassData(typeof(CsvChoEtlAdapterClassData.GenerateByteArray_DataETLTestModelListToStringConverter_ReturnedByteArrayMatchesExpected_ClassData))]
+        public void GenerateByteArray_DataETLTestModelListToStringConverter_ReturnedByteArrayMatchesExpected(
+            IList<DataETLTestModelListToStringConverter> inputDataList, string expectedCsv)
+        {
+            //Arrange
+            var csvChoEtlAdapter = new CsvChoEtlAdapter();
+            
+            // Act
+            var csvResult = csvChoEtlAdapter.GenerateByteArray(inputDataList);
+            var actualCsv = System.Text.Encoding.Default.GetString(csvResult);
+            
+            // Assert
+            Assert.Equal(expectedCsv, actualCsv);           
         }
     }
 }
