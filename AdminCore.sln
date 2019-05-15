@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.JobExecutor", "Ad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.FsmWorkflow", "AdminCore.FsmWorkflow\AdminCore.FsmWorkflow.csproj", "{5E576CC6-489D-4279-9658-3CF0F91AA591}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.FsmWorkflow.Tests", "AdminCore.FsmWorkflow.Tests\AdminCore.FsmWorkflow.Tests.csproj", "{C0C233D7-D372-41E9-89C2-339A2357B8E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,10 @@ Global
 		{5E576CC6-489D-4279-9658-3CF0F91AA591}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E576CC6-489D-4279-9658-3CF0F91AA591}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E576CC6-489D-4279-9658-3CF0F91AA591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0C233D7-D372-41E9-89C2-339A2357B8E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0C233D7-D372-41E9-89C2-339A2357B8E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0C233D7-D372-41E9-89C2-339A2357B8E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0C233D7-D372-41E9-89C2-339A2357B8E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
