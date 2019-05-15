@@ -54,7 +54,7 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatus)
+    public IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatus)
     {
       var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date
                                                                          && x.EndDate.Date <= endDate.Date
@@ -309,15 +309,21 @@ namespace AdminCore.Services
 
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
     {
-      var employeeEvents = Task.Run(
-        () => GetBookedEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId, EventStatuses.Approved));
-      employeeEvents.Wait();
+      var approvedEmployeeEvents = GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(
+        eventDates.StartDate,
+        eventDates.EndDate,
+        employeeId,
+        EventStatuses.Approved
+        );
 
-      var await = Task.Run(
-          () => GetBookedEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId, EventStatuses.AwaitingApproval));
-      await.Wait();
+      var awaitEmployeeEvents = GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(
+        eventDates.StartDate,
+        eventDates.EndDate,
+        employeeId,
+        EventStatuses.AwaitingApproval
+        );
 
-      if (employeeEvents.Result.Any() || await.Result.Any())
+      if (approvedEmployeeEvents.Any() || awaitEmployeeEvents.Any())
       {
         throw new Exception("Holiday dates already booked.");
       }
