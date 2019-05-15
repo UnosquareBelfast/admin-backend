@@ -24,14 +24,14 @@ namespace AdminCore.FsmWorkflow
             _dbContext = dbContext;
             _workflowFsmFactory = workflowFsmFactory;
         }
-        
+
         public EventWorkflow CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext)
         {
             var eventWorkflow = new EventWorkflow
             {
                 WorkflowState = GetInitialWorkflowState(eventTypeId)
             };
-            
+
             _dbContext.EventWorkflowRepository.Insert(eventWorkflow);
             if (saveChangesToDbContext)
             {
@@ -45,7 +45,7 @@ namespace AdminCore.FsmWorkflow
         {
             ILeaveWorkflow workflowFsm;
             var workflowStateData = RebuildWorkflowStateData(eventWorkflow);
-            
+
             switch (employeeEvent.EventTypeId)
             {
                 case (int)EventTypes.AnnualLeave:
@@ -57,23 +57,21 @@ namespace AdminCore.FsmWorkflow
                 default:
                     throw new WorkflowException($"No workflow FSM exists for {((EventTypes)employeeEvent.EventTypeId).ToString()}");
             }
-            
-            // Cast is not redundant, need the int value of enum as a string
-            // ReSharper disable once RedundantCast
-            var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, ((int)respondeeEmployee.EmployeeRoleId).ToString());
+
+            var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, respondeeEmployee.EmployeeRoleId.ToString());
             eventWorkflow = UpdateEventAddApprovalResponse(respondeeEmployee, eventWorkflow, workflowStateData, eventStatus);
 
             // Update event workflow.
             _dbContext.EventWorkflowRepository.Update(eventWorkflow);
             _dbContext.SaveChanges();
-            
+
             return workflowFsmStateInfo;
         }
 
         private WorkflowStateData RebuildWorkflowStateData(EventWorkflow eventWorkflow)
         {
             var approvalDict = RebuildApprovalDict(eventWorkflow);
-                    
+
             return new WorkflowStateData(eventWorkflow.WorkflowState,
                 ((int)EmployeeRoles.TeamLeader).ToString(),
                 ((int)EmployeeRoles.Client).ToString(),
@@ -81,16 +79,16 @@ namespace AdminCore.FsmWorkflow
                 ((int)EmployeeRoles.SystemAdministrator).ToString(),
                 approvalDict);
         }
-        
+
         private Dictionary<string, EventStatuses> RebuildApprovalDict(EventWorkflow eventWorkflow)
         {
             var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.TeamLeader)?.EventStatusId
                                        ?? (int)EventStatuses.AwaitingApproval;
             var clientResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.EventStatusId
                                      ?? (int)EventStatuses.AwaitingApproval;
-            var cseResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.EventStatusId 
+            var cseResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.EventStatusId
                                   ?? (int)EventStatuses.AwaitingApproval;
-            var adminResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.EventStatusId 
+            var adminResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.EventStatusId
                                   ?? (int)EventStatuses.AwaitingApproval;
 
             return new Dictionary<string, EventStatuses>
@@ -102,11 +100,11 @@ namespace AdminCore.FsmWorkflow
             };
         }
 
-        private EventWorkflow UpdateEventAddApprovalResponse(EmployeeDto respondeeEmployee, 
+        private EventWorkflow UpdateEventAddApprovalResponse(EmployeeDto respondeeEmployee,
             EventWorkflow eventWorkflow, WorkflowStateData workflowStateData, EventStatuses employeeResponseEventStatus)
         {
             eventWorkflow.WorkflowState = workflowStateData.CurrentState;
-            
+
             eventWorkflow.EventWorkflowApprovalResponses.Add(new EmployeeApprovalResponse
             {
                 EmployeeId = respondeeEmployee.EmployeeId,
@@ -115,10 +113,10 @@ namespace AdminCore.FsmWorkflow
                 EventWorkflowId = eventWorkflow.EventWorkflowId,
                 ResonseSentDate = DateTime.Now
             });
-            
+
             return eventWorkflow;
         }
-        
+
         private int GetInitialWorkflowState(int eventTypeId)
         {
             switch ((EventTypes)eventTypeId)
