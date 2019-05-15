@@ -27,7 +27,7 @@ namespace AdminCore.Services.Configuration
     public static void RegisterWebDependencyInjection(IServiceCollection services = null)
     {
       if (!_registered)
-      {        
+      {
         if (services == null) services = new ServiceCollection();
         services.AddAutoMapper();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
@@ -46,10 +46,10 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
-        
+
         services.AddTransient<IDataEtlAdapter, CsvChoEtlAdapter>();
         services.AddTransient<ICsvService, CsvService>();
-        
+
         services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
         services.AddScoped<IMailSender, SmtpMailSender>();
         services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
