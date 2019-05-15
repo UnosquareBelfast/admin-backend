@@ -11,26 +11,19 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     {
         private StateMachine<WfhState, LeaveTriggersWfh>.TriggerWithParameters<EventStatuses, string> _leaveResponseTrigger;
 
-        public WorkflowFsmWfh(WorkflowStateData fsmStateData)
+        public WorkflowFsmWfh(WorkflowStateData fsmStateData) : base(fsmStateData)
         {
-            ConfigureFsm(fsmStateData);
         }
 
-        public override void ConfigureFsm(WorkflowStateData fsmStateData)
+        private void ConfigureStateLeaveAwaitingTeamLead(StateMachine<WfhState, LeaveTriggersWfh> fsMachine)
         {
-            FsmStateData = fsmStateData;
-            FsMachine = new StateMachine<WfhState, LeaveTriggersWfh>(() => (WfhState)FsmStateData.CurrentState, currentState => FsmStateData.CurrentState = (int)currentState);
-
-            _leaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersWfh.LeaveResponded);
-
-            // Leave Awaiting Team Lead and Client
-            FsMachine.Configure(WfhState.LeaveAwaitingTeamLead)
+            fsMachine.Configure(WfhState.LeaveAwaitingTeamLead)
                 .SubstateOf(WfhState.LeaveAwaitingResponses)
                 .OnActivate(() =>
                 {
                     if (IsAdminResponseReceived(FsmStateData.ApprovalDict))
                     {
-                        FsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
+                        fsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
                             ? LeaveTriggersWfh.AdminApprove
                             : LeaveTriggersWfh.AdminReject);
                     }
@@ -47,9 +40,11 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Permit(LeaveTriggersWfh.AdminApprove, WfhState.LeaveApproved)
                 .Permit(LeaveTriggersWfh.AdminReject, WfhState.LeaveRejected)
                 .PermitReentry(LeaveTriggersWfh.EvaluateLeaveState);
+        }
 
-            // Leave Approved
-            FsMachine.Configure(WfhState.LeaveApproved)
+        private void ConfigureStateLeaveApproved(StateMachine<WfhState, LeaveTriggersWfh> fsMachine)
+        {
+            fsMachine.Configure(WfhState.LeaveApproved)
                 .SubstateOf(WfhState.LeaveRequestCompleted)
                 .OnEntry(LeaveApproved)
                 .Ignore(LeaveTriggersWfh.AdminReject)
@@ -60,9 +55,11 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersWfh.LeaveResponded)
                 .Ignore(LeaveTriggersWfh.EvaluateLeaveState)
                 .Ignore(LeaveTriggersWfh.TeamLeadResponseReceived);
+        }
 
-            // Leave Rejected
-            FsMachine.Configure(WfhState.LeaveRejected)
+        private void ConfigureStateLeaveRejected(StateMachine<WfhState, LeaveTriggersWfh> fsMachine)
+        {
+            fsMachine.Configure(WfhState.LeaveRejected)
                 .SubstateOf(WfhState.LeaveRequestCompleted)
                 .OnEntry(LeaveRejected)
                 .Ignore(LeaveTriggersWfh.AdminReject)
@@ -73,9 +70,11 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersWfh.LeaveResponded)
                 .Ignore(LeaveTriggersWfh.EvaluateLeaveState)
                 .Ignore(LeaveTriggersWfh.TeamLeadResponseReceived);
+        }
 
-            // Leave Cancelled
-            FsMachine.Configure(WfhState.LeaveCancelled)
+        private void ConfigureStateLeaveCancelled(StateMachine<WfhState, LeaveTriggersWfh> fsMachine)
+        {
+            fsMachine.Configure(WfhState.LeaveCancelled)
                 .SubstateOf(WfhState.LeaveRequestCompleted)
                 .OnEntry(LeaveCancelled)
                 .Ignore(LeaveTriggersWfh.AdminReject)
@@ -86,6 +85,19 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersWfh.LeaveResponded)
                 .Ignore(LeaveTriggersWfh.EvaluateLeaveState)
                 .Ignore(LeaveTriggersWfh.TeamLeadResponseReceived);
+        }
+
+        public override void ConfigureFsm(WorkflowStateData fsmStateData)
+        {
+            FsmStateData = fsmStateData;
+            FsMachine = new StateMachine<WfhState, LeaveTriggersWfh>(() => (WfhState)FsmStateData.CurrentState, currentState => FsmStateData.CurrentState = (int)currentState);
+
+            _leaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersWfh.LeaveResponded);
+
+            ConfigureStateLeaveAwaitingTeamLead(FsMachine);
+            ConfigureStateLeaveApproved(FsMachine);
+            ConfigureStateLeaveRejected(FsMachine);
+            ConfigureStateLeaveCancelled(FsMachine);
 
             FsMachine.Activate();
         }

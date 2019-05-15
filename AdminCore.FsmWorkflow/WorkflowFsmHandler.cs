@@ -61,7 +61,6 @@ namespace AdminCore.FsmWorkflow
             var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, respondeeEmployee.EmployeeRoleId.ToString());
             eventWorkflow = UpdateEventAddApprovalResponse(respondeeEmployee, eventWorkflow, workflowStateData, eventStatus);
 
-            // Update event workflow.
             _dbContext.EventWorkflowRepository.Update(eventWorkflow);
             _dbContext.SaveChanges();
 

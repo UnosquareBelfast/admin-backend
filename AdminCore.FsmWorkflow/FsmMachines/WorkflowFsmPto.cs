@@ -12,9 +12,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     {
         private StateMachine<PtoState, LeaveTriggersPto>.TriggerWithParameters<EventStatuses, string> _leaveResponseTrigger;
 
-        public WorkflowFsmPto(WorkflowStateData fsmStateData)
+        public WorkflowFsmPto(WorkflowStateData fsmStateData) : base(fsmStateData)
         {
-            ConfigureFsm(fsmStateData);
         }
 
         public override void ConfigureFsm(WorkflowStateData fsmStateData)
@@ -25,90 +24,11 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             _leaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersPto.LeaveResponded);
 
             // Leave Awaiting Team Lead and Client
-            FsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
-                .SubstateOf(PtoState.LeaveAwaitingResponses)
-                .OnActivate(() =>
-                {
-                    if (IsAdminResponseReceived(FsmStateData.ApprovalDict))
-                    {
-                        FsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
-                            ? LeaveTriggersPto.AdminApprove
-                            : LeaveTriggersPto.AdminReject);
-                    }
-                    else if (IsTeamLeadClientResponsesReceived(FsmStateData.ApprovalDict))
-                    {
-                        FsMachine.Fire(LeaveTriggersPto.TeamLeadClientResponseReceived);
-                    }
-                })
-                .InternalTransition(_leaveResponseTrigger,
-                    (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
-                .Permit(LeaveTriggersPto.TeamLeadClientResponseReceived, PtoState.LeaveAwaitingCse)
-                .Permit(LeaveTriggersPto.LeaveCancelled, PtoState.LeaveCancelled)
-                .Permit(LeaveTriggersPto.AdminApprove, PtoState.LeaveApproved)
-                .Permit(LeaveTriggersPto.AdminReject, PtoState.LeaveRejected)
-                .PermitReentry(LeaveTriggersPto.EvaluateLeaveState);
-
-            // Leave Awaiting CSE
-            FsMachine.Configure(PtoState.LeaveAwaitingCse)
-                .SubstateOf(PtoState.LeaveAwaitingResponses)
-                .OnActivate(() =>
-                {
-                    if (IsAdminResponseReceived(FsmStateData.ApprovalDict))
-                    {
-                        FsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
-                            ? LeaveTriggersPto.AdminApprove
-                            : LeaveTriggersPto.AdminReject);
-                    }
-
-                    FireApproveRejectBasedOnResponderResponse(FsmStateData.Cse);
-                })
-                .InternalTransition(_leaveResponseTrigger,
-                    (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
-                .Permit(LeaveTriggersPto.LeaveApproved, PtoState.LeaveApproved)
-                .Permit(LeaveTriggersPto.LeaveRejected, PtoState.LeaveRejected)
-                .Permit(LeaveTriggersPto.LeaveCancelled, PtoState.LeaveCancelled)
-                .Permit(LeaveTriggersPto.AdminApprove, PtoState.LeaveApproved)
-                .Permit(LeaveTriggersPto.AdminReject, PtoState.LeaveRejected)
-                .PermitReentry(LeaveTriggersPto.EvaluateLeaveState);
-
-            // Leave Approved
-            FsMachine.Configure(PtoState.LeaveApproved)
-                .SubstateOf(PtoState.LeaveRequestCompleted)
-                .OnEntry(LeaveApproved)
-                .Ignore(LeaveTriggersPto.AdminReject)
-                .Ignore(LeaveTriggersPto.AdminApprove)
-                .Ignore(LeaveTriggersPto.LeaveApproved)
-                .Ignore(LeaveTriggersPto.LeaveRejected)
-                .Ignore(LeaveTriggersPto.LeaveCancelled)
-                .Ignore(LeaveTriggersPto.LeaveResponded)
-                .Ignore(LeaveTriggersPto.EvaluateLeaveState)
-                .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
-
-            // Leave Rejected
-            FsMachine.Configure(PtoState.LeaveRejected)
-                .SubstateOf(PtoState.LeaveRequestCompleted)
-                .OnEntry(LeaveRejected)
-                .Ignore(LeaveTriggersPto.AdminReject)
-                .Ignore(LeaveTriggersPto.AdminApprove)
-                .Ignore(LeaveTriggersPto.LeaveApproved)
-                .Ignore(LeaveTriggersPto.LeaveRejected)
-                .Ignore(LeaveTriggersPto.LeaveCancelled)
-                .Ignore(LeaveTriggersPto.LeaveResponded)
-                .Ignore(LeaveTriggersPto.EvaluateLeaveState)
-                .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
-
-            // Leave Cancelled
-            FsMachine.Configure(PtoState.LeaveCancelled)
-                .SubstateOf(PtoState.LeaveRequestCompleted)
-                .OnEntry(LeaveCancelled)
-                .Ignore(LeaveTriggersPto.AdminReject)
-                .Ignore(LeaveTriggersPto.AdminApprove)
-                .Ignore(LeaveTriggersPto.LeaveApproved)
-                .Ignore(LeaveTriggersPto.LeaveRejected)
-                .Ignore(LeaveTriggersPto.LeaveCancelled)
-                .Ignore(LeaveTriggersPto.LeaveResponded)
-                .Ignore(LeaveTriggersPto.EvaluateLeaveState)
-                .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
+            ConfigureStateLeaveAwaitingTeamLeadClient(FsMachine);
+            ConfigureStateLeaveAwaitingCse(FsMachine);
+            ConfigureStateLeaveApproved(FsMachine);
+            ConfigureStateLeaveRejected(FsMachine);
+            ConfigureStateLeaveCancelled(FsMachine);
 
             FsMachine.Activate();
         }
@@ -151,6 +71,102 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 Message);
 
             return machineStateInfo;
+        }
+
+        private void ConfigureStateLeaveAwaitingTeamLeadClient(StateMachine<PtoState, LeaveTriggersPto> fsMachine)
+        {
+            fsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
+                .SubstateOf(PtoState.LeaveAwaitingResponses)
+                .OnActivate(() =>
+                {
+                    if (IsAdminResponseReceived(FsmStateData.ApprovalDict))
+                    {
+                        fsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
+                            ? LeaveTriggersPto.AdminApprove
+                            : LeaveTriggersPto.AdminReject);
+                    }
+                    else if (IsTeamLeadClientResponsesReceived(FsmStateData.ApprovalDict))
+                    {
+                        fsMachine.Fire(LeaveTriggersPto.TeamLeadClientResponseReceived);
+                    }
+                })
+                .InternalTransition(_leaveResponseTrigger,
+                    (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
+                .Permit(LeaveTriggersPto.TeamLeadClientResponseReceived, PtoState.LeaveAwaitingCse)
+                .Permit(LeaveTriggersPto.LeaveCancelled, PtoState.LeaveCancelled)
+                .Permit(LeaveTriggersPto.AdminApprove, PtoState.LeaveApproved)
+                .Permit(LeaveTriggersPto.AdminReject, PtoState.LeaveRejected)
+                .PermitReentry(LeaveTriggersPto.EvaluateLeaveState);
+        }
+
+        private void ConfigureStateLeaveAwaitingCse(StateMachine<PtoState, LeaveTriggersPto> fsMachine)
+        {
+            fsMachine.Configure(PtoState.LeaveAwaitingCse)
+                .SubstateOf(PtoState.LeaveAwaitingResponses)
+                .OnActivate(() =>
+                {
+                    if (IsAdminResponseReceived(FsmStateData.ApprovalDict))
+                    {
+                        fsMachine.Fire(IsAdminResponseApprove(FsmStateData.ApprovalDict)
+                            ? LeaveTriggersPto.AdminApprove
+                            : LeaveTriggersPto.AdminReject);
+                    }
+
+                    FireApproveRejectBasedOnResponderResponse(FsmStateData.Cse);
+                })
+                .InternalTransition(_leaveResponseTrigger,
+                    (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
+                .Permit(LeaveTriggersPto.LeaveApproved, PtoState.LeaveApproved)
+                .Permit(LeaveTriggersPto.LeaveRejected, PtoState.LeaveRejected)
+                .Permit(LeaveTriggersPto.LeaveCancelled, PtoState.LeaveCancelled)
+                .Permit(LeaveTriggersPto.AdminApprove, PtoState.LeaveApproved)
+                .Permit(LeaveTriggersPto.AdminReject, PtoState.LeaveRejected)
+                .PermitReentry(LeaveTriggersPto.EvaluateLeaveState);
+        }
+
+        private void ConfigureStateLeaveApproved(StateMachine<PtoState, LeaveTriggersPto> fsMachine)
+        {
+            fsMachine.Configure(PtoState.LeaveApproved)
+                .SubstateOf(PtoState.LeaveRequestCompleted)
+                .OnEntry(LeaveApproved)
+                .Ignore(LeaveTriggersPto.AdminReject)
+                .Ignore(LeaveTriggersPto.AdminApprove)
+                .Ignore(LeaveTriggersPto.LeaveApproved)
+                .Ignore(LeaveTriggersPto.LeaveRejected)
+                .Ignore(LeaveTriggersPto.LeaveCancelled)
+                .Ignore(LeaveTriggersPto.LeaveResponded)
+                .Ignore(LeaveTriggersPto.EvaluateLeaveState)
+                .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
+        }
+
+        private void ConfigureStateLeaveRejected(StateMachine<PtoState, LeaveTriggersPto> fsMachine)
+        {
+            fsMachine.Configure(PtoState.LeaveRejected)
+                .SubstateOf(PtoState.LeaveRequestCompleted)
+                .OnEntry(LeaveRejected)
+                .Ignore(LeaveTriggersPto.AdminReject)
+                .Ignore(LeaveTriggersPto.AdminApprove)
+                .Ignore(LeaveTriggersPto.LeaveApproved)
+                .Ignore(LeaveTriggersPto.LeaveRejected)
+                .Ignore(LeaveTriggersPto.LeaveCancelled)
+                .Ignore(LeaveTriggersPto.LeaveResponded)
+                .Ignore(LeaveTriggersPto.EvaluateLeaveState)
+                .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
+        }
+
+        private void ConfigureStateLeaveCancelled(StateMachine<PtoState, LeaveTriggersPto> fsMachine)
+        {
+            fsMachine.Configure(PtoState.LeaveCancelled)
+                .SubstateOf(PtoState.LeaveRequestCompleted)
+                .OnEntry(LeaveCancelled)
+                .Ignore(LeaveTriggersPto.AdminReject)
+                .Ignore(LeaveTriggersPto.AdminApprove)
+                .Ignore(LeaveTriggersPto.LeaveApproved)
+                .Ignore(LeaveTriggersPto.LeaveRejected)
+                .Ignore(LeaveTriggersPto.LeaveCancelled)
+                .Ignore(LeaveTriggersPto.LeaveResponded)
+                .Ignore(LeaveTriggersPto.EvaluateLeaveState)
+                .Ignore(LeaveTriggersPto.TeamLeadClientResponseReceived);
         }
     }
 }

@@ -10,14 +10,19 @@ namespace AdminCore.FsmWorkflow.FsmMachines
     public abstract class WorkflowFsm<TState, TTrigger> : ILeaveWorkflow
     {
         protected WorkflowStateData FsmStateData { get; set; }
-        
+
         protected StateMachine<TState, TTrigger> FsMachine;
 
         protected EventStatuses CurrentEventStatus = EventStatuses.AwaitingApproval;
         protected string Message = EventStatuses.AwaitingApproval.ToString();
-        
+
         public abstract WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder);
-        
+
+        public WorkflowFsm(WorkflowStateData fsmStateData)
+        {
+            ConfigureFsm(fsmStateData);
+        }
+
         public virtual string ToJson()
         {
             return JsonConvert.SerializeObject(FsmStateData);
@@ -30,7 +35,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         }
 
         public abstract void ConfigureFsm(WorkflowStateData fsmStateData);
-        
+
         protected void LeaveResponse(EventStatuses approvalState, string responder)
         {
             if(FsmStateData.ApprovalDict.TryGetValue(responder, out _))
@@ -43,12 +48,12 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         {
             return approvalDict[FsmStateData.Admin] != EventStatuses.AwaitingApproval;
         }
-        
+
         protected bool IsAdminResponseApprove(Dictionary<string, EventStatuses> approvalDict)
         {
             return approvalDict[FsmStateData.Admin] == EventStatuses.Approved;
         }
-        
+
         protected void LeaveApproved()
         {
             CurrentEventStatus = EventStatuses.Approved;
