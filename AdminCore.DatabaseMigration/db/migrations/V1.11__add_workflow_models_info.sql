@@ -3,11 +3,11 @@ Description:
 Adds new tables required by the new workflow logic.
 Adds new data to existing tables:
 - EmployeeRole
-- 
-*/ 
-  
+-
+*/
+
 -- Add new schema
-  
+
 ----------------------------------------------------------------------------------------
 
 /*
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.event_type_days_notice
 
 ALTER SEQUENCE event_type_days_notice_event_type_days_notice_id_seq
   OWNED BY event_type_days_notice.event_type_days_notice_id;
-  
+
 ----------------------------------------------------------------------------------------
 
 /*
@@ -52,15 +52,9 @@ CREATE TABLE IF NOT EXISTS public.event_workflow
 (
   event_workflow_id integer NOT NULL DEFAULT nextval('event_workflow_event_workflow_id_seq'::regclass),
 
---   event_id integer NOT NULL,
   workflow_state integer NOT NULL,
 
   CONSTRAINT event_workflow_pkey PRIMARY KEY (event_workflow_id)
-
---   CONSTRAINT event_workflow_event_id_fkey FOREIGN KEY (event_id)
---     REFERENCES public.event (event_id) MATCH SIMPLE
---     ON UPDATE NO ACTION
---     ON DELETE NO ACTION
 )
   WITH (
     OIDS = FALSE
@@ -69,7 +63,7 @@ CREATE TABLE IF NOT EXISTS public.event_workflow
 
 ALTER SEQUENCE event_workflow_event_workflow_id_seq
   OWNED BY event_workflow.event_workflow_id;
-  
+
 ----------------------------------------------------------------------------------------
 
 /*
@@ -80,13 +74,13 @@ ALTER SEQUENCE event_workflow_event_workflow_id_seq
 CREATE SEQUENCE IF NOT EXISTS public.event_type_required_responders_event_type_required_responders_id_seq;
 CREATE TABLE IF NOT EXISTS public.event_type_required_responders
 (
---   event_type_required_responders_id integer NOT NULL DEFAULT nextval('event_type_required_responders_event_type_required_responders_id_seq'::regclass),
+  -- Composite key declared in DBContext via fluent API.
 
   event_type_id integer NOT NULL,
   employee_role_id integer NOT NULL,
-  
+
   CONSTRAINT "event_type_required_responders_pkey" PRIMARY KEY (event_type_id, employee_role_id),
-  
+
   CONSTRAINT event_type_required_responders_event_type_id_fkey FOREIGN KEY (event_type_id)
     REFERENCES public.event_type (event_type_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -117,7 +111,6 @@ CREATE TABLE IF NOT EXISTS public.employee_approval_response
   employee_approval_response_id integer NOT NULL DEFAULT nextval('employee_approval_response_employee_approval_response_id_seq'::regclass),
 
   employee_role_id integer NOT NULL,
---   response_message text NOT NULL,
   response_sent_date date NOT NULL,
   event_status_id integer NOT NULL,
   event_workflow_id integer NOT NULL,
@@ -182,7 +175,7 @@ VALUES (4, 'Cse'),
        (5, 'Client')
 ON CONFLICT (employee_role_id)
              DO NOTHING;
-  
+
 ----------------------------------------------------------------------------------------
 
 /*
@@ -196,11 +189,9 @@ VALUES  (1, 1),
         (1, 4),
         (1, 5),
         (2, 1);
--- ON CONFLICT (event_type_required_responders_pkey)
---              DO NOTHING;
-  
+
 ----------------------------------------------------------------------------------------
-  
+
 /*
                                    EVENT TYPE DAYS NOTICE TABLE
                                    Add the event type days notice required for leave.
