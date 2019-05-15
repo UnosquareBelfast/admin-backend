@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoFixture" Version="4.8.0" />
+        <PackageReference Include="AutoFixture.AutoNSubstitute" Version="4.8.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+        <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+        <PackageReference Include="NSubstitute" Version="4.0.0" />
+        <PackageReference Include="xunit" Version="2.3.1" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AdminCore.MailClients\AdminCore.MailClients.csproj" />
+    </ItemGroup>
+</Project>

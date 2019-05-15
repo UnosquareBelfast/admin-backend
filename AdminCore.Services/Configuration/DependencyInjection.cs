@@ -13,6 +13,11 @@ using System.Diagnostics.CodeAnalysis;
 using AdminCore.FsmWorkflow;
 using AdminCore.FsmWorkflow.Factory;
 using AdminCore.FsmWorkflow.FsmMachines;
+using AdminCore.MailClients.Interfaces;
+using AdminCore.MailClients.SMTP;
+using AdminCore.MailClients.SMTP.Adapters;
+using AdminCore.MailClients.SMTP.Configuration;
+using AdminCore.MailClients.SMTP.Interfaces;
 
 namespace AdminCore.Services.Configuration
 {
@@ -44,6 +49,9 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
+        services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
+        services.AddScoped<IMailSender, SmtpMailSender>();
+        services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
         
         services.AddTransient<IWorkflowFsmHandler, WorkflowFsmHandler>();
         services.AddScoped<IWorkflowFsmFactory<ILeaveWorkflow>, WorkflowFsmFactory>();
@@ -81,7 +89,7 @@ namespace AdminCore.Services.Configuration
     }
 
     [ExcludeFromCodeCoverage]
-    public class DependencyInjectionContainer : IContainer
+    private class DependencyInjectionContainer : IContainer
     {
       private readonly IServiceProvider _container;
 
