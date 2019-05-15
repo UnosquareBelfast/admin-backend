@@ -59,15 +59,8 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                             ? LeaveTriggersPto.AdminApprove
                             : LeaveTriggersPto.AdminReject);
                     }
-                    switch (FsmStateData.ApprovalDict[FsmStateData.Cse])
-                    {
-                        case EventStatuses.Approved:
-                            FsMachine.Fire(LeaveTriggersPto.LeaveApproved);
-                            break;
-                        case EventStatuses.Rejected:
-                            FsMachine.Fire(LeaveTriggersPto.LeaveRejected);
-                            break;
-                    }
+
+                    FireApproveRejectBasedOnResponderResponse(FsmStateData.Cse);
                 })
                 .InternalTransition(_leaveResponseTrigger,
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
@@ -124,6 +117,19 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         {
             return approvalDict[FsmStateData.TeamLead] != EventStatuses.AwaitingApproval &&
                    approvalDict[FsmStateData.Client] != EventStatuses.AwaitingApproval;
+        }
+
+        private void FireApproveRejectBasedOnResponderResponse(string responder)
+        {
+            switch (FsmStateData.ApprovalDict[responder])
+            {
+                case EventStatuses.Approved:
+                    FsMachine.Fire(LeaveTriggersPto.LeaveApproved);
+                    break;
+                case EventStatuses.Rejected:
+                    FsMachine.Fire(LeaveTriggersPto.LeaveRejected);
+                    break;
+            }
         }
 
         public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)

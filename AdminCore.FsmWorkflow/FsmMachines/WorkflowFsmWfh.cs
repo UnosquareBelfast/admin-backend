@@ -36,15 +36,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                     }
                     else
                     {
-                        switch (FsmStateData.ApprovalDict[FsmStateData.TeamLead])
-                        {
-                            case EventStatuses.Approved:
-                                FsMachine.Fire(LeaveTriggersWfh.LeaveApproved);
-                                break;
-                            case EventStatuses.Rejected:
-                                FsMachine.Fire(LeaveTriggersWfh.LeaveRejected);
-                                break;
-                        }
+                        FireApproveRejectBasedOnResponderResponse(FsmStateData.TeamLead);
                     }
                 })
                 .InternalTransition(_leaveResponseTrigger,
@@ -96,6 +88,19 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersWfh.TeamLeadResponseReceived);
 
             FsMachine.Activate();
+        }
+
+        private void FireApproveRejectBasedOnResponderResponse(string responder)
+        {
+            switch (FsmStateData.ApprovalDict[responder])
+            {
+                case EventStatuses.Approved:
+                    FsMachine.Fire(LeaveTriggersWfh.LeaveApproved);
+                    break;
+                case EventStatuses.Rejected:
+                    FsMachine.Fire(LeaveTriggersWfh.LeaveRejected);
+                    break;
+            }
         }
 
         public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
