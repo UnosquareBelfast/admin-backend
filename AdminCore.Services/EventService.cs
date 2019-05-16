@@ -158,12 +158,8 @@ namespace AdminCore.Services
         return;
       }
 
-      int leaveLengthDays = 0;
-      // Iterate over eventDates collection and sum difference between start and end dates.
-      foreach (var eventDate in eventDates)
-      {
-        leaveLengthDays += eventDate.StartDate.BusinessDaysUntil(eventDate.EndDate); // TODO Take into account bank holidays or already handled?
-      }
+      // sum difference between start and end dates in eventDates Collection.
+      int leaveLengthDays = eventDates.Sum(eventDate => eventDate.StartDate.BusinessDaysUntil(eventDate.EndDate));
 
       var eventTypeDaysNotice = DatabaseContext.EventTypeDaysNoticeRepository.Get(x => x.EventTypeId == eventTypeId && leaveLengthDays >= x.LeaveLengthDays)
         .MaxBy(x => x.LeaveLengthDays).FirstOrDefault();
