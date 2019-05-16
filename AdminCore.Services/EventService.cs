@@ -482,7 +482,7 @@ namespace AdminCore.Services
       {
         DateCreated = DateTime.Now,
         EmployeeId = employeeId,
-        EventStatusId = (int)EventStatuses.Approved,
+        EventStatusId = (int)EventStatuses.AwaitingApproval,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
         EventWorkflowId = eventWorkflowId,

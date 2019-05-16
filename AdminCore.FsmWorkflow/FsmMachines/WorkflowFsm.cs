@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AdminCore.Common;
 using AdminCore.Constants.Enums;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
+using AdminCore.FsmWorkflow.FsmMachines.TriggerStateAccessor;
 using Newtonsoft.Json;
 using Stateless;
 
@@ -16,11 +17,33 @@ namespace AdminCore.FsmWorkflow.FsmMachines
         protected EventStatuses CurrentEventStatus = EventStatuses.AwaitingApproval;
         protected string Message = EventStatuses.AwaitingApproval.ToString();
 
-        public abstract WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder);
+        protected ITriggerStateAccessor<TState, TTrigger> TriggerStateAccessor { get; set; }
+        protected StateMachine<TState, TTrigger>.TriggerWithParameters<EventStatuses, string> LeaveResponseTrigger;
 
         public WorkflowFsm(WorkflowStateData fsmStateData)
         {
             ConfigureFsm(fsmStateData);
+        }
+
+        public virtual WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
+        {
+            if (approvalState != EventStatuses.Cancelled)
+            {
+                // Fire the response trigger first.
+                FsMachine.Fire(LeaveResponseTrigger, approvalState, responder);
+                // Then evaluate the changes.
+                FsMachine.Fire(TriggerStateAccessor.EvaluateLeaveState);
+            }
+            else
+            {
+                FsMachine.Fire(TriggerStateAccessor.LeaveCancelled);
+            }
+
+            var machineStateInfo = new WorkflowFsmStateInfo(FsMachine.IsInState(TriggerStateAccessor.LeaveRequestCompleted),
+                CurrentEventStatus,
+                Message);
+
+            return machineStateInfo;
         }
 
         public virtual string ToJson()

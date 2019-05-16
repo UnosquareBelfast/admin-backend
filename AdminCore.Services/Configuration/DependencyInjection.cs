@@ -52,7 +52,7 @@ namespace AdminCore.Services.Configuration
         services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
         services.AddScoped<IMailSender, SmtpMailSender>();
         services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
-        
+
         services.AddTransient<IWorkflowFsmHandler, WorkflowFsmHandler>();
         services.AddScoped<IWorkflowFsmFactory<ILeaveWorkflow>, WorkflowFsmFactory>();
 

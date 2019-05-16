@@ -1,18 +1,45 @@
-using AdminCore.Common;
 using AdminCore.Constants.Enums;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
+using AdminCore.FsmWorkflow.FsmMachines.TriggerStateAccessor;
 using Stateless;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
     public class WorkflowFsmWfh : WorkflowFsm<WfhState, LeaveTriggersWfh>
     {
-        private StateMachine<WfhState, LeaveTriggersWfh>.TriggerWithParameters<EventStatuses, string> _leaveResponseTrigger;
-
         public WorkflowFsmWfh(WorkflowStateData fsmStateData) : base(fsmStateData)
         {
+            TriggerStateAccessor = new TriggerStateAccessorWfh();
+        }
+
+        public override void ConfigureFsm(WorkflowStateData fsmStateData)
+        {
+            FsmStateData = fsmStateData;
+            FsMachine = new StateMachine<WfhState, LeaveTriggersWfh>(() => (WfhState)FsmStateData.CurrentState, currentState => FsmStateData.CurrentState = (int)currentState);
+
+            LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersWfh.LeaveResponded);
+
+            ConfigureStateLeaveAwaitingTeamLead(FsMachine);
+            ConfigureStateLeaveApproved(FsMachine);
+            ConfigureStateLeaveRejected(FsMachine);
+            ConfigureStateLeaveCancelled(FsMachine);
+
+            FsMachine.Activate();
+        }
+
+        private void FireApproveRejectBasedOnResponderResponse(string responder)
+        {
+            switch (FsmStateData.ApprovalDict[responder])
+            {
+                case EventStatuses.Approved:
+                    FsMachine.Fire(LeaveTriggersWfh.LeaveApproved);
+                    break;
+                case EventStatuses.Rejected:
+                    FsMachine.Fire(LeaveTriggersWfh.LeaveRejected);
+                    break;
+            }
         }
 
         private void ConfigureStateLeaveAwaitingTeamLead(StateMachine<WfhState, LeaveTriggersWfh> fsMachine)
@@ -32,7 +59,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                         FireApproveRejectBasedOnResponderResponse(FsmStateData.TeamLead);
                     }
                 })
-                .InternalTransition(_leaveResponseTrigger,
+                .InternalTransition(LeaveResponseTrigger,
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTriggersWfh.LeaveApproved, WfhState.LeaveApproved)
                 .Permit(LeaveTriggersWfh.LeaveRejected, WfhState.LeaveRejected)
@@ -85,55 +112,6 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                 .Ignore(LeaveTriggersWfh.LeaveResponded)
                 .Ignore(LeaveTriggersWfh.EvaluateLeaveState)
                 .Ignore(LeaveTriggersWfh.TeamLeadResponseReceived);
-        }
-
-        public override void ConfigureFsm(WorkflowStateData fsmStateData)
-        {
-            FsmStateData = fsmStateData;
-            FsMachine = new StateMachine<WfhState, LeaveTriggersWfh>(() => (WfhState)FsmStateData.CurrentState, currentState => FsmStateData.CurrentState = (int)currentState);
-
-            _leaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersWfh.LeaveResponded);
-
-            ConfigureStateLeaveAwaitingTeamLead(FsMachine);
-            ConfigureStateLeaveApproved(FsMachine);
-            ConfigureStateLeaveRejected(FsMachine);
-            ConfigureStateLeaveCancelled(FsMachine);
-
-            FsMachine.Activate();
-        }
-
-        private void FireApproveRejectBasedOnResponderResponse(string responder)
-        {
-            switch (FsmStateData.ApprovalDict[responder])
-            {
-                case EventStatuses.Approved:
-                    FsMachine.Fire(LeaveTriggersWfh.LeaveApproved);
-                    break;
-                case EventStatuses.Rejected:
-                    FsMachine.Fire(LeaveTriggersWfh.LeaveRejected);
-                    break;
-            }
-        }
-
-        public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
-        {
-            if (approvalState != EventStatuses.Cancelled)
-            {
-                // Fire the response trigger first.
-                FsMachine.Fire(_leaveResponseTrigger, approvalState, responder);
-                // Then evaluate the changes.
-                FsMachine.Fire(LeaveTriggersWfh.EvaluateLeaveState);
-            }
-            else
-            {
-                FsMachine.Fire(LeaveTriggersWfh.LeaveCancelled);
-            }
-
-            var machineStateInfo = new WorkflowFsmStateInfo(FsMachine.IsInState(WfhState.LeaveRequestCompleted),
-                CurrentEventStatus,
-                Message);
-
-            return machineStateInfo;
         }
     }
 }

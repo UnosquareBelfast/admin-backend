@@ -1,19 +1,18 @@
 using System.Collections.Generic;
-using AdminCore.Common;
 using AdminCore.Constants.Enums;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveStates;
 using AdminCore.FsmWorkflow.FsmMachines.FsmLeaveTriggers;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
+using AdminCore.FsmWorkflow.FsmMachines.TriggerStateAccessor;
 using Stateless;
 
 namespace AdminCore.FsmWorkflow.FsmMachines
 {
     public class WorkflowFsmPto : WorkflowFsm<PtoState, LeaveTriggersPto>
     {
-        private StateMachine<PtoState, LeaveTriggersPto>.TriggerWithParameters<EventStatuses, string> _leaveResponseTrigger;
-
         public WorkflowFsmPto(WorkflowStateData fsmStateData) : base(fsmStateData)
         {
+            TriggerStateAccessor = new TriggerStateAccessorPto();
         }
 
         public override void ConfigureFsm(WorkflowStateData fsmStateData)
@@ -21,7 +20,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             FsmStateData = fsmStateData;
             FsMachine = new StateMachine<PtoState, LeaveTriggersPto>(() => (PtoState)FsmStateData.CurrentState, currentState => FsmStateData.CurrentState = (int)currentState);
 
-            _leaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersPto.LeaveResponded);
+            LeaveResponseTrigger = FsMachine.SetTriggerParameters<EventStatuses, string>(LeaveTriggersPto.LeaveResponded);
 
             // Leave Awaiting Team Lead and Client
             ConfigureStateLeaveAwaitingTeamLeadClient(FsMachine);
@@ -52,27 +51,6 @@ namespace AdminCore.FsmWorkflow.FsmMachines
             }
         }
 
-        public override WorkflowFsmStateInfo FireLeaveResponded(EventStatuses approvalState, string responder)
-        {
-            if (approvalState != EventStatuses.Cancelled)
-            {
-                // Fire the response trigger first.
-                FsMachine.Fire(_leaveResponseTrigger, approvalState, responder);
-                // Then evaluate the changes.
-                FsMachine.Fire(LeaveTriggersPto.EvaluateLeaveState);
-            }
-            else
-            {
-                FsMachine.Fire(LeaveTriggersPto.LeaveCancelled);
-            }
-
-            var machineStateInfo = new WorkflowFsmStateInfo(FsMachine.IsInState(PtoState.LeaveRequestCompleted),
-                CurrentEventStatus,
-                Message);
-
-            return machineStateInfo;
-        }
-
         private void ConfigureStateLeaveAwaitingTeamLeadClient(StateMachine<PtoState, LeaveTriggersPto> fsMachine)
         {
             fsMachine.Configure(PtoState.LeaveAwaitingTeamLeadClient)
@@ -90,7 +68,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
                         fsMachine.Fire(LeaveTriggersPto.TeamLeadClientResponseReceived);
                     }
                 })
-                .InternalTransition(_leaveResponseTrigger,
+                .InternalTransition(LeaveResponseTrigger,
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTriggersPto.TeamLeadClientResponseReceived, PtoState.LeaveAwaitingCse)
                 .Permit(LeaveTriggersPto.LeaveCancelled, PtoState.LeaveCancelled)
@@ -114,7 +92,7 @@ namespace AdminCore.FsmWorkflow.FsmMachines
 
                     FireApproveRejectBasedOnResponderResponse(FsmStateData.Cse);
                 })
-                .InternalTransition(_leaveResponseTrigger,
+                .InternalTransition(LeaveResponseTrigger,
                     (approvalState, responder, transition) => LeaveResponse(approvalState, responder))
                 .Permit(LeaveTriggersPto.LeaveApproved, PtoState.LeaveApproved)
                 .Permit(LeaveTriggersPto.LeaveRejected, PtoState.LeaveRejected)
