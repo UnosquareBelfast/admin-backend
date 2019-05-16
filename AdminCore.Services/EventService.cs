@@ -53,13 +53,14 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatus)
+    public IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
     {
+      var eventStatus = (int) eventStatuses;
       var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date
                                                                          && x.EndDate.Date <= endDate.Date
                                                                          || x.EndDate.Date == startDate.Date)
                                                                          && x.Event.EmployeeId == employeeId
-                                                                         && x.Event.EventStatusId == (int)eventStatus,
+                                                                         && x.Event.EventStatusId == eventStatus,
                                                               null, x => x.Event);
       return _mapper.Map<IList<EventDateDto>>(eventDates);
     }
