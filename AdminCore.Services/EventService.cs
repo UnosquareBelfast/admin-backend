@@ -153,6 +153,11 @@ namespace AdminCore.Services
     {
       var currDate = _dateService.GetCurrentDateTime();
 
+      if (eventDates == null || !eventDates.Any())
+      {
+        return;
+      }
+
       int leaveLengthDays = 0;
       // Iterate over eventDates collection and sum difference between start and end dates.
       foreach (var eventDate in eventDates)
