@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using AdminCore.Constants.Enums;
 using AdminCore.DataETL.Attributes;
-using AdminCore.DataETL.TypeConverters;
 
 namespace AdminCore.WebApi.Models.DataTransform
 {
@@ -13,15 +11,13 @@ namespace AdminCore.WebApi.Models.DataTransform
         [ExportableRecordField(Name = "Date Created", ColumnPosition = 2)]
         public DateTime DateCreated { get; set; }
         [ExportableRecordField(Name = "Event Status Id", ColumnPosition = 3)]
-        [TypeConverter(ConverterType = typeof(TypeToStringConverter<EventStatuses>))]
-        public int EventStatusId { get; set; }
+        public EventStatuses EventStatus { get; set; }
         [ExportableRecordField(Name = "Event Type", ColumnPosition = 4)]
         public int EventTypeId { get; set; }
         [ExportableRecordField(Name = "Last Modified", ColumnPosition = 5)]
         public DateTime LastModified { get; set; }
         [ExportableRecordField(Name = "Event Messages", ColumnPosition = 6)]
-        [TypeConverter(ConverterType = typeof(ListToStringConverter<string>))]
-        public ICollection<string> EventMessages { get; set; }
+        public string EventMessages { get; set; }
         [ExportableRecordField(Name = "Employee Id", ColumnPosition = 7)]
         public int EmployeeId { get; set; }
         [ExportableRecordField(Name = "Employee", ColumnPosition = 8)]

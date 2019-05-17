@@ -5,16 +5,16 @@ namespace AdminCore.Services
 {
     public class CsvService : ICsvService
     {
-        private readonly IDataEtlAdapter _dataEtlAdapter;
+        private readonly IFileTransformAdapter _fileTransformAdapter;
         
-        public CsvService(IDataEtlAdapter dataEtlAdapter)
+        public CsvService(IFileTransformAdapter fileTransformAdapter)
         {
-            _dataEtlAdapter = dataEtlAdapter;
+            _fileTransformAdapter = fileTransformAdapter;
         }
         
         public byte[] Generate<T>(IList<T> data) where T : class
         {
-            return _dataEtlAdapter.GenerateByteArray(data);
+            return _fileTransformAdapter.GenerateByteArray(data);
         }
     }
 }

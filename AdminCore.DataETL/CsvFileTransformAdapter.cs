@@ -16,10 +16,9 @@ namespace AdminCore.DataETL
     /// Implements the ETL Library ChoEtl for conversion of data to csv.
     /// https://github.com/Cinchoo/ChoETL
     /// </summary>
-    public class CsvChoEtlAdapter : IDataEtlAdapter
+    public class CsvFileTransformAdapter : IFileTransformAdapter
     {
-        public byte[] GenerateByteArray<T>(IList<T> data) 
-            where T : class
+        public byte[] GenerateByteArray<T>(IList<T> data) where T : class
         {
             var msg = new StringBuilder();
 
@@ -64,7 +63,7 @@ namespace AdminCore.DataETL
         {
             return data.Select(CreateExpandoObject).ToList();
         }
-        
+
         /// <summary>
         /// Creates an ExpandoObject using reflection to iterate over the properties in the specified class of type <see cref="T"/>.
         /// </summary>
@@ -77,28 +76,15 @@ namespace AdminCore.DataETL
             var properties = type.GetProperties();
 
             var exp = new ExpandoObject() as IDictionary<string, Object>;
-            
+
             foreach (var propertyInfo in properties)
             {
-                var convertedVal = ConvertUsingConverterAttribute(propertyInfo, obj);
-                exp.Add(propertyInfo.Name, convertedVal);
+                exp.Add(propertyInfo.Name, propertyInfo.GetValue(obj));
             }
 
             return (ExpandoObject)exp;
         }
 
-        /// <summary>
-        /// Convert a field value using the converter specified by the <see cref="TypeConverterAttribute"/> decorating the field. 
-        /// </summary>
-        /// <param name="propertyInfo"></param>
-        /// <param name="objToConvert"></param>
-        /// <returns></returns>
-        private object ConvertUsingConverterAttribute(PropertyInfo propertyInfo, Object objToConvert)
-        {
-            var converter = (ITypeConverter) propertyInfo.GetAttribute<TypeConverterAttribute>()?.CreateInstance();
-            return converter != null ? converter.ConvertTo(propertyInfo.GetValue(objToConvert, null)) : propertyInfo.GetValue(objToConvert, null);
-        }
-        
         /// <summary>
         /// Return all CsvRecordFieldAttribute attributes in a class of type <see cref="T"/>.
         /// </summary>
@@ -106,12 +92,11 @@ namespace AdminCore.DataETL
         /// <returns></returns>
         private IEnumerable<ExportableRecordFieldAttribute> GetCsvRecordFieldAttributes<T>()
         {
-            int i = 0;
             var properties = typeof(T).GetProperties();
             foreach (var propertyInfo in properties)
             {
                 var style = propertyInfo.GetAttribute<ExportableRecordFieldAttribute>();
-                yield return style ?? new ExportableRecordFieldAttribute { Name = propertyInfo.Name, ColumnPosition = i++};
+                yield return style ?? throw new InvalidOperationException($"{propertyInfo.Name} is not decorated with the required ExportableRecordFieldAttribute");
             }
         }
     }

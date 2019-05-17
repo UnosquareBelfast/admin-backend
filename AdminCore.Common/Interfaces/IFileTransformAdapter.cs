@@ -2,7 +2,7 @@
 
 namespace AdminCore.Common.Interfaces
 {
-    public interface IDataEtlAdapter
+    public interface IFileTransformAdapter
     {
         /// <summary>
         /// Generate a byte array from the given data.

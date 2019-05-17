@@ -47,7 +47,7 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
 
-        services.AddTransient<IDataEtlAdapter, CsvChoEtlAdapter>();
+        services.AddTransient<IFileTransformAdapter, CsvFileTransformAdapter>();
         services.AddTransient<ICsvService, CsvService>();
 
         services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
