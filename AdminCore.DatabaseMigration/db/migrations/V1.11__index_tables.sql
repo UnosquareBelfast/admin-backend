@@ -20,8 +20,9 @@ CREATE INDEX event_employee_id_idx ON public.event(employee_id);
 */
 
 ----------------------------------------------------------------------------------------
-CREATE INDEX contract_employee_id_idx ON public.contract(employee_id);
+-- CREATE INDEX contract_employee_id_idx ON public.contract(employee_id);
 CREATE INDEX contract_team_id_idx ON public.contract(team_id);
+
 
 ----------------------------------------------------------------------------------------
 
@@ -30,7 +31,7 @@ CREATE INDEX contract_team_id_idx ON public.contract(team_id);
 */
 
 ----------------------------------------------------------------------------------------
-CREATE INDEX team_team_id_idx ON public.team(team_id);
+-- CREATE INDEX team_team_id_idx ON public.team(team_id);
 
 ----------------------------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ CREATE INDEX team_team_id_idx ON public.team(team_id);
 */
 
 ----------------------------------------------------------------------------------------
-CREATE INDEX event_dates_event_date_id_idx ON public.event_date(event_date_id);
+-- CREATE INDEX event_dates_event_date_id_idx ON public.event_date(event_date_id);
 
 ----------------------------------------------------------------------------------------
 
@@ -48,7 +49,7 @@ CREATE INDEX event_dates_event_date_id_idx ON public.event_date(event_date_id);
 */
 
 ----------------------------------------------------------------------------------------
-CREATE INDEX event_type_event_type_id_idx ON public.event_type(event_type_id);
+-- CREATE INDEX event_type_event_type_id_idx ON public.event_type(event_type_id);
 
 ----------------------------------------------------------------------------------------
 
@@ -57,7 +58,7 @@ CREATE INDEX event_type_event_type_id_idx ON public.event_type(event_type_id);
 */
 
 ----------------------------------------------------------------------------------------
-CREATE INDEX employee_employee_id_idx ON public.employee(employee_id);
+-- CREATE INDEX employee_employee_id_idx ON public.employee(employee_id);
 
 ----------------------------------------------------------------------------------------
 
@@ -66,7 +67,7 @@ CREATE INDEX employee_employee_id_idx ON public.employee(employee_id);
 */
 
 ----------------------------------------------------------------------------------------
-CREATE INDEX event_status_event_status_id_idx ON public.event_status(event_status_id);
+-- CREATE INDEX event_status_event_status_id_idx ON public.event_status(event_status_id);
 
 ----------------------------------------------------------------------------------------
 
@@ -75,4 +76,4 @@ CREATE INDEX event_status_event_status_id_idx ON public.event_status(event_statu
 */
 
 ----------------------------------------------------------------------------------------
-CREATE INDEX event_message_event_message_id_idx ON public.event_message(event_message_id);
+-- CREATE INDEX event_message_event_message_id_idx ON public.event_message(event_message_id);
