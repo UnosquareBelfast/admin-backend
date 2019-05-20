@@ -8,6 +8,7 @@ using AdminCore.Services.Base;
 using AutoMapper;
 using Evolve;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -105,7 +106,7 @@ namespace AdminCore.Services
     {
       var eventToReject = GetEventById(eventId);
       if (eventToReject != null && eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval
-                                && IsNotPublicHoliday(eventToReject))
+                                && !IsPublicHoliday(eventToReject))
       {
         eventToReject.EventStatusId = (int)EventStatuses.Rejected;
         AddEventMessageToReject(eventToReject, EventMessageTypes.Reject, message, employeeId);
@@ -120,7 +121,7 @@ namespace AdminCore.Services
     public void UpdateEventStatus(int eventId, EventStatuses status)
     {
       var eventToUpdate = GetEventById(eventId);
-      if (eventToUpdate != null && IsNotPublicHoliday(eventToUpdate))
+      if (eventToUpdate != null && !IsPublicHoliday(eventToUpdate))
       {
         eventToUpdate.EventStatusId = (int)status;
         DatabaseContext.SaveChanges();
@@ -146,15 +147,50 @@ namespace AdminCore.Services
       return _mapper.Map<EventDto>(insertedEvent);
     }
 
-    public void UpdateEvent(EventDateDto eventDateDto, string message, int employeeId)
-    {
-      var eventToUpdate = GetEventById(eventDateDto.EventId);
-      if (eventToUpdate != null && IsNotPublicHoliday(eventToUpdate))
+    // todo make event type an updatable attribute
+    public void UpdateEvent(EventDateDto proposedDates, string message, int employeeId)
+    { 
+      var eventToUpdate = GetEventById(proposedDates.EventId);
+      var currentDates = eventToUpdate.EventDates;
+
+      if (EventIsNotUpdatable(eventToUpdate, message))
       {
-        eventToUpdate.EventDates.Clear();
-        UpdateEventDates(eventDateDto, eventToUpdate);
-        ValidateRemainingHolidaysAndUpdate(eventToUpdate, message, employeeId);
+        throw new Exception("Cannot update event, criteria not met");
       }
+
+      EvaluateEventDates(proposedDates, currentDates, eventToUpdate);
+      ValidateRemainingHolidaysAndUpdate(eventToUpdate, message);
+    }
+
+    private void EvaluateEventDates(EventDateDto proposedDates, IList<EventDate> currentDates, Event eventToUpdate)
+    {
+      if (proposedDates.IsHalfDay)
+      {
+        if (AreDatesEqual(currentDates.First().StartDate, proposedDates.StartDate))
+        {
+          throw new Exception("Proposed changes are identical to attributes of the current event");
+        }
+        EvaluateHalfDayEventDatesAndAddToEvent(eventToUpdate, proposedDates);
+      }
+      else
+      {
+        if (AreDatesEqual(currentDates.First().StartDate, proposedDates.StartDate)
+            && AreDatesEqual(currentDates.Last().EndDate, proposedDates.EndDate))
+        {
+          throw new Exception("Proposed changes are identical to attributes of the current event");
+        }
+        EvaluateWeekendsInEventDatesAndAddToEvent(eventToUpdate, proposedDates.StartDate, proposedDates.EndDate);
+      }
+    }
+
+    private static bool EventIsNotUpdatable(Event eventToUpdate, string message)
+    {
+      return eventToUpdate == null || IsPublicHoliday(eventToUpdate) || message == null;
+    }
+
+    private static bool AreDatesEqual(DateTime currentDate, DateTime proposedDate)
+    {
+      return currentDate.Equals(proposedDate);
     }
 
     public HolidayStatsDto GetHolidayStatsForUser(int employeeId)
@@ -260,7 +296,7 @@ namespace AdminCore.Services
       return countHolidays;
     }
 
-    private void SplitEventIfFallsOnAWeekend(Event newEvent, DateTime originalEndDate, DateTime startDate)
+    private void EvaluateWeekendsInEventDatesAndAddToEvent(Event newEvent, DateTime originalEndDate, DateTime startDate)
     {
       var dates = startDate.Range(originalEndDate).ToList();
       foreach (var day in dates)
@@ -269,14 +305,14 @@ namespace AdminCore.Services
         {
           SetEndDateToPreviousDay(newEvent, startDate, day);
           var nextStartDate = day.AddDays(2);
-          SplitEventIfFallsOnAWeekend(newEvent, originalEndDate, nextStartDate);
+          EvaluateWeekendsInEventDatesAndAddToEvent(newEvent, originalEndDate, nextStartDate);
           break;
         }
       }
 
       if (dates.Last().Date.Day != originalEndDate.Day || dates.Count > 5 ||
           dates.First().Date.DayOfWeek == DayOfWeek.Friday && dates.Count > 1) return;
-      var lastDate = new EventDate()
+      var lastDate = new EventDate
       {
         StartDate = startDate,
         EndDate = originalEndDate
@@ -286,7 +322,7 @@ namespace AdminCore.Services
 
     private static void SetEndDateToPreviousDay(Event newEvent, DateTime startDate, DateTime day)
     {
-      newEvent.EventDates.Add(new EventDate()
+      newEvent.EventDates.Add(new EventDate
       {
         StartDate = startDate,
         EndDate = day.AddDays(-1),
@@ -368,15 +404,20 @@ namespace AdminCore.Services
     {
       if (IsHalfDay(eventDateDto))
       {
-        eventToUpdate.EventDates.Add(_mapper.Map<EventDate>(eventDateDto));
+        EvaluateHalfDayEventDatesAndAddToEvent(eventToUpdate, eventDateDto);
       }
       else
       {
-        SplitEventIfFallsOnAWeekend(eventToUpdate, eventDateDto.EndDate, eventDateDto.StartDate);
+        EvaluateWeekendsInEventDatesAndAddToEvent(eventToUpdate, eventDateDto.EndDate, eventDateDto.StartDate);
       }
     }
 
-    private void ValidateRemainingHolidaysAndUpdate(Event eventToUpdate, string message, int employeeId)
+    private void EvaluateHalfDayEventDatesAndAddToEvent(Event eventToUpdate, EventDateDto eventDates)
+    {
+      eventToUpdate.EventDates.Add(_mapper.Map<EventDate>(eventDates));
+    }
+
+    private void ValidateRemainingHolidaysAndUpdate(Event eventToUpdate, string message)
     {
       if (EmployeeHasEnoughHolidays(eventToUpdate))
       {
@@ -606,9 +647,9 @@ namespace AdminCore.Services
       return events;
     }
 
-    private static bool IsNotPublicHoliday(Event eventToUpdate)
+    private static bool IsPublicHoliday(Event eventToUpdate)
     {
-      return eventToUpdate.EventTypeId != (int)EventTypes.PublicHoliday;
+      return eventToUpdate.EventTypeId == (int)EventTypes.PublicHoliday;
     }
 
     private static int AutoApproveEventsNotNeedingAdminApproval(EventTypes eventTypes)

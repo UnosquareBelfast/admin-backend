@@ -27,7 +27,7 @@ namespace AdminCore.Services.Tests
     }
 
     internal static Event BuildEvent(int eventId, int employeeId, EventStatus eventStatus, EventType eventType,
-      ICollection<EventDate> eventDates)
+      IList<EventDate> eventDates)
     {
       return new Event
       {
