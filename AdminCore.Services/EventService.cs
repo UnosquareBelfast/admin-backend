@@ -147,10 +147,9 @@ namespace AdminCore.Services
       return _mapper.Map<EventDto>(insertedEvent);
     }
 
-    // todo make event type an updatable attribute
-    public void UpdateEvent(EventDateDto proposedDates, string message, int employeeId)
+    public void UpdateEvent(EventDateDto dates, string message, int employeeId)
     { 
-      var eventToUpdate = GetEventById(proposedDates.EventId);
+      var eventToUpdate = GetEventById(dates.EventId);
       var currentDates = eventToUpdate.EventDates;
 
       if (EventIsNotUpdatable(eventToUpdate, message))
@@ -158,7 +157,7 @@ namespace AdminCore.Services
         throw new Exception("Cannot update event, criteria not met");
       }
 
-      EvaluateEventDates(proposedDates, currentDates, eventToUpdate);
+      EvaluateEventDates(dates, currentDates, eventToUpdate);
       ValidateRemainingHolidaysAndUpdate(eventToUpdate, message);
     }
 
@@ -168,7 +167,7 @@ namespace AdminCore.Services
       {
         if (AreDatesEqual(currentDates.First().StartDate, proposedDates.StartDate))
         {
-          throw new Exception("Proposed changes are identical to attributes of the current event");
+          throw new Exception(UpdateEventIdenticalAttributesExceptMsg);
         }
         EvaluateHalfDayEventDatesAndAddToEvent(eventToUpdate, proposedDates);
       }
@@ -177,15 +176,15 @@ namespace AdminCore.Services
         if (AreDatesEqual(currentDates.First().StartDate, proposedDates.StartDate)
             && AreDatesEqual(currentDates.Last().EndDate, proposedDates.EndDate))
         {
-          throw new Exception("Proposed changes are identical to attributes of the current event");
+          throw new Exception(UpdateEventIdenticalAttributesExceptMsg);
         }
-        EvaluateWeekendsInEventDatesAndAddToEvent(eventToUpdate, proposedDates.StartDate, proposedDates.EndDate);
+        EvaluateWeekendsInEventDatesAndAddToEvent(eventToUpdate, proposedDates.EndDate, proposedDates.StartDate);
       }
     }
 
     private static bool EventIsNotUpdatable(Event eventToUpdate, string message)
     {
-      return eventToUpdate == null || IsPublicHoliday(eventToUpdate) || message == null;
+      return eventToUpdate == null || message == null || IsPublicHoliday(eventToUpdate);
     }
 
     private static bool AreDatesEqual(DateTime currentDate, DateTime proposedDate)
@@ -237,7 +236,7 @@ namespace AdminCore.Services
       }
       else
       {
-        throw new Exception("Mandatory Event does not exist");
+        throw new Exception(MandatoryEventExceptMsg);
       }
     }
 
@@ -255,7 +254,7 @@ namespace AdminCore.Services
       }
       else
       {
-        throw new Exception("Mandatory Event does not exist");
+        throw new Exception(MandatoryEventExceptMsg);
       }
     }
 
@@ -428,7 +427,7 @@ namespace AdminCore.Services
       }
       else
       {
-        throw new Exception("Not enough holidays to book");
+        throw new Exception(NotEnoughHolidaysToBookExceptMsg);
       }
     }
 
@@ -466,7 +465,7 @@ namespace AdminCore.Services
         return _mapper.Map<EventDto>(insertedEvent);
       }
 
-      throw new Exception("Not enough holidays to book");
+      throw new Exception(NotEnoughHolidaysToBookExceptMsg);
     }
 
     private Event BuildNewEvent(int employeeId, EventTypes eventTypes)
@@ -722,5 +721,10 @@ namespace AdminCore.Services
       DatabaseContext.MandatoryEventRepository.Delete(mandatoryEvent);
       DatabaseContext.SaveChanges();
     }
+    
+    // Exception Messages
+    private const string UpdateEventIdenticalAttributesExceptMsg = "Proposed changes are identical to attributes of the current event";
+    private const string MandatoryEventExceptMsg = "Mandatory Event does not exist";
+    private const string NotEnoughHolidaysToBookExceptMsg = "Not enough holidays to book";
   }
 }
