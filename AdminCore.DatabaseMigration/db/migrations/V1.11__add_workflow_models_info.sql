@@ -140,6 +140,8 @@ CREATE TABLE IF NOT EXISTS public.employee_approval_response
   )
   TABLESPACE pg_default;
 
+CREATE INDEX employee_approval_response_event_workflow_id_idx ON public.employee_approval_response_id(event_workflow_id);
+
 ALTER SEQUENCE employee_approval_response_employee_approval_response_id_seq
   OWNED BY employee_approval_response.employee_approval_response_id;
 
