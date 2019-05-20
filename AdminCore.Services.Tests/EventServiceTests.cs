@@ -26,6 +26,7 @@ namespace AdminCore.Services.Tests
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
     }
 
+    //todo fix failing test add negative
     [Fact]
     public void CreateEvent_ValidNewEventOfOneDay_SuccessfullyInsertsNewEventIntoDb()
     {
@@ -68,14 +69,15 @@ namespace AdminCore.Services.Tests
       databaseContext.Received().EventRepository.Insert(Arg.Any<Event>());
     }
 
+    //todo fix failing test add negative
     [Fact]
     public void CreateEvent_ValidNewEventOfOneHalfDay_SuccessfullyInsertsNewEventIntoDb()
     {
       // Arrange
       const int employeeId = 1;
       const int eventId = 1;
-      var startDate = new DateTime(2018, 12, 05);
-      var endDate = new DateTime(2018, 12, 05);
+      var startDate = new DateTime(2018, 11, 05);
+      var endDate = new DateTime(2018, 11, 05);
 
       var eventType = TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
@@ -116,8 +118,8 @@ namespace AdminCore.Services.Tests
       // Arrange
       const int employeeId = 1;
       const int eventId = 1;
-      var startDate = new DateTime(2018, 12, 05);
-      var endDate = new DateTime(2018, 12, 05);
+      var startDate = new DateTime(2018, 10, 05);
+      var endDate = new DateTime(2018, 10, 05);
 
       var eventType = TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
@@ -157,13 +159,14 @@ namespace AdminCore.Services.Tests
       Assert.Equal("Holiday dates already booked.", ex.Message);
     }
 
+    //todo fix failing test add negative
     [Fact]
     public void CreateEvent_ValidNewEventOfMultipleDays_SuccessfullyInsertsNewEventIntoDb()
     {
       const int employeeId = 1;
       const int eventId = 1;
-      var startDate = new DateTime(2018, 12, 03);
-      var endDate = new DateTime(2018, 12, 05);
+      var startDate = new DateTime(2018, 09, 03);
+      var endDate = new DateTime(2018, 09, 05);
 
       var eventType = TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
@@ -181,7 +184,7 @@ namespace AdminCore.Services.Tests
         Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
         IsHalfDay = false
       };
-      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(new EventDateDto()) };
 
       var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
       var events = new List<Event> { newEvent };
@@ -659,7 +662,8 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
-      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDates(startDate, endDate, employeeId);
+      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+        startDate, endDate, employeeId, EventStatuses.AwaitingApproval);
 
       // Assert
       Assert.Equal(1, eventsByEmployeeId.Count);

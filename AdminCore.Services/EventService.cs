@@ -53,14 +53,19 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
+    public IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
     {
-      var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date
-                                                                         && x.EndDate.Date <= endDate.Date
-                                                                         || x.EndDate.Date == startDate.Date)
-                                                                         && x.Event.EmployeeId == employeeId
-                                                                         && x.Event.EventStatusId == (int)EventStatuses.Approved,
-                                                              null, x => x.Event);
+      var eventStatus = (int)eventStatuses;
+      var eventDates = DatabaseContext.EventDatesRepository.Get(
+        current => 
+                    ((current.StartDate.Date == startDate.Date && current.EndDate.Date > endDate.Date) ||
+                    (current.StartDate.Date < startDate.Date && current.EndDate.Date > endDate.Date) || 
+                    (current.StartDate.Date < startDate.Date && current.EndDate.Date == endDate.Date) ||
+                    (current.StartDate.Date == startDate.Date && current.EndDate.Date == endDate.Date) ||
+                    (current.StartDate.Date > startDate.Date && current.EndDate.Date < endDate.Date)) &&
+                     current.Event.EmployeeId == employeeId &&
+                     current.Event.EventStatusId == eventStatus,
+            null, x => x.Event);
 
       return _mapper.Map<IList<EventDateDto>>(eventDates);
     }
@@ -311,9 +316,21 @@ namespace AdminCore.Services
 
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
     {
-      var employeeEvents =
-        GetApprovedEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId);
-      if (employeeEvents.Any())
+      var approvedEmployeeEvents = GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+        eventDates.StartDate,
+        eventDates.EndDate,
+        employeeId,
+        EventStatuses.Approved
+        );
+
+      var awaitEmployeeEvents = GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+        eventDates.StartDate,
+        eventDates.EndDate,
+        employeeId,
+        EventStatuses.AwaitingApproval
+        );
+      
+      if (approvedEmployeeEvents.Any() || awaitEmployeeEvents.Any())
       {
         throw new Exception("Holiday dates already booked.");
       }
