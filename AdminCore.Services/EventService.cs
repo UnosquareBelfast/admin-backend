@@ -8,7 +8,6 @@ using AdminCore.Services.Base;
 using AutoMapper;
 using Evolve;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -178,8 +177,7 @@ namespace AdminCore.Services
       }
       else
       {
-        if (AreDatesEqual(currentStartDate, proposedDates.StartDate)
-            && AreDatesEqual(currentEndDate, proposedDates.EndDate) && !currentDateHalfDay)
+        if (AreDatesEqual(currentStartDate, proposedDates.StartDate) && AreDatesEqual(currentEndDate, proposedDates.EndDate) && !currentDateHalfDay)
         {
           throw new Exception(UpdateEventIdenticalAttributesExceptMsg);
         }

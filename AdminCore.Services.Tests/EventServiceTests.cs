@@ -937,7 +937,7 @@ namespace AdminCore.Services.Tests
     }
     
     [Fact]
-    public void UpdateEvent_WhenCalledToUpdateEventWithIdenticalStartAndEndDates_DoesNotUpdateTheEventWithNewRangeOfDates()
+    public void UpdateEvent_WhenCalledToUpdateEventWithIdenticalStartAndEndDatesAndHalfDayValue_DoesNotUpdateTheEventWithNewRangeOfDates()
     {
       // Arrange
       var eventId = 1;
@@ -946,7 +946,9 @@ namespace AdminCore.Services.Tests
       var employee = TestClassBuilder.BuildGenericEmployee(null);
       var employeeList = new List<Employee> { employee };
       var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto(
-        new DateTime(2018, 12, 04), new DateTime(2018, 12, 06))) };
+        new DateTime(2018, 12, 04),
+        new DateTime(2018, 12, 06),
+        true)) };
       var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
         TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
       var events = new List<Event> { newEvent };
@@ -970,7 +972,8 @@ namespace AdminCore.Services.Tests
       {
         EventId = eventId,
         StartDate = new DateTime(2018, 12, 04),
-        EndDate = new DateTime(2018, 12, 06)
+        EndDate = new DateTime(2018, 12, 06),
+        IsHalfDay = true
       };
 
       // Act
@@ -1085,6 +1088,174 @@ namespace AdminCore.Services.Tests
 
       // Assert
       Assert.Equal("Not enough holidays to book", ex.Message);
+    }
+
+    [Fact]
+    public void UpdateEvent_UpdateFromHalfDayToFullDayEvent_UpdatesEventToFullDay()
+    {
+      // Arrange
+      var eventId = 1;
+      var employeeId = 1;
+      var message = "Update Message";
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto(
+        new DateTime(2018, 12, 04),
+         new DateTime(2018, 12, 04),
+        true)
+      ) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var eventDateWithEvent = Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto());
+      eventDateWithEvent.Event = newEvent;
+      var eventDateWithEventList = new List<EventDate> { eventDateWithEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDateWithEventList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+
+      var eventDateDto = new EventDateDto
+      {
+        EventId = eventId,
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2018, 12, 06),
+        IsHalfDay = false
+      };
+
+      // Act
+      eventService.UpdateEvent(eventDateDto, message, employeeId);
+
+      // Assert
+      Assert.False(eventService.GetEvent(eventId).EventDates.First().IsHalfDay);
+    }
+
+    [Fact]
+    public void UpdateEvent_UpdateFromFullDayEventToHalfDay_UpdatesEventToHalfDay()
+    {
+      // Arrange
+      var eventId = 1;
+      var employeeId = 1;
+      var message = "Update Message";
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> {employee};
+      var eventDatesList = new List<EventDate>
+      {
+        Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto(
+          new DateTime(2018, 12, 04),
+          new DateTime(2018, 12, 04),
+          false)
+        )
+      };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> {newEvent};
+
+      var eventDateWithEvent = Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto());
+      eventDateWithEvent.Event = newEvent;
+      var eventDateWithEventList = new List<EventDate> {eventDateWithEvent};
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDateWithEventList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+
+      var eventDateDto = new EventDateDto
+      {
+        EventId = eventId,
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2018, 12, 06),
+        IsHalfDay = true
+      };
+
+      // Act
+      eventService.UpdateEvent(eventDateDto, message, employeeId);
+
+      // Assert
+      Assert.True(eventService.GetEvent(eventId).EventDates.First().IsHalfDay);
+    }
+
+    [Fact]
+    public void UpdateEvent_UpdateWithNullReasonForUpdatingMessage_UpdateFailsAsExceptionIsThrown()
+    {
+      // Arrange
+      var eventId = 1;
+      var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto()) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var eventDateWithEvent = Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto());
+      eventDateWithEvent.Event = newEvent;
+      var eventDateWithEventList = new List<EventDate> { eventDateWithEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDateWithEventList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+      var eventDateDto = new EventDateDto
+      {
+        EventId = eventId,
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2018, 12, 06),
+        IsHalfDay = true
+      };
+
+      // Act
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.UpdateEvent(eventDateDto, null, employeeId));
+
+      // Assert
+      Assert.Equal("Cannot update event, criteria not met", ex.Message);
+    }
+
+    [Fact]
+    public void UpdateEvent_UpdateWithValidMessageAndIdenticalEventProperties_UpdateFailsAsExceptionIsThrown()
+    {
+      // Arrange
+      var eventId = 1;
+      var employeeId = 1;
+      var employee = TestClassBuilder.BuildGenericEmployee(null);
+      var employeeList = new List<Employee> { employee };
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto(
+        new DateTime(2018, 12, 04),
+        new DateTime(2018, 12, 06),
+        true)) };
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, TestClassBuilder.ApprovedEventStatus(),
+        TestClassBuilder.AnnualLeaveEventType(), eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var eventDateWithEvent = Mapper.Map<EventDate>(TestClassBuilder.GenericEventDateDto());
+      eventDateWithEvent.Event = newEvent;
+      var eventDateWithEventList = new List<EventDate> { eventDateWithEvent };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, events);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDateWithEventList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      var eventService = GetEventService(databaseContext);
+      var eventDateDto = new EventDateDto
+      {
+        EventId = eventId,
+        StartDate = new DateTime(2018, 12, 04),
+        EndDate = new DateTime(2018, 12, 06),
+        IsHalfDay = true
+      };
+
+      // Act
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.UpdateEvent(eventDateDto, "", employeeId));
+
+      // Assert
+      Assert.Equal("Cannot update event, criteria not met", ex.Message);
     }
 
     [Fact]
