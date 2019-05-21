@@ -141,7 +141,7 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    internal static EventDateDto GenericEventDateDto(DateTime startDate = default(DateTime), DateTime endDate = default(DateTime))
+    internal static EventDateDto GenericEventDateDto(DateTime startDate = default(DateTime), DateTime endDate = default(DateTime), bool isHalfDay = false)
     {
       var eventDateDto = new EventDateDto
       {
@@ -150,7 +150,7 @@ namespace AdminCore.Services.Tests
         EventId = 1,
         Event = Mapper.Map<EventDto>(BuildEvent(1, 1,
           ApprovedEventStatus(), AnnualLeaveEventType())),
-        IsHalfDay = false
+        IsHalfDay = isHalfDay
       };
       return eventDateDto;
     }
