@@ -26,9 +26,49 @@ namespace AdminCore.Services.Tests
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
     }
 
-    //todo fix failing test add negative
     [Fact]
     public void CreateEvent_ValidNewEventOfOneDay_SuccessfullyInsertsNewEventIntoDb()
+    {
+      // Arrange
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
+      var eventDateDto = new EventDateDto
+      {
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = false
+      };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, new List<Event>());
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, new List<EventDate>());
+
+      var eventService = GetEventService(databaseContext);
+
+      // Act
+      eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId);
+
+      // Assert
+      databaseContext.Received().EventRepository.Insert(Arg.Any<Event>());
+    }
+
+    [Fact]
+    public void CreateEvent_ValidNewEventOfOneDayWhileExactEventAlreadyExistsWithAwaitingApprovalStatus_DoesNotInsertsNewEventIntoDb()
     {
       // Arrange
       const int employeeId = 1;
@@ -63,15 +103,56 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId));
+
+      // Assert
+      Assert.Equal("Holiday dates already booked.", ex.Message);
+    }
+
+    [Fact]
+    public void CreateEvent_ValidNewEventOfOneHalfDay_SuccessfullyInsertsNewEventIntoDb()
+    {
+      // Arrange
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 11, 05);
+      var endDate = new DateTime(2018, 11, 05);
+
+      var eventType = TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
+
+      var employee = TestClassBuilder.BuildEmployee(employeeId,
+        (int)EmployeeRoles.User, 40, null);
+      var employeeList = new List<Employee> { employee };
+
+      var eventDateDto = new EventDateDto
+      {
+        StartDate = startDate,
+        EndDate = endDate,
+        EventId = eventId,
+        Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
+        IsHalfDay = true
+      };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, new List<Event>());
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, new List<EventDate>());
+
+      var eventService = GetEventService(databaseContext);
+
+      // Act
       eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId);
 
       // Assert
       databaseContext.Received().EventRepository.Insert(Arg.Any<Event>());
     }
 
-    //todo fix failing test add negative
     [Fact]
-    public void CreateEvent_ValidNewEventOfOneHalfDay_SuccessfullyInsertsNewEventIntoDb()
+    public void CreateEvent_ValidNewEventOfOneHalfDayWhileExactEventAlreadyExistsWithAwaitingApprovalStatus_DoesNotInsertsNewEventIntoDb()
     {
       // Arrange
       const int employeeId = 1;
@@ -106,10 +187,11 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
-      eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId);
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId));
 
       // Assert
-      databaseContext.Received().EventRepository.Insert(Arg.Any<Event>());
+      Assert.Equal("Holiday dates already booked.", ex.Message);
     }
 
     [Fact]
@@ -159,7 +241,6 @@ namespace AdminCore.Services.Tests
       Assert.Equal("Holiday dates already booked.", ex.Message);
     }
 
-    //todo fix failing test add negative
     [Fact]
     public void CreateEvent_ValidNewEventOfMultipleDays_SuccessfullyInsertsNewEventIntoDb()
     {
@@ -619,7 +700,7 @@ namespace AdminCore.Services.Tests
 
     [Fact]
     public void
-      GetApprovedEventDatesByEmployeeIdAndStartAndEndDate_WithValidDates_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDate()
+      GetApprovedEventDatesByEmployeeIdAndStartAndEndDate_WithValidDatesAndApprovedStatus_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDate()
     {
       // Arrange
       const int employeeId = 1;
@@ -631,6 +712,58 @@ namespace AdminCore.Services.Tests
         TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
       var eventStatus = TestClassBuilder.ApprovedEventStatus();
+
+      var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate, eventId, employeeId, eventStatus, eventType);
+
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
+
+      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
+      var events = new List<Event> { newEvent };
+
+      var employee = TestClassBuilder.BuildGenericEmployee(events);
+      var employeeList = new List<Employee> { employee };
+
+      var eventWithEmployee = newEvent;
+      eventWithEmployee.Employee = employee;
+      var eventWithEmployeeList = new List<Event>
+      {
+        eventWithEmployee
+      };
+
+      var eventDateWithEventAndEmployeeList = Mapper.Map<EventDate>(eventDateDto);
+      eventDateWithEventAndEmployeeList.Event = eventWithEmployee;
+      var eventDatesWithEventAndEmployeeList = new List<EventDate> { eventDateWithEventAndEmployeeList };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, eventWithEmployeeList);
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesWithEventAndEmployeeList);
+
+      var eventService = GetEventService(databaseContext);
+
+      // Act
+      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+        startDate, endDate, employeeId, EventStatuses.Approved);
+
+      // Assert
+      Assert.Equal(1, eventsByEmployeeId.Count);
+    }
+
+    [Fact]
+    public void
+      GetApprovedEventDatesByEmployeeIdAndStartAndEndDate_WithValidDatesAndAwaitingApprovalStatus_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDate()
+    {
+      // Arrange
+      const int employeeId = 1;
+      const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
+
+      var eventType =
+        TestClassBuilder.AnnualLeaveEventType();
+      var eventTypesList = new List<EventType> { eventType };
+      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate, eventId, employeeId, eventStatus, eventType);
 
