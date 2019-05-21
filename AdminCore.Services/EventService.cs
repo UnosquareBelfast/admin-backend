@@ -148,7 +148,7 @@ namespace AdminCore.Services
     }
 
     public void UpdateEvent(EventDateDto dates, string message, int employeeId)
-    { 
+    {
       var eventToUpdate = GetEventById(dates.EventId);
       var currentDates = eventToUpdate.EventDates;
 
@@ -163,28 +163,34 @@ namespace AdminCore.Services
 
     private void EvaluateEventDates(EventDateDto proposedDates, IList<EventDate> currentDates, Event eventToUpdate)
     {
+      var currentDateHalfDay = currentDates.First().IsHalfDay;
+      var currentStartDate = currentDates.First().StartDate;
+      var currentEndDate = currentDates.Last().EndDate;
+
       if (proposedDates.IsHalfDay)
       {
-        if (AreDatesEqual(currentDates.First().StartDate, proposedDates.StartDate))
+        if (AreDatesEqual(currentStartDate, proposedDates.StartDate) && currentDateHalfDay)
         {
           throw new Exception(UpdateEventIdenticalAttributesExceptMsg);
         }
+        currentDates.Clear();
         EvaluateHalfDayEventDatesAndAddToEvent(eventToUpdate, proposedDates);
       }
       else
       {
-        if (AreDatesEqual(currentDates.First().StartDate, proposedDates.StartDate)
-            && AreDatesEqual(currentDates.Last().EndDate, proposedDates.EndDate))
+        if (AreDatesEqual(currentStartDate, proposedDates.StartDate)
+            && AreDatesEqual(currentEndDate, proposedDates.EndDate) && !currentDateHalfDay)
         {
           throw new Exception(UpdateEventIdenticalAttributesExceptMsg);
         }
+        currentDates.Clear();
         EvaluateWeekendsInEventDatesAndAddToEvent(eventToUpdate, proposedDates.EndDate, proposedDates.StartDate);
       }
     }
 
     private static bool EventIsNotUpdatable(Event eventToUpdate, string message)
     {
-      return eventToUpdate == null || message == null || IsPublicHoliday(eventToUpdate);
+      return eventToUpdate == null || string.IsNullOrEmpty(message) || IsPublicHoliday(eventToUpdate);
     }
 
     private static bool AreDatesEqual(DateTime currentDate, DateTime proposedDate)
