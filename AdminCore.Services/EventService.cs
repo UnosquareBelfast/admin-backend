@@ -75,8 +75,8 @@ namespace AdminCore.Services
     {
       var eventStatusId = (int)eventStatus;
       var eventTypeId = (int)eventType;
-      var events = DatabaseContext.EventRepository.Get(x => x.EventStatusId == eventStatusId
-                                                            && x.EventTypeId == eventTypeId,
+      var events = DatabaseContext.EventRepository.Get(x => x.EventStatus.EventStatusId == eventStatusId
+                                                            && x.EventType.EventTypeId == eventTypeId,
                                                             null,
                                                             x => x.EventDates,
                                                             x => x.Employee,
@@ -90,7 +90,7 @@ namespace AdminCore.Services
     public IList<EventDto> GetEventByType(EventTypes eventType)
     {
       var eventTypeId = (int)eventType;
-      var events = DatabaseContext.EventRepository.Get(x => x.EventTypeId == eventTypeId,
+      var events = DatabaseContext.EventRepository.Get(x => x.EventType.EventTypeId == eventTypeId,
                                                             null,
                                                             x => x.EventDates,
                                                             x => x.Employee,
@@ -236,8 +236,8 @@ namespace AdminCore.Services
       var annualLeaveId = (int)EventTypes.AnnualLeave;
       var publicHolidayId = (int)EventTypes.PublicHoliday;
       var eventStatusId = (int)eventStatus;
-      var events = DatabaseContext.EventRepository.Get(x => x.EventStatusId == eventStatusId
-                                                            && (x.EventTypeId == annualLeaveId || x.EventTypeId == publicHolidayId)
+      var events = DatabaseContext.EventRepository.Get(x => x.EventStatus.EventStatusId == eventStatusId
+                                                            && (x.EventType.EventTypeId == annualLeaveId || x.EventType.EventTypeId == publicHolidayId)
                                                             && x.EmployeeId == employeeId,
                                                             null,
                                                             x => x.EventDates,
@@ -523,7 +523,7 @@ namespace AdminCore.Services
       var annualLeaveId = (int)EventTypes.AnnualLeave;
       var publicHolidayId = (int)EventTypes.PublicHoliday;
       var events = DatabaseContext.EventRepository.Get(x =>
-          (x.EventTypeId == annualLeaveId || x.EventTypeId == publicHolidayId),
+          (x.EventType.EventTypeId == annualLeaveId || x.EventType.EventTypeId == publicHolidayId),
         null,
         x => x.EventDates,
         x => x.Employee,
@@ -536,7 +536,7 @@ namespace AdminCore.Services
     private IList<Event> QueryOtherEvents(int eventTypeId)
     {
       var events = DatabaseContext.EventRepository.Get(x =>
-          x.EventTypeId == eventTypeId,
+          x.EventType.EventTypeId == eventTypeId,
         null,
         x => x.EventDates,
         x => x.Employee,
@@ -582,8 +582,8 @@ namespace AdminCore.Services
       var annualLeaveId = (int)EventTypes.AnnualLeave;
       var publicHolidayId = (int)EventTypes.PublicHoliday;
       var events = DatabaseContext.EventRepository.Get(x => eventIds.Contains(x.EventId)
-                                                            && (x.EventTypeId == annualLeaveId
-                                                                || x.EventTypeId == publicHolidayId),
+                                                            && (x.EventType.EventTypeId == annualLeaveId
+                                                                || x.EventType.EventTypeId == publicHolidayId),
         null,
         x => x.EventDates,
         x => x.Employee,
