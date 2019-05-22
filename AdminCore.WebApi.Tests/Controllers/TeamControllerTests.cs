@@ -68,7 +68,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestUpdateTeamReturnsEmptyOkResponseWhenGivenValidInput()
     {
-      var updateViewModel = new UpdateTeamViewModel()
+      var updateViewModel = new UpdateTeamViewModel
       {
         TeamId = 1,
         TeamName = "TestTeam",
@@ -83,7 +83,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestUpdateTeamReturnsOkResponseWithErrorMessageWhenSaveThrowsAnException()
     {
-      var updateViewModel = new UpdateTeamViewModel()
+      var updateViewModel = new UpdateTeamViewModel
       {
         TeamId = 1,
         TeamName = "TestTeam",
@@ -101,7 +101,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestCreateTeamReturnsEmptyOkResponseWhenGivenValidInput()
     {
-      var updateViewModel = new CreateTeamViewModel()
+      var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
         ClientId = 1
@@ -115,7 +115,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestCreateTeamReturnsOkResponseWithErrorMessageWhenSaveThrowsAnException()
     {
-      var updateViewModel = new CreateTeamViewModel()
+      var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
         ClientId = 1
@@ -134,20 +134,20 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       const int testId = 1;
       const string testTeamName = "testTeam";
-      const int testClientId = 1;
+      const int testProjectId = 1;
 
-      var teamDtoReturnedFromService = new TeamDto()
+      var teamDtoReturnedFromService = new TeamDto
       {
         TeamId = testId,
         TeamName = testTeamName,
-        ClientId = testClientId
+        ProjectId = testProjectId
       };
 
-      var viewModelReturnedFromMapper = new TeamViewModel()
+      var viewModelReturnedFromMapper = new TeamViewModel
       {
         TeamId = testId,
         TeamName = testTeamName,
-        ClientId = testClientId
+        ProjectId = testProjectId
       };
 
       _mapper.Map<TeamViewModel>(teamDtoReturnedFromService).Returns(viewModelReturnedFromMapper);
@@ -177,29 +177,29 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       const int testTeamId = 1;
       const string testTeamName = "testTeam";
-      const int testClientId = 1;
+      const int testProjectId = 1;
 
-      var listOfViewModelsReturnedFromMapper = new List<TeamViewModel>()
+      var listOfViewModelsReturnedFromMapper = new List<TeamViewModel>
       {
-        new TeamViewModel()
+        new TeamViewModel
         {
           TeamId = testTeamId,
           TeamName = testTeamName,
-          ClientId = testClientId
+          ProjectId = testProjectId
         }
       };
 
-      var listOfDtosReturnedFromService = new List<TeamDto>()
+      var listOfDtosReturnedFromService = new List<TeamDto>
       {
-        new TeamDto()
+        new TeamDto
         {
           TeamId = testTeamId,
           TeamName = testTeamName,
-          ClientId = testClientId
+          ProjectId = testProjectId
         }
       };
 
-      _teamService.GetByClientId(testClientId).Returns(listOfDtosReturnedFromService);
+      _teamService.GetByClientId(testProjectId).Returns(listOfDtosReturnedFromService);
       _mapper.Map<IList<TeamViewModel>>(listOfDtosReturnedFromService).Returns(listOfViewModelsReturnedFromMapper);
 
       var result = _teamController.GetAllTeamsForClientId(1);

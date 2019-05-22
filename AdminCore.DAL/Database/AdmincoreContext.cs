@@ -58,6 +58,8 @@ namespace AdminCore.DAL.Database
 
     public DbSet<Team> Teams { get; set; }
 
+    public DbSet<Project> Projects { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       optionsBuilder.UseNpgsql(_configuration.RetrieveConnectionString());

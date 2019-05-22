@@ -11,7 +11,7 @@ namespace AdminCore.DTOs
 
     public TeamDto Team { get; set; }
 
-    public string ProjectName { get; set; }
+    public string ClientName { get; set; }
 
     public int EmployeeId { get; set; }
 

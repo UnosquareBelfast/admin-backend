@@ -8,7 +8,6 @@ namespace AdminCore.Services.Mappings
   {
     public ContractMapperProfile()
     {
-      CreateMap<ContractDto, Contract>();
       CreateMap<ContractDto, Contract>().ReverseMap();
     }
   }

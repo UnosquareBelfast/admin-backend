@@ -84,7 +84,8 @@ namespace AdminCore.Services
       var teamsForEmployee = GetTeamIdsForEmployee(employeeId, date);
       var clientList = DatabaseContext.ClientRepository
         .GetAsQueryable(QueryClientsWithContractsForEmployeeId(teamsForEmployee, date))
-        .Include(client => client.Teams)
+        .Include(client => client.Projects)
+        .ThenInclude(project => project.Teams)
         .ThenInclude(team => team.Contracts)
         .ThenInclude(contract => contract.Employee)
         .ThenInclude(employee => employee.Events)
@@ -198,7 +199,7 @@ namespace AdminCore.Services
     private static Expression<Func<Client, bool>> QueryClientsWithContractsForEmployeeId(IList<int> teamIds, DateTime date)
     {
       return client =>
-        client.Teams.Any(team => teamIds.Contains(team.TeamId) &&
+        client.Projects.SelectMany(x => x.Teams).Any(team => teamIds.Contains(team.TeamId) &&
           team.Contracts.Any(contract =>
             DateService.ContractIsActiveDuringDate(contract, date)));
     }
@@ -206,7 +207,7 @@ namespace AdminCore.Services
     private ClientSnapshotDto BuildClientSnapshot(Client client, DateTime date)
     {
       var clientSnapShot = _mapper.Map<ClientSnapshotDto>(client);
-      clientSnapShot.Teams = client.Teams.Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      clientSnapShot.Teams = client.Projects.SelectMany(x => x.Teams).Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
       return clientSnapShot;
     }
 

@@ -10,12 +10,17 @@ CREATE SEQUENCE IF NOT EXISTS public.project_project_id_seq;
 CREATE TABLE IF NOT EXISTS public.project
 (
     project_id integer NOT NULL DEFAULT nextval('project_project_id_seq'::regclass),
+    project_parent_id integer,
     project_name character varying(255) COLLATE pg_catalog."default",
     client_id integer NOT NULL,
     deleted boolean NOT NULL,
 
     CONSTRAINT project_pkey PRIMARY KEY (project_id),
 
+    CONSTRAINT project_project_parent_id_fkey FOREIGN KEY (project_parent_id)
+      REFERENCES public.project (project_id) MATCH SIMPLE
+      ON UPDATE NO ACTION
+      ON DELETE NO ACTION,
     CONSTRAINT project_client_id_fkey FOREIGN KEY (client_id)
         REFERENCES public.client (client_id) MATCH SIMPLE
         ON UPDATE NO ACTION

@@ -15,20 +15,29 @@ using AdminCore.DTOs.Team;
 using AdminCore.Services.Mappings;
 using AutoMapper;
 using NSubstitute;
+using NSubstitute.Extensions;
 using NSubstitute.ReturnsExtensions;
 using Xunit;
 
 namespace AdminCore.Services.Tests
 {
-  public class ContractServiceTests
+  public class ContractServiceTests : BaseMockedDatabaseSetUp
   {
     private readonly IContractService _contractService;
     private readonly IDatabaseContext _databaseContext;
 
+    private static readonly IMapper Mapper = new Mapper(new MapperConfiguration(cfg =>
+    {
+      cfg.AddProfile(new ContractMapperProfile());
+      cfg.AddProfile(new ClientMapperProfile());
+    }));
+    private static readonly IConfiguration Configuration = Substitute.For<IConfiguration>();
+    private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
+
     public ContractServiceTests()
     {
       _databaseContext = Substitute.For<IDatabaseContext>();
-      IEnumerable<Type> profiles = new List<Type>()
+      IEnumerable<Type> profiles = new List<Type>
       {
         new ContractMapperProfile().GetType(),
         new TeamMapperProfile().GetType()
@@ -58,7 +67,7 @@ namespace AdminCore.Services.Tests
     public void TestGetContractByEmployeeIdReturnsNotNullContractDtoListWhenDatabaseReturnsContractList()
     {
       var contract = BuildContractModel();
-      var contractList = new List<Contract>()
+      var contractList = new List<Contract>
       {
         contract
       };
@@ -80,7 +89,7 @@ namespace AdminCore.Services.Tests
     public void TestGetContractByTeamIdReturnsNotNullContractDtoListWhenDatabaseReturnsContractList()
     {
       var contract = BuildContractModel();
-      var contractList = new List<Contract>()
+      var contractList = new List<Contract>
       {
         contract
       };
@@ -99,17 +108,42 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void TestGetContractByEmployeeIdAndTeamIdReturnsNotNullContractDtoListWhenDatabaseReturnsContractList()
+    public void GetContractByEmployeeIdAndTeamId_ReturnsNotNullContractDtoListWhenDatabaseReturnsContractList()
     {
-      var contract = BuildContractModel();
-      var contractList = new List<Contract>()
+      // Arrange
+      var contract = new Contract
       {
-        contract
+        ContractId = 1,
+        TeamId = 1,
+        EmployeeId = 1,
+        Team = new Team
+        {
+          TeamId = 1,
+          ProjectId = 1,
+          Project = new Project
+          {
+            ProjectId = 1,
+            ClientId = 1,
+            Client = new Client
+            {
+              ClientId = 1,
+              ClientName = "Client Name"
+            }
+          }
+        }
       };
 
-      _databaseContext.ContractRepository.Get(Arg.Any<Expression<Func<Contract, bool>>>(), Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(), Arg.Any<Expression<Func<Contract, object>>>()).Returns(contractList);
+      var contractList = new List<Contract>{ contract };
 
-      var result = _contractService.GetContractByEmployeeIdAndTeamId(contract.EmployeeId, contract.TeamId);
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpContractRepository(databaseContext, contractList);
+
+      var contractService = new ContractService(databaseContext, Mapper);
+
+      // Act
+      var result = contractService.GetContractByEmployeeIdAndTeamId(1, 1);
+
+      // Assert
       AssertContractAndContractDtoAreIdentical(contract, result.First());
     }
 
@@ -161,19 +195,23 @@ namespace AdminCore.Services.Tests
     public void TestSaveContractThrowsExceptionIfContractToBeSavedHasIdOfNotZeroAndContractDoesNotExist()
     {
       var newContractDto = BuildContractDto();
-      Assert.Throws<Exception>(() => _contractService.SaveContract(newContractDto));      
+      Assert.Throws<Exception>(() => _contractService.SaveContract(newContractDto));
     }
 
     private static Contract BuildContractModel()
     {
-      return new Contract()
+      return new Contract
       {
         ContractId = 1,
         EmployeeId = 1,
         TeamId = 1,
-        Team = new Team()
+        Team = new Team
         {
-          TeamId = 1
+          TeamId = 1,
+          Project = new Project
+          {
+            ClientId = 1
+          }
         },
         StartDate = new DateTime(2018, 12, 10),
         EndDate = new DateTime(2019, 1, 10)
@@ -182,11 +220,11 @@ namespace AdminCore.Services.Tests
 
     private static ContractDto BuildContractDto()
     {
-      return new ContractDto()
+      return new ContractDto
       {
         ContractId = 1,
         EmployeeId = 1,
-        Team = new TeamDto()
+        Team = new TeamDto
         {
           TeamId = 1
         },
