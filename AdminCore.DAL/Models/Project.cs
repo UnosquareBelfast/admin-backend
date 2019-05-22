@@ -12,6 +12,10 @@ namespace AdminCore.DAL.Models
     [Column("project_id")]
     public int ProjectId { get; set; }
 
+    [StringLength(50)]
+    [Column("project_name")]
+    public string Projectname { get; set; }
+
     [ForeignKey("ClientId")]
     public virtual Client Client { get; set; }
 

@@ -25,7 +25,7 @@ namespace AdminCore.DAL.Models
     public string ContactName { get; set; }
 
     [ForeignKey("ProjectId")]
-    public virtual Project project { get; set; }
+    public virtual Project Project { get; set; }
 
     public virtual ICollection<Contract> Contracts { get; set; }
   }
