@@ -72,7 +72,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       {
         TeamId = 1,
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       var result = _teamController.UpdateTeam(updateViewModel);
@@ -87,7 +87,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       {
         TeamId = 1,
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       _teamService.When(x => x.Save(Arg.Any<TeamDto>())).Throw(new Exception("Test Exception"));
@@ -104,7 +104,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       var result = _teamController.CreateTeam(updateViewModel);
@@ -118,7 +118,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       _teamService.When(x => x.Save(Arg.Any<TeamDto>())).Throw(new Exception("Test Exception"));
