@@ -13,7 +13,7 @@ namespace AdminCore.DAL.Models
     public int ProjectId { get; set; }
 
     [Column("project_parent_id")]
-    public int ProjectParentId { get; set; }
+    public int? ProjectParentId { get; set; }
     [ForeignKey("ProjectParentId")]
     public virtual Project ParentProject { get; set; }
 
@@ -25,9 +25,6 @@ namespace AdminCore.DAL.Models
     public int ClientId { get; set; }
     [ForeignKey("ClientId")]
     public virtual Client Client { get; set; }
-
-    [Column("deleted")]
-    public bool Deleted{ get; set; }
 
     public virtual ICollection<Team> Teams { get; set; }
   }
