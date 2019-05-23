@@ -53,7 +53,7 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
+    public IList<EventDateDto> GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
     {
       var eventStatus = (int)eventStatuses;
       var eventDates = DatabaseContext.EventDatesRepository.Get(
@@ -316,14 +316,14 @@ namespace AdminCore.Services
 
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
     {
-      var approvedEmployeeEvents = GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+      var approvedEmployeeEvents = GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
         eventDates.StartDate,
         eventDates.EndDate,
         employeeId,
         EventStatuses.Approved
         );
 
-      var awaitEmployeeEvents = GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+      var awaitEmployeeEvents = GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
         eventDates.StartDate,
         eventDates.EndDate,
         employeeId,

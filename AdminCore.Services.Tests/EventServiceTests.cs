@@ -743,7 +743,7 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
-      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+      var eventsByEmployeeId = eventService.GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
         startDate, endDate, employeeId, EventStatuses.Approved);
 
       // Assert
@@ -795,7 +795,7 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
-      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+      var eventsByEmployeeId = eventService.GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
         startDate, endDate, employeeId, EventStatuses.AwaitingApproval);
 
       // Assert
