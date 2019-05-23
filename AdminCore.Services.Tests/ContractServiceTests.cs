@@ -66,15 +66,19 @@ namespace AdminCore.Services.Tests
     [Fact]
     public void TestGetContractByEmployeeIdReturnsNotNullContractDtoListWhenDatabaseReturnsContractList()
     {
+      // Arrange
       var contract = BuildContractModel();
-      var contractList = new List<Contract>
-      {
-        contract
-      };
+      var contractList = new List<Contract>{ contract };
 
-      _databaseContext.ContractRepository.Get(Arg.Any<Expression<Func<Contract, bool>>>(), Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(), Arg.Any<Expression<Func<Contract, object>>>()).Returns(contractList);
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpContractRepository(databaseContext, contractList);
 
-      var result = _contractService.GetContractByEmployeeId(contract.EmployeeId);
+      var contractService = new ContractService(databaseContext, Mapper);
+
+      // Act
+      var result = contractService.GetContractByEmployeeId(1);
+
+      // Assert
       AssertContractAndContractDtoAreIdentical(contract, result.First());
     }
 
@@ -88,15 +92,19 @@ namespace AdminCore.Services.Tests
     [Fact]
     public void TestGetContractByTeamIdReturnsNotNullContractDtoListWhenDatabaseReturnsContractList()
     {
+      // Arrange
       var contract = BuildContractModel();
-      var contractList = new List<Contract>
-      {
-        contract
-      };
+      var contractList = new List<Contract>{ contract };
 
-      _databaseContext.ContractRepository.Get(Arg.Any<Expression<Func<Contract, bool>>>(), Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(), Arg.Any<Expression<Func<Contract, object>>>()).Returns(contractList);
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpContractRepository(databaseContext, contractList);
 
-      var result = _contractService.GetContractByTeamId(contract.TeamId);
+      var contractService = new ContractService(databaseContext, Mapper);
+
+      // Act
+      var result = contractService.GetContractByTeamId(1);
+
+      // Assert
       AssertContractAndContractDtoAreIdentical(contract, result.First());
     }
 
@@ -108,31 +116,10 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void GetContractByEmployeeIdAndTeamId_ReturnsNotNullContractDtoListWhenDatabaseReturnsContractList()
+    public void GetContractByEmployeeIdAndTeamId_ContractRepoHasOneContract_ReturnsContractDtoThatMatchesContract()
     {
       // Arrange
-      var contract = new Contract
-      {
-        ContractId = 1,
-        TeamId = 1,
-        EmployeeId = 1,
-        Team = new Team
-        {
-          TeamId = 1,
-          ProjectId = 1,
-          Project = new Project
-          {
-            ProjectId = 1,
-            ClientId = 1,
-            Client = new Client
-            {
-              ClientId = 1,
-              ClientName = "Client Name"
-            }
-          }
-        }
-      };
-
+      var contract = BuildContractModel();
       var contractList = new List<Contract>{ contract };
 
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
@@ -203,18 +190,26 @@ namespace AdminCore.Services.Tests
       return new Contract
       {
         ContractId = 1,
-        EmployeeId = 1,
         TeamId = 1,
+        EmployeeId = 1,
+        StartDate = new DateTime(2018, 12, 10),
+        EndDate = new DateTime(2019, 1, 10),
         Team = new Team
         {
           TeamId = 1,
+          ProjectId = 1,
           Project = new Project
           {
-            ClientId = 1
+            ProjectId = 1,
+            ClientId = 1,
+            ProjectName = "Project Name",
+            Client = new Client
+            {
+              ClientId = 1,
+              ClientName = "Client Name"
+            }
           }
-        },
-        StartDate = new DateTime(2018, 12, 10),
-        EndDate = new DateTime(2019, 1, 10)
+        }
       };
     }
 
@@ -235,6 +230,8 @@ namespace AdminCore.Services.Tests
 
     private static void AssertContractAndContractDtoAreIdentical(Contract contract, ContractDto contractDto)
     {
+      Assert.Equal(contract.Team.Project.ProjectName, contractDto.ProjectName);
+      Assert.Equal(contract.Team.Project.Client.ClientName, contractDto.ClientName);
       Assert.Equal(contract.ContractId, contractDto.ContractId);
       Assert.Equal(contract.EmployeeId, contractDto.EmployeeId);
       Assert.Equal(contract.TeamId, contractDto.Team.TeamId);

@@ -8,7 +8,10 @@ namespace AdminCore.Services.Mappings
   {
     public ContractMapperProfile()
     {
-      CreateMap<ContractDto, Contract>().ReverseMap();
+      CreateMap<Contract, ContractDto>()
+        .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Team.Project.Client.ClientName))
+        .ForMember(dest => dest.ProjectName, opt => opt.MapFrom(src => src.Team.Project.ProjectName))
+        .ReverseMap();
     }
   }
 }

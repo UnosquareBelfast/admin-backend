@@ -21,29 +21,28 @@ namespace AdminCore.Services
 
     public ContractDto GetContractById(int contractId)
     {
-      var contract = GetById(contractId);
-      return AddClientNameToContract(contract);
+      return _mapper.Map<ContractDto>(GetById(contractId));
     }
 
     public IList<ContractDto> GetContractByEmployeeId(int employeeId)
     {
-      var contract = DatabaseContext.ContractRepository.Get(x => x.EmployeeId == employeeId, null,
+      var contractList = DatabaseContext.ContractRepository.Get(x => x.EmployeeId == employeeId, null,
                                               x => x.Team, x => x.Team.Project.Client);
-      return ReturnContractDto(contract);
+      return _mapper.Map<IList<ContractDto>>(contractList);
     }
 
     public IList<ContractDto> GetContractByTeamId(int teamId)
     {
-      var contract = DatabaseContext.ContractRepository.Get(x => x.TeamId == teamId, null,
+      var contractList = DatabaseContext.ContractRepository.Get(x => x.TeamId == teamId, null,
                                               x => x.Team, x => x.Team.Project.Client);
-      return ReturnContractDto(contract);
+      return _mapper.Map<IList<ContractDto>>(contractList);
     }
 
     public IList<ContractDto> GetContractByEmployeeIdAndTeamId(int employeeId, int teamId)
     {
-      var contract = DatabaseContext.ContractRepository.Get(x => x.TeamId == teamId && x.EmployeeId == employeeId, null,
+      var contractList = DatabaseContext.ContractRepository.Get(x => x.TeamId == teamId && x.EmployeeId == employeeId, null,
                                               x => x.Team, x => x.Team.Project.Client);
-      return ReturnContractDto(contract);
+      return _mapper.Map<IList<ContractDto>>(contractList);
     }
 
     public void SaveContract(ContractDto contractToBeSaved)
@@ -103,29 +102,6 @@ namespace AdminCore.Services
     {
       var newDbEntry = _mapper.Map<Contract>(contractToBeSaved);
       DatabaseContext.ContractRepository.Insert(newDbEntry);
-    }
-
-    private IList<ContractDto> ReturnContractDto(IList<Contract> contract)
-    {
-      var contractDto = _mapper.Map<IList<ContractDto>>(contract);
-      AddClientNameToContract(contract, contractDto);
-
-      return contractDto;
-    }
-
-    private static void AddClientNameToContract(IList<Contract> contract, IList<ContractDto> contractDto)
-    {
-      for (var i = 0; i < contract.Count; i++)
-      {
-        contractDto[i].ClientName = contract[i].Team.Project.Client.ClientName;
-      }
-    }
-
-    private ContractDto AddClientNameToContract(Contract contract)
-    {
-      var contractDto = _mapper.Map<ContractDto>(contract);
-      contractDto.ClientName = contract.Team.Project.Client.ClientName;
-      return contractDto;
     }
   }
 }
