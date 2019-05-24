@@ -18,7 +18,6 @@ namespace AdminCore.Services.Tests.MappingProfileTests
         {
             _mapper = new Mapper(new MapperConfiguration(cfg =>
             {
-//                cfg.ValidateInlineMaps = false;
                 cfg.AddProfile(new ContractMapperProfile());
             }));
         }
