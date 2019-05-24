@@ -117,7 +117,7 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void GetContractByProjectId_ContractRepoHasOneContractWithProjectId_ReturnsContractDtoThatMatchesContract()
+    public void GetContractByProjectId_ContractRepoHasOneContractWithProjectId_ReturnOneContractDtoThatMatchContract()
     {
       // Arrange
       var contract = BuildContractModel();
@@ -132,7 +132,26 @@ namespace AdminCore.Services.Tests
       var result = contractService.GetContractByProjectId(1);
 
       // Assert
-      contract.Should().BeEquivalentTo(result.FirstOrDefault());
+      AssertContractAndContractDtoAreIdentical(contract, result.First());
+    }
+
+    [Fact]
+    public void GetContractByProjectId_ContractRepoHasMultipleContractWithProjectId_ReturnTwoContractDtoThatMatchContract()
+    {
+      // Arrange
+      var contract = BuildContractModel();
+      var contractList = new List<Contract>{ contract };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpContractRepository(databaseContext, contractList);
+
+      var contractService = new ContractService(databaseContext, Mapper);
+
+      // Act
+      var result = contractService.GetContractByProjectId(1);
+
+      // Assert
+      AssertContractAndContractDtoAreIdentical(contract, result.First());
     }
 
     [Fact]
