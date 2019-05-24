@@ -45,5 +45,27 @@ namespace AdminCore.DataETL.Tests.ClassData
             }
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
+
+        public class GenerateByteArray_DataETLTestModelIgnoreWithValidData_ReturnedByteArrayMatchesExpected : IEnumerable<object[]>
+        {
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                // ARGS: inputDataList: List<DataETLTestModelSimple>, expectedCsv: string
+                yield return new object[]
+                {
+                    new List<DataETLTestModelIgnore>
+                    {
+                        new DataETLTestModelIgnore
+                        {
+                            Field_String1 = "testString1",
+                            Field_String3 = "testString2",
+                            Field_String2 = "testString3"
+                        }
+                    },
+                    CsvFileTransformAdapterConstants.PrimitivesDataCsv3
+                };
+            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
     }
 }

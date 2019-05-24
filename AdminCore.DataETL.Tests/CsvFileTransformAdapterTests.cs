@@ -59,6 +59,22 @@ namespace AdminCore.DataETL.Tests
             Assert.Equal(expectedCsv, actualCsv);
         }
 
+        [Theory]
+        [ClassData(typeof(CsvFileTransformAdapterClassData.GenerateByteArray_DataETLTestModelIgnoreWithValidData_ReturnedByteArrayMatchesExpected))]
+        public void GenerateByteArray_DataETLTestModelIgnoreWithValidData_ReturnedByteArrayMatchesExpected(
+            IList<DataETLTestModelIgnore> inputDataList, string expectedCsv)
+        {
+            //Arrange
+            var csvFileTransformAdapter = new CsvFileTransformAdapter();
+
+            // Act
+            var csvResult = csvFileTransformAdapter.GenerateByteArray(inputDataList);
+            var actualCsv = System.Text.Encoding.Default.GetString(csvResult);
+
+            // Assert
+            Assert.Equal(expectedCsv, actualCsv);
+        }
+
         [Fact]
         public void GenerateByteArray_DataETLTestModelDuplicateRecordField_ThrowsChoRecordConfigurationException()
         {

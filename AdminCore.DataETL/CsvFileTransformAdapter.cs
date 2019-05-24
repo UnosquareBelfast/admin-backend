@@ -33,7 +33,7 @@ namespace AdminCore.DataETL
                 }
             }
 
-            return ASCIIEncoding.UTF8.GetBytes(msg.ToString());
+            return Encoding.UTF8.GetBytes(msg.ToString());
         }
 
         /// <summary>
@@ -44,9 +44,12 @@ namespace AdminCore.DataETL
         private ChoCSVRecordConfiguration CreateConfig<T>()
         {
             var config = new ChoCSVRecordConfiguration();
-            foreach (var csvRecordField in GetCsvRecordFieldAttributes<T>())
+            foreach (var csvRecordField in GetCsvExportableRecordFieldAttributes<T>())
             {
-                config.CSVRecordFieldConfigurations.Add(new ChoCSVRecordFieldConfiguration(csvRecordField.Name, csvRecordField.ColumnPosition));
+                if (csvRecordField != null)
+                {
+                    config.CSVRecordFieldConfigurations.Add(new ChoCSVRecordFieldConfiguration(csvRecordField.Name, csvRecordField.ColumnPosition));
+                }
             }
 
             config.WithFirstLineHeader(true);
@@ -90,14 +93,31 @@ namespace AdminCore.DataETL
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private IEnumerable<ExportableRecordFieldAttribute> GetCsvRecordFieldAttributes<T>()
+        private IEnumerable<ExportableRecordFieldAttribute> GetCsvExportableRecordFieldAttributes<T>()
         {
             var properties = typeof(T).GetProperties();
             foreach (var propertyInfo in properties)
             {
-                var style = propertyInfo.GetAttribute<ExportableRecordFieldAttribute>();
-                yield return style ?? throw new InvalidOperationException($"{propertyInfo.Name} is not decorated with the required ExportableRecordFieldAttribute");
+                if (IsRecordFieldIgnored(propertyInfo))
+                {
+                    yield return null;
+                }
+                else
+                {
+                    var style = propertyInfo.GetAttribute<ExportableRecordFieldAttribute>();
+                    yield return style ?? throw new InvalidOperationException($"{propertyInfo.Name} is not decorated with the required ExportableRecordFieldAttribute");
+                }
             }
+        }
+
+        /// <summary>
+        /// Return true if the field is decorated with an Ignore attribute
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        private bool IsRecordFieldIgnored(PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetAttribute<IgnoreRecordFieldAttribute>() != null;
         }
     }
 }
