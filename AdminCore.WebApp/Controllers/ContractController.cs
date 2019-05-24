@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using AdminCore.WebApi.Validators;
 
 namespace AdminCore.WebApi.Controllers
@@ -58,6 +59,18 @@ namespace AdminCore.WebApi.Controllers
       }
 
       return NoContent();
+    }
+
+    [HttpGet("getByProjectId/{projectId}")]
+    public IActionResult GetContractByProjectId(int projectId)
+    {
+      var contractDtos = _contractService.GetContractByProjectId(projectId);
+      if (contractDtos == null || !contractDtos.Any())
+      {
+        return NoContent();
+      }
+
+      return Ok(Mapper.Map<IList<ContractViewModel>>(contractDtos));
     }
 
     [HttpGet("getByEmployeeIdAndTeamId/{employeeId}/{teamId}")]

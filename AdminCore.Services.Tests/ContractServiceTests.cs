@@ -14,6 +14,7 @@ using AdminCore.DTOs;
 using AdminCore.DTOs.Team;
 using AdminCore.Services.Mappings;
 using AutoMapper;
+using FluentAssertions;
 using NSubstitute;
 using NSubstitute.Extensions;
 using NSubstitute.ReturnsExtensions;
@@ -113,6 +114,25 @@ namespace AdminCore.Services.Tests
     {
       var result = _contractService.GetContractByTeamId(1);
       Assert.Empty(result);
+    }
+
+    [Fact]
+    public void GetContractByProjectId_ContractRepoHasOneContractWithProjectId_ReturnsContractDtoThatMatchesContract()
+    {
+      // Arrange
+      var contract = BuildContractModel();
+      var contractList = new List<Contract>{ contract };
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpContractRepository(databaseContext, contractList);
+
+      var contractService = new ContractService(databaseContext, Mapper);
+
+      // Act
+      var result = contractService.GetContractByProjectId(1);
+
+      // Assert
+      contract.Should().BeEquivalentTo(result.FirstOrDefault());
     }
 
     [Fact]
