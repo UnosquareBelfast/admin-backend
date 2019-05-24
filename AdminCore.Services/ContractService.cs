@@ -26,22 +26,22 @@ namespace AdminCore.Services
 
     public IList<ContractDto> GetContractByEmployeeId(int employeeId)
     {
-      var contractList = DatabaseContext.ContractRepository.Get(x => x.EmployeeId == employeeId, null,
-                                              x => x.Team, x => x.Team.Project.Client);
+      var contractList = DatabaseContext.ContractRepository.Get(contract => contract.EmployeeId == employeeId, null,
+                                              contract => contract.Team, contract => contract.Team.Project.Client);
       return _mapper.Map<IList<ContractDto>>(contractList);
     }
 
     public IList<ContractDto> GetContractByTeamId(int teamId)
     {
-      var contractList = DatabaseContext.ContractRepository.Get(x => x.TeamId == teamId, null,
-                                              x => x.Team, x => x.Team.Project.Client);
+      var contractList = DatabaseContext.ContractRepository.Get(contract => contract.TeamId == teamId, null,
+                                              contract => contract.Team, contract => contract.Team.Project.Client);
       return _mapper.Map<IList<ContractDto>>(contractList);
     }
 
     public IList<ContractDto> GetContractByEmployeeIdAndTeamId(int employeeId, int teamId)
     {
-      var contractList = DatabaseContext.ContractRepository.Get(x => x.TeamId == teamId && x.EmployeeId == employeeId, null,
-                                              x => x.Team, x => x.Team.Project.Client);
+      var contractList = DatabaseContext.ContractRepository.Get(contract => contract.TeamId == teamId && contract.EmployeeId == employeeId, null,
+                                              contract => contract.Team, contract => contract.Team.Project.Client);
       return _mapper.Map<IList<ContractDto>>(contractList);
     }
 
