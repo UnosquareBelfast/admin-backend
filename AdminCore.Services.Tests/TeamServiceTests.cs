@@ -64,19 +64,10 @@ namespace AdminCore.Services.Tests
     public void GetByProjectId_DatabaseContainsMultipleTeamsOneWithProjectId_ReturnsOneProject(int projectIdExpected)
     {
       var teamListFixture = new List<Team>();
-      var r = new Random();
-      _fixture.AddManyTo(teamListFixture, () =>
-      {
-        var randInt = r.Next();
-        return new Team
-        {
-          ProjectId = randInt != projectIdExpected ? randInt : randInt + 1
-        };
-      });
+      var rand = new Random();
+      _fixture.AddManyTo(teamListFixture, () => CreateNewTeamWithRandomProjectIdExcludingSpecified(rand, projectIdExpected));
 
-      var teamExpectedFixture = _fixture.Create<Team>();
-      teamExpectedFixture.ProjectId = projectIdExpected;
-      teamListFixture.Add(teamExpectedFixture);
+      teamListFixture.Add(CreateNewTeamFixtureWithSpecifiedProjectId(projectIdExpected));
 
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
       databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
@@ -98,22 +89,11 @@ namespace AdminCore.Services.Tests
     public void GetByProjectId_DatabaseContainsMultipleTeamsTwoWithProjectId_ReturnsTwoProjects(int projectIdExpected)
     {
       var teamListFixture = new List<Team>();
-      var r = new Random();
-      _fixture.AddManyTo(teamListFixture, () =>
-      {
-        var randInt = r.Next();
-        return new Team
-        {
-          ProjectId = randInt != projectIdExpected ? randInt : randInt + 1
-        };
-      });
+      var rand = new Random();
+      _fixture.AddManyTo(teamListFixture, () => CreateNewTeamWithRandomProjectIdExcludingSpecified(rand, projectIdExpected));
 
-      var teamExpectedFixture = _fixture.Create<Team>();
-      teamExpectedFixture.ProjectId = projectIdExpected;
-      teamListFixture.Add(teamExpectedFixture);
-      teamExpectedFixture = _fixture.Create<Team>();
-      teamExpectedFixture.ProjectId = projectIdExpected;
-      teamListFixture.Add(teamExpectedFixture);
+      teamListFixture.Add(CreateNewTeamFixtureWithSpecifiedProjectId(projectIdExpected));
+      teamListFixture.Add(CreateNewTeamFixtureWithSpecifiedProjectId(projectIdExpected));
 
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
       databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
@@ -135,15 +115,8 @@ namespace AdminCore.Services.Tests
       int projectIdNotPresentInDb = 5;
 
       var teamListFixture = new List<Team>();
-      var r = new Random();
-      _fixture.AddManyTo(teamListFixture, () =>
-      {
-        var randInt = r.Next();
-        return new Team
-        {
-          ProjectId = randInt != projectIdNotPresentInDb ? randInt : randInt + 1
-        };
-      });
+      var rand = new Random();
+      _fixture.AddManyTo(teamListFixture, () => CreateNewTeamWithRandomProjectIdExcludingSpecified(rand, projectIdNotPresentInDb));
 
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
       databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
@@ -174,6 +147,23 @@ namespace AdminCore.Services.Tests
       // Assert
       databaseContext.Received().TeamRepository.Get();
       Assert.Empty(teamActual);
+    }
+
+    private Team CreateNewTeamFixtureWithSpecifiedProjectId(int projectId)
+    {
+      var teamFixture = _fixture.Create<Team>();
+      teamFixture.ProjectId = projectId;
+
+      return teamFixture;
+    }
+
+    private Team CreateNewTeamWithRandomProjectIdExcludingSpecified(Random rand, int excludeProjectId)
+    {
+      var randInt = rand.Next();
+      return new Team
+      {
+        ProjectId = randInt != excludeProjectId ? randInt : randInt + 1
+      };
     }
   }
 }
