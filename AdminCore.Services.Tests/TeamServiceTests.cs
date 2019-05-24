@@ -54,7 +54,8 @@ namespace AdminCore.Services.Tests
 
       // Assert
       databaseContext.Received().TeamRepository.Get();
-      Assert.Equal(teamActual.FirstOrDefault().ProjectId, projectIdExpected);
+      Assert.Equal(teamActual.Count, 1);
+      Assert.All(teamActual, dto => Assert.Equal(projectIdExpected, dto.ProjectId));
     }
 
     [Theory]
@@ -87,40 +88,74 @@ namespace AdminCore.Services.Tests
 
       // Assert
       databaseContext.Received().TeamRepository.Get();
-      Assert.Equal(teamActual.FirstOrDefault().ProjectId, projectIdExpected);
+      Assert.Equal(teamActual.Count, 1);
+      Assert.All(teamActual, dto => Assert.Equal(projectIdExpected, dto.ProjectId));
     }
 
     [Theory]
     [InlineData(1)]
     [InlineData(65)]
-    public void GetByProjectId_DatabaseContainsMultipleTeamsNoneWithProjectId_ReturnsEmptyList(int projectIdExpected)
+    public void GetByProjectId_DatabaseContainsMultipleTeamsTwoWithProjectId_ReturnsTwoProjects(int projectIdExpected)
     {
-//      var teamListFixture = new List<Team>();
-//      var r = new Random();
-//      _fixture.AddManyTo(teamListFixture, () =>
-//      {
-//        var randInt = r.Next();
-//        return new Team
-//        {
-//          ProjectId = randInt != projectIdExpected ? randInt : randInt + 1
-//        };
-//      });
-//
-//      var teamExpectedFixture = _fixture.Create<Team>();
-//      teamExpectedFixture.ProjectId = projectIdExpected;
-//      teamListFixture.Add(teamExpectedFixture);
-//
-//      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-//      databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
-//
-//      var teamService = new TeamService(Mapper, databaseContext);
-//
-//      // Act
-//      var teamActual = teamService.GetByProjectId(projectIdExpected);
-//
-//      // Assert
-//      databaseContext.Received().TeamRepository.Get();
-//      Assert.Equal(teamActual.FirstOrDefault().ProjectId, projectIdExpected);
+      var teamListFixture = new List<Team>();
+      var r = new Random();
+      _fixture.AddManyTo(teamListFixture, () =>
+      {
+        var randInt = r.Next();
+        return new Team
+        {
+          ProjectId = randInt != projectIdExpected ? randInt : randInt + 1
+        };
+      });
+
+      var teamExpectedFixture = _fixture.Create<Team>();
+      teamExpectedFixture.ProjectId = projectIdExpected;
+      teamListFixture.Add(teamExpectedFixture);
+      teamExpectedFixture = _fixture.Create<Team>();
+      teamExpectedFixture.ProjectId = projectIdExpected;
+      teamListFixture.Add(teamExpectedFixture);
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
+
+      var teamService = new TeamService(Mapper, databaseContext);
+
+      // Act
+      var teamActual = teamService.GetByProjectId(projectIdExpected);
+
+      // Assert
+      databaseContext.Received().TeamRepository.Get();
+      Assert.Equal(teamActual.Count, 2);
+      Assert.All(teamActual, dto => Assert.Equal(projectIdExpected, dto.ProjectId));
+    }
+
+    [Fact]
+    public void GetByProjectId_DatabaseContainsMultipleTeamsNoneWithProjectId_ReturnsEmptyList()
+    {
+      int projectIdNotPresentInDb = 5;
+
+      var teamListFixture = new List<Team>();
+      var r = new Random();
+      _fixture.AddManyTo(teamListFixture, () =>
+      {
+        var randInt = r.Next();
+        return new Team
+        {
+          ProjectId = randInt != projectIdNotPresentInDb ? randInt : randInt + 1
+        };
+      });
+
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
+
+      var teamService = new TeamService(Mapper, databaseContext);
+
+      // Act
+      var teamActual = teamService.GetByProjectId(projectIdNotPresentInDb);
+
+      // Assert
+      databaseContext.Received().TeamRepository.Get();
+      Assert.Equal(teamActual.Count, 0);
     }
 
     [Theory]
