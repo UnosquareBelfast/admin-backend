@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using AdminCore.Common.Interfaces;
 using AdminCore.DTOs.Employee;
 using AdminCore.WebApi.Controllers;

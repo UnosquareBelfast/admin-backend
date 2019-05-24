@@ -77,16 +77,15 @@ namespace AdminCore.Services
       var eventTypeId = (int)eventType;
       var events = DatabaseContext.EventRepository.Get(x => x.EventStatus.EventStatusId == eventStatusId
                                                             && x.EventType.EventTypeId == eventTypeId,
-                                                            null,
-                                                            x => x.EventDates,
-                                                            x => x.Employee,
-                                                            x => x.EventType,
-                                                            x => x.EventStatus,
-                                                            x => x.EventMessages);
-
+        null,
+        x => x.EventDates,
+        x => x.Employee,
+        x => x.EventType,
+        x => x.EventStatus,
+        x => x.EventMessages);
       return _mapper.Map<IList<EventDto>>(events);
     }
-
+    
     public IList<EventDto> GetEventByType(EventTypes eventType)
     {
       var eventTypeId = (int)eventType;

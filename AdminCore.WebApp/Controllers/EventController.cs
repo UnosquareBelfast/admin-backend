@@ -11,7 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Net.Mime;
+using AdminCore.WebApi.Models;
+using AdminCore.WebApi.Models.DataTransform;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -24,14 +28,19 @@ namespace AdminCore.WebApi.Controllers
     private readonly IMapper _mapper;
     private readonly EmployeeDto _employee;
     private readonly IEventMessageService _eventMessageService;
+    private readonly ICsvService _csvService;
+    private readonly IDateService _dateService;
 
-    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser)
+    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser,
+      ICsvService csvService, IDateService dateService)
       : base(mapper)
     {
       _eventService = wfhEventService;
       _eventMessageService = eventMessageService;
       _mapper = mapper;
       _employee = authenticatedUser.RetrieveLoggedInUser();
+      _csvService = csvService;
+      _dateService = dateService;
     }
 
     [HttpGet]
@@ -113,6 +122,17 @@ namespace AdminCore.WebApi.Controllers
         return Ok(_mapper.Map<IList<EventViewModel>>(events));
       }
       return StatusCode((int)HttpStatusCode.NoContent, "No Event exists");
+    }
+
+    [HttpGet("findByEventStatus/{eventStatusId}/{eventTypeId}/csv")]
+    public IActionResult GetEventByStatusTypeCsv(int eventStatusId, int eventTypeId)
+    {
+      var events = _eventService.GetEventByStatus((EventStatuses)eventStatusId, (EventTypes)eventTypeId);
+      var mappedEvents = _mapper.Map<IList<EventDataTransformModel>>(events);
+
+      var stream = new MemoryStream(_csvService.Generate(mappedEvents));
+      return File(stream, MediaTypeNames.Application.Octet,
+        $"{(EventStatuses)eventStatusId}_{(EventTypes)eventTypeId}_Report{_dateService.GetCurrentDateTime():dd/MM/yyyy}.csv");
     }
 
     [HttpGet("findEventMessages/{eventId}")]

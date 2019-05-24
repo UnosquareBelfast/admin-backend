@@ -10,11 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using AdminCore.DTOs.Employee;
-using AdminCore.DTOs.EventMessage;
 using AdminCore.WebApi.Mappings;
 using AdminCore.WebApi.Models.Event;
-using AdminCore.WebApi.Models.EventMessage;
 using NSubstitute.ReturnsExtensions;
 using Xunit;
 
