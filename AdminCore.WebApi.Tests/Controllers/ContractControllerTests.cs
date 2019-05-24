@@ -8,8 +8,11 @@ using AdminCore.DTOs.Team;
 using AdminCore.WebApi.Controllers;
 using AdminCore.WebApi.Mappings;
 using AdminCore.WebApi.Models.Contract;
+using AdminCore.WebApi.Models.Team;
+using AdminCore.WebApi.Tests.Controllers.ClassData;
 using AdminCore.WebApi.Tests.Exceptions;
 using AutoMapper;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
@@ -144,6 +147,44 @@ namespace AdminCore.WebApi.Tests.Controllers
       var result = _contractController.GetContractByEmployeeIdAndTeamId(testId, testId);
       Assert.IsType<NoContentResult>(result);
       _contractService.Received(1).GetContractByEmployeeIdAndTeamId(testId, testId);
+    }
+
+    [Theory]
+    [ClassData(typeof(ContractControllerClassData.GetContractByProjectId_ServiceContainsListOfTwoTeams_ReturnsOkWithTeamsInBody))]
+    public void GetContractByProjectId_ServiceReturnsListOfContracts_ReturnsOkWithContractsInBody(int projectId, IList<ContractDto> serviceReturns, IList<ContractViewModel> controllerReturns)
+    {
+      // Arrange
+      var contractServiceMock = Substitute.For<IContractService>();
+      contractServiceMock.GetContractByProjectId(projectId).Returns(serviceReturns);
+      var mapper = SetupMockedMapper(serviceReturns, controllerReturns);
+
+      var contractController = new ContractController(mapper, contractServiceMock);
+
+      // Act
+      var response = contractController.GetContractByProjectId(projectId);
+
+      // Assert
+      var resultList = RetrieveValueFromActionResult<IList<ContractViewModel>>(response);
+      contractServiceMock.Received(1).GetContractByProjectId(Arg.Any<int>());
+      resultList.Should().BeEquivalentTo(controllerReturns);
+    }
+
+    [Fact]
+    public void GetContractByProjectId_ServiceReturnsEmptyListOfContracts_ReturnsNoContent()
+    {
+      // Arrange
+      var contractServiceMock = Substitute.For<IContractService>();
+      contractServiceMock.GetContractByProjectId(Arg.Any<int>()).Returns(new List<ContractDto>());
+      var mapper = SetupMockedMapper(new List<ContractDto>(), new List<ContractViewModel>());
+
+      var contractController = new ContractController(mapper, contractServiceMock);
+
+      // Act
+      var response = contractController.GetContractByProjectId(99);
+
+      // Assert
+      response.Should().BeOfType<NoContentResult>();
+      contractServiceMock.Received(1).GetContractByProjectId(Arg.Any<int>());
     }
 
     [Fact]

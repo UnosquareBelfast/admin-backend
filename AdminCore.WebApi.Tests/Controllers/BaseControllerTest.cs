@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using AutoMapper;
+using NSubstitute;
 using Xunit;
 
 namespace AdminCore.WebApi.Tests.Controllers
@@ -53,6 +55,13 @@ namespace AdminCore.WebApi.Tests.Controllers
 
           break;
       }
+    }
+
+    protected IMapper SetupMockedMapper<TMapFrom, TMapTo>(TMapFrom mapFrom, TMapTo mapTo)
+    {
+      var mapper = Substitute.For<IMapper>();
+      mapper.Map<TMapTo>(mapFrom).Returns(mapTo);
+      return mapper;
     }
   }
 }

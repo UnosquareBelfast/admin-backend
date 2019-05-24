@@ -132,6 +132,7 @@ namespace AdminCore.Services.Tests
       var result = contractService.GetContractByProjectId(1);
 
       // Assert
+      databaseContext.ContractRepository.Received(1).Get();
       AssertContractAndContractDtoAreIdentical(contract, result.First());
     }
 
@@ -151,7 +152,24 @@ namespace AdminCore.Services.Tests
       var result = contractService.GetContractByProjectId(1);
 
       // Assert
+      databaseContext.ContractRepository.Received(1).Get();
       AssertContractAndContractDtoAreIdentical(contract, result.First());
+    }
+
+    [Fact]
+    public void GetContractByProjectId_ContractRepoHasNoContractWithProjectId_ReturnEmptyList()
+    {
+      // Arrange
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpContractRepository(databaseContext, new List<Contract>());
+
+      var contractService = new ContractService(databaseContext, Mapper);
+
+      // Act
+      var result = contractService.GetContractByProjectId(1);
+
+      // Assert
+      result.Should().BeEmpty();
     }
 
     [Fact]
