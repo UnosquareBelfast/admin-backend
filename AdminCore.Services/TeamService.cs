@@ -26,7 +26,7 @@ namespace AdminCore.Services
 
     public IList<TeamDto> GetByClientId(int clientId)
     {
-      var teamDbEntry = DatabaseContext.TeamRepository.Get(x => x.Project.ClientId == clientId);
+      var teamDbEntry = DatabaseContext.TeamRepository.Get(team => team.Project.ClientId == clientId);
       return _mapper.Map<IList<TeamDto>>(teamDbEntry);
     }
 

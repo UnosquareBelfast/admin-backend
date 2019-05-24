@@ -199,7 +199,7 @@ namespace AdminCore.Services
     private static Expression<Func<Client, bool>> QueryClientsWithContractsForEmployeeId(IList<int> teamIds, DateTime date)
     {
       return client =>
-        client.Projects.SelectMany(x => x.Teams).Any(team => teamIds.Contains(team.TeamId) &&
+        client.Projects.SelectMany(project => project.Teams).Any(team => teamIds.Contains(team.TeamId) &&
           team.Contracts.Any(contract =>
             DateService.ContractIsActiveDuringDate(contract, date)));
     }
@@ -207,7 +207,7 @@ namespace AdminCore.Services
     private ClientSnapshotDto BuildClientSnapshot(Client client, DateTime date)
     {
       var clientSnapShot = _mapper.Map<ClientSnapshotDto>(client);
-      clientSnapShot.Teams = client.Projects.SelectMany(x => x.Teams).Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      clientSnapShot.Teams = client.Projects.SelectMany(project => project.Teams).Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
       return clientSnapShot;
     }
 
