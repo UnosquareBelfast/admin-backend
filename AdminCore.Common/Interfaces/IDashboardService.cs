@@ -1,6 +1,5 @@
 ﻿using AdminCore.DTOs.Dashboard;
 using AdminCore.DTOs.Event;
-using AdminCore.DTOs.EventMessage;
 using System;
 using System.Collections.Generic;
 
@@ -15,8 +14,6 @@ namespace AdminCore.Common.Interfaces
     IDictionary<string, List<EmployeeSnapshotDto>> GetEmployeeSnapshotsByEmployeeId(int employeeId);
 
     IDictionary<string, List<EmployeeSnapshotDto>> GetTeamSnapshotDashboardEvents();
-
-    IList<EventMessageDto> GetEventMessagesByEventId(int eventId);
 
     IList<ClientSnapshotDto> GetTeamDashboardEvents(int employeeId, DateTime date);
 
