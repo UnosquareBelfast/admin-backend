@@ -55,7 +55,7 @@ namespace AdminCore.WebApi.Controllers
       var teamList = _teamService.GetByProjectId(projectId);
       if (teamList == null || !teamList.Any())
       {
-        return StatusCode((int)HttpStatusCode.NoContent, $"No team found with a project ID of { projectId.ToString() }");
+        return NoContent();
       }
 
       return Ok(Mapper.Map<IList<TeamViewModel>>(teamList));
