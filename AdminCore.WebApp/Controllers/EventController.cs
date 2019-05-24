@@ -172,12 +172,13 @@ namespace AdminCore.WebApi.Controllers
       {
         _eventService.IsEventValid(eventDatesToUpdate, _employee.EmployeeId);
         _eventService.UpdateEvent(eventDatesToUpdate, updateEventViewModel.Message, _employee.EmployeeId);
-        return Ok("Holiday has been successfully updated");
+        return Ok("Holiday has been successfully updated.");
       }
       catch (Exception ex)
       {
-        Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Error updating holiday: " + ex.Message);
+        var message = ex.Message;
+        Logger.LogError(message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, $"Error updating holiday {message}.");
       }
     }
 
