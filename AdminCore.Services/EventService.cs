@@ -53,15 +53,15 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId)
+    public IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
     {
+      var eventStatus = (int) eventStatuses;
       var eventDates = DatabaseContext.EventDatesRepository.Get(x => (x.StartDate.Date >= startDate.Date
                                                                          && x.EndDate.Date <= endDate.Date
                                                                          || x.EndDate.Date == startDate.Date)
                                                                          && x.Event.EmployeeId == employeeId
-                                                                         && x.Event.EventStatusId == (int)EventStatuses.Approved,
+                                                                         && x.Event.EventStatusId == eventStatus,
                                                               null, x => x.Event);
-
       return _mapper.Map<IList<EventDateDto>>(eventDates);
     }
 
@@ -127,23 +127,21 @@ namespace AdminCore.Services
       }
     }
 
-    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId)
+    public void CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId)
     {
       CheckEventTypeAdminLevel(eventTypes, employeeId);
       var newEvent = BuildNewEvent(employeeId, eventTypes);
       UpdateEventDates(dates, newEvent);
-      return ValidateRemainingHolidaysAndCreate(newEvent, dates);
+      ValidateRemainingHolidaysAndCreate(newEvent, dates);
     }
 
-    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
+    public void CreateEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
     {
       var newEvent = BuildNewEvent(employee, eventTypes);
 
       UpdateEventDates(dates, newEvent);
 
-      var insertedEvent = DatabaseContext.EventRepository.Insert(newEvent);
-
-      return _mapper.Map<EventDto>(insertedEvent);
+      DatabaseContext.EventRepository.Insert(newEvent);
     }
 
     public void UpdateEvent(EventDateDto eventDateDto, string message, int employeeId)
@@ -311,9 +309,21 @@ namespace AdminCore.Services
 
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
     {
-      var employeeEvents =
-        GetApprovedEventDatesByEmployeeAndStartAndEndDates(eventDates.StartDate, eventDates.EndDate, employeeId);
-      if (employeeEvents.Any())
+      var approvedEmployeeEvents = GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(
+        eventDates.StartDate,
+        eventDates.EndDate,
+        employeeId,
+        EventStatuses.Approved
+        );
+
+      var awaitEmployeeEvents = GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(
+        eventDates.StartDate,
+        eventDates.EndDate,
+        employeeId,
+        EventStatuses.AwaitingApproval
+        );
+
+      if (approvedEmployeeEvents.Any() || awaitEmployeeEvents.Any())
       {
         throw new Exception("Holiday dates already booked.");
       }

@@ -516,7 +516,7 @@ namespace AdminCore.Services.Tests
 
     [Fact]
     public void
-      GetEmployeeEventsById_WithValidEmployeeAndAnnualLeaveEventType_ReturnsListOfAnnualLeaveEventsForThatEmployee()
+      GetEventsByEmployeeId_WithValidEmployeeAndAnnualLeaveEventType_ReturnsListOfAnnualLeaveEventsForThatEmployee()
     {
       // Arrange
       const int employeeId = 1;
@@ -567,7 +567,7 @@ namespace AdminCore.Services.Tests
     }
 
     [Fact]
-    public void GetEmployeeEventsById_WithValidEmployeeAndSickLeaveEventType_ReturnsListOfEventsForThatEmployee()
+    public void GetEventsByEmployeeId_WithValidEmployeeAndSickLeaveEventType_ReturnsListOfEventsForThatEmployee()
     {
       // Arrange
       const int employeeId = 1;
@@ -616,7 +616,7 @@ namespace AdminCore.Services.Tests
 
     [Fact]
     public void
-      GetApprovedEventDatesByEmployeeIdAndStartAndEndDate_WithValidDates_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDate()
+      GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus_WithValidDates_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDateAndEventStatus()
     {
       // Arrange
       const int employeeId = 1;
@@ -659,7 +659,7 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
-      var eventsByEmployeeId = eventService.GetApprovedEventDatesByEmployeeAndStartAndEndDates(startDate, endDate, employeeId);
+      var eventsByEmployeeId = eventService.GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(startDate, endDate, employeeId, EventStatuses.Approved);
 
       // Assert
       Assert.Equal(1, eventsByEmployeeId.Count);
