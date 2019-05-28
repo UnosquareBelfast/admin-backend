@@ -1,15 +1,9 @@
 ﻿using AdminCore.Common.Interfaces;
-using AdminCore.DTOs.Team;
-using AdminCore.WebApi.Models.Team;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using AdminCore.DTOs.Project;
-using AdminCore.Services.Mappings;
 using AdminCore.WebApi.Models.Client;
 using AdminCore.WebApi.Models.Project;
 using Microsoft.AspNetCore.Http;
