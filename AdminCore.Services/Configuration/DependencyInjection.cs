@@ -44,6 +44,7 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IEventService, EventService>();
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
+        services.AddTransient<IProjectService, ProjectService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
         services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
         services.AddScoped<IMailSender, SmtpMailSender>();

@@ -10,7 +10,7 @@ namespace AdminCore.Services
 {
     public class ProjectService : BaseService, IProjectService
     {
-        private IMapper _mapper;
+        private readonly IMapper _mapper;
         public ProjectService(IMapper mapper, IDatabaseContext databaseContext) : base(databaseContext)
         {
             _mapper = mapper;
