@@ -155,9 +155,10 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       var contractServiceMock = Substitute.For<IContractService>();
-      contractServiceMock.GetContractByProjectId(projectId).Returns(serviceReturns);
-      var mapper = SetupMockedMapper(serviceReturns, controllerReturns);
 
+      contractServiceMock.GetContractByProjectId(projectId).Returns(serviceReturns);
+
+      var mapper = SetupMockedMapper(serviceReturns, controllerReturns);
       var contractController = new ContractController(mapper, contractServiceMock);
 
       // Act
@@ -174,9 +175,31 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       var contractServiceMock = Substitute.For<IContractService>();
-      contractServiceMock.GetContractByProjectId(Arg.Any<int>()).Returns(new List<ContractDto>());
-      var mapper = SetupMockedMapper(new List<ContractDto>(), new List<ContractViewModel>());
 
+      var serviceReturns = new List<ContractDto>();
+      contractServiceMock.GetContractByProjectId(Arg.Any<int>()).Returns(serviceReturns);
+
+      var mapper = SetupMockedMapper(serviceReturns, new List<ContractViewModel>());
+      var contractController = new ContractController(mapper, contractServiceMock);
+
+      // Act
+      var response = contractController.GetContractByProjectId(99);
+
+      // Assert
+      response.Should().BeOfType<NoContentResult>();
+      contractServiceMock.Received(1).GetContractByProjectId(Arg.Any<int>());
+    }
+
+
+    [Fact]
+    public void GetContractByProjectId_ServiceReturnsNullListOfContracts_ReturnsNoContent()
+    {
+      // Arrange
+      var contractServiceMock = Substitute.For<IContractService>();
+
+      contractServiceMock.GetContractByProjectId(Arg.Any<int>()).Returns(x => null);
+
+      var mapper = SetupMockedMapper<IList<ContractDto>, IList<ContractViewModel>>(null, null);
       var contractController = new ContractController(mapper, contractServiceMock);
 
       // Act
