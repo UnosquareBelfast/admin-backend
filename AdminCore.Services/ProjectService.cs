@@ -20,6 +20,7 @@ namespace AdminCore.Services
         {
             var project = _mapper.Map<Project>(projectToSave);
             var savedProject = DatabaseContext.ProjectRepository.Insert(project);
+            DatabaseContext.SaveChanges();
             return _mapper.Map<ProjectDto>(savedProject);
         }
 
@@ -27,11 +28,13 @@ namespace AdminCore.Services
         {
             var project = _mapper.Map<Project>(projectToUpdate);
             DatabaseContext.ProjectRepository.Update(project);
+            DatabaseContext.SaveChanges();
         }
 
         public void DeleteProject(int projectId)
         {
             DatabaseContext.ProjectRepository.Delete(projectId);
+            DatabaseContext.SaveChanges();
         }
 
         public IList<ProjectDto> GetProjects()

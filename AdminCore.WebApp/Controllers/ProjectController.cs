@@ -8,7 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using AdminCore.DTOs.Project;
+using AdminCore.Services.Mappings;
+using AdminCore.WebApi.Models.Client;
 using AdminCore.WebApi.Models.Project;
+using Microsoft.AspNetCore.Http;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -23,34 +27,59 @@ namespace AdminCore.WebApi.Controllers
       _projectService = projectService;
     }
 
-    public IActionResult CreateProject(CreateProjectViewModel projectToSave)
+    [HttpPost]
+    [ProducesResponseType(typeof(CreateProjectViewModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public IActionResult CreateProject([FromBody] CreateProjectViewModel projectToCreate)
+    {
+      try
+      {
+        var createdObj = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate));
+        return Created(createdObj.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdObj));
+      }
+      catch (Exception e)
+      {
+        return Conflict("sdas");
+      }
+    }
+
+    [HttpPut]
+    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public IActionResult UpdateProject([FromBody] UpdateTeamViewModel projectToUpdate)
     {
       throw new NotImplementedException();
     }
 
-    public IActionResult UpdateProject(UpdateTeamViewModel projectToUpdate)
-    {
-      throw new NotImplementedException();
-    }
-
+    [HttpDelete("{projectId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult DeleteProject(int projectId)
     {
       throw new NotImplementedException();
     }
 
+    [HttpGet]
+    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
     public IActionResult GetProjects()
     {
-      throw new NotImplementedException();
+      var projectDtoList = _projectService.GetProjects();
+      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList));
     }
 
-    public IActionResult GetProjectsById(int projectId)
+    [HttpGet("{projectId}")]
+    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
+    public IActionResult GetProjectById(int projectId)
     {
-      throw new NotImplementedException();
+      var projectDtoList = _projectService.GetProjectsById(projectId);
+      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList));
     }
 
+    [HttpGet("client/{clientId}")]
+    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
     public IActionResult GetProjectsByClientId(int clientId)
     {
-      throw new NotImplementedException();
+      var projectDtoList = _projectService.GetProjectsByClientId(clientId);
+      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList));
     }
   }
 }
