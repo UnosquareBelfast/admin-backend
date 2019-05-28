@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -44,6 +45,20 @@ namespace AdminCore.WebApi.Controllers
       }
 
       return StatusCode((int)HttpStatusCode.InternalServerError, $"No team found with an ID of { id.ToString() }");
+    }
+
+    [HttpGet("getTeamsByProjectId/{projectId}")]
+    [ProducesResponseType(typeof(IList<TeamViewModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult GetTeamsByProjectById(int projectId)
+    {
+      var teamList = _teamService.GetByProjectId(projectId);
+      if (teamList == null || !teamList.Any())
+      {
+        return NoContent();
+      }
+
+      return Ok(Mapper.Map<IList<TeamViewModel>>(teamList));
     }
 
     [HttpPost]
