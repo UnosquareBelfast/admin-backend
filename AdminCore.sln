@@ -32,6 +32,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdminCore.ScheduledJobs", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.JobExecutor", "AdminCore.JobExecuter\AdminCore.JobExecutor.csproj", "{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.DataETL", "AdminCore.DataETL\AdminCore.DataETL.csproj", "{9B9850C1-56A8-4995-A82A-EA7803276545}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.DataETL.Tests", "AdminCore.DataETL.Tests\AdminCore.DataETL.Tests.csproj", "{F2019B28-CD8C-4863-B35C-E5C27CF4864F}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.MailClients", "AdminCore.MailClients\AdminCore.MailClients.csproj", "{6EA2A7A0-7409-4DC6-B11E-88ABB0E989A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.MailClients.Tests", "AdminCore.MailClients.Tests\AdminCore.MailClients.Tests.csproj", "{7286768A-BDB9-4E23-9038-8FDB3C7D8C73}"
@@ -92,6 +96,14 @@ Global
 		{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B67ED60-8D10-4F2B-A26E-2B8362F57CE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B9850C1-56A8-4995-A82A-EA7803276545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B9850C1-56A8-4995-A82A-EA7803276545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B9850C1-56A8-4995-A82A-EA7803276545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B9850C1-56A8-4995-A82A-EA7803276545}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2019B28-CD8C-4863-B35C-E5C27CF4864F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2019B28-CD8C-4863-B35C-E5C27CF4864F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2019B28-CD8C-4863-B35C-E5C27CF4864F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2019B28-CD8C-4863-B35C-E5C27CF4864F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6EA2A7A0-7409-4DC6-B11E-88ABB0E989A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6EA2A7A0-7409-4DC6-B11E-88ABB0E989A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EA2A7A0-7409-4DC6-B11E-88ABB0E989A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
