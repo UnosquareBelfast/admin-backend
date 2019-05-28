@@ -13,7 +13,5 @@ namespace AdminCore.WebApi.Models.Project
         public string ProjectName { get; set; }
 
         public int ClientId { get; set; }
-
-        public ICollection<int> TeamIds { get; set; }
     }
 }

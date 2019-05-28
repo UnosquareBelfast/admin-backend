@@ -29,26 +29,18 @@ namespace AdminCore.WebApi.Controllers
 
     [HttpPost]
     [ProducesResponseType(typeof(CreateProjectViewModel), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult CreateProject([FromBody] CreateProjectViewModel projectToCreate)
     {
-      try
-      {
-        var createdObj = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate));
-        return Created(createdObj.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdObj));
-      }
-      catch (Exception e)
-      {
-        return Conflict("sdas");
-      }
+      var createdObj = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate));
+      return Created(createdObj.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdObj));
     }
 
     [HttpPut]
     [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public IActionResult UpdateProject([FromBody] UpdateTeamViewModel projectToUpdate)
+    public IActionResult UpdateProject([FromBody] UpdateProjectViewModel projectToUpdate)
     {
-      throw new NotImplementedException();
+      var updatedObj = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate));
+      return Ok(Mapper.Map<ProjectViewModel>(updatedObj));
     }
 
     [HttpDelete("{projectId}")]

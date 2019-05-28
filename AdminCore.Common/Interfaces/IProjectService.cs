@@ -7,7 +7,7 @@ namespace AdminCore.Common.Interfaces
   public interface IProjectService
   {
     ProjectDto CreateProject(ProjectDto projectToSave);
-    void UpdateProject(ProjectDto projectToUpdate);
+    ProjectDto UpdateProject(ProjectDto projectToUpdate);
     void DeleteProject(int projectId);
 
     IList<ProjectDto> GetProjects();

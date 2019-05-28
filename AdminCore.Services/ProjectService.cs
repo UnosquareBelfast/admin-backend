@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AdminCore.Common.Interfaces;
 using AdminCore.DAL;
@@ -24,11 +25,20 @@ namespace AdminCore.Services
             return _mapper.Map<ProjectDto>(savedProject);
         }
 
-        public void UpdateProject(ProjectDto projectToUpdate)
+        public ProjectDto UpdateProject(ProjectDto projectToUpdate)
         {
-            var project = _mapper.Map<Project>(projectToUpdate);
-            DatabaseContext.ProjectRepository.Update(project);
-            DatabaseContext.SaveChanges();
+            try
+            {
+                var project = _mapper.Map<Project>(projectToUpdate);
+                var updateProject = DatabaseContext.ProjectRepository.Update(project);
+                DatabaseContext.SaveChanges();
+                return _mapper.Map<ProjectDto>(updateProject);
+            }
+            catch (Exception e)
+            {
+                var a = "";
+                return _mapper.Map<ProjectDto>(projectToUpdate);
+            }
         }
 
         public void DeleteProject(int projectId)
