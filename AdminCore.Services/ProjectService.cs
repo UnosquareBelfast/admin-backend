@@ -27,18 +27,10 @@ namespace AdminCore.Services
 
         public ProjectDto UpdateProject(ProjectDto projectToUpdate)
         {
-            try
-            {
-                var project = _mapper.Map<Project>(projectToUpdate);
-                var updateProject = DatabaseContext.ProjectRepository.Update(project);
-                DatabaseContext.SaveChanges();
-                return _mapper.Map<ProjectDto>(updateProject);
-            }
-            catch (Exception e)
-            {
-                var a = "";
-                return _mapper.Map<ProjectDto>(projectToUpdate);
-            }
+            var project = _mapper.Map<Project>(projectToUpdate);
+            var updateProject = DatabaseContext.ProjectRepository.Update(project);
+            DatabaseContext.SaveChanges();
+            return _mapper.Map<ProjectDto>(updateProject);
         }
 
         public void DeleteProject(int projectId)
@@ -68,7 +60,6 @@ namespace AdminCore.Services
         public IList<ProjectDto> GetProjectsByClientId(int clientId)
         {
             var projectList = DatabaseContext.ProjectRepository.Get(project => project.ClientId == clientId, null,
-                project => project.Client,
                 project => project.Teams,
                 project => project.ParentProject);
             return _mapper.Map<IList<ProjectDto>>(projectList);

@@ -37,17 +37,33 @@ namespace AdminCore.WebApi.Controllers
 
     [HttpPut]
     [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult UpdateProject([FromBody] UpdateProjectViewModel projectToUpdate)
     {
-      var updatedObj = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate));
-      return Ok(Mapper.Map<ProjectViewModel>(updatedObj));
+      try
+      {
+        var updatedObj = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate));
+        return Ok(Mapper.Map<ProjectViewModel>(updatedObj));
+      }
+      catch (Exception e)
+      {
+        return BadRequest();
+      }
     }
 
     [HttpDelete("{projectId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult DeleteProject(int projectId)
     {
-      throw new NotImplementedException();
+      try
+      {
+        _projectService.DeleteProject(projectId);
+        return Ok();
+      }
+      catch (Exception e)
+      {
+        return BadRequest();
+      }
     }
 
     [HttpGet]
