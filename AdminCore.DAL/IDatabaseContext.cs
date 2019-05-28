@@ -36,6 +36,8 @@ namespace AdminCore.DAL
 
     IRepository<Team> TeamRepository { get; }
 
+    IRepository<Project> ProjectRepository { get; }
+
     void SaveChanges();
   }
 }
