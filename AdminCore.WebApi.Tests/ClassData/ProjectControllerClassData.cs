@@ -1,7 +1,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using AdminCore.DTOs.Project;
 using AdminCore.DTOs.Team;
+using AdminCore.WebApi.Models.Project;
 using AdminCore.WebApi.Models.Team;
 using AutoFixture;
 
@@ -9,27 +11,25 @@ namespace AdminCore.WebApi.Tests.ClassData
 {
     public class ProjectControllerClassData
     {
-        private readonly Fixture _fixture;
-        public ProjectControllerClassData()
-        {
-            _fixture = new Fixture();
-        }
-
-        public class GetTeamsByProjectById_ServiceContainsListOfOneTeam_ReturnsOkWithTeamsInBodyClassData : IEnumerable<object[]>
+        public class GetProjectById_ServiceContainsListOfTeams_ReturnsOkWithTeamsInBodyClassData : IEnumerable<object[]>
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                // ARGS: projectId: int, serviceReturns: IList<TeamDto>, controllerReturns: IList<TeamViewModel>
+                var fixture = new Fixture();
+                fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+                fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+                // ARGS: projectId: int, serviceReturns: IList<ProjectDto>, controllerReturns: IList<ProjectViewModel>
                 yield return new object[]
                 {
                     ProjectId,
-                    new List<TeamDto>
+                    new List<ProjectDto>
                     {
-                        new TeamDto {TeamId = 1, TeamName = "unique string 1", ProjectId = 1}
+                        fixture.Build<ProjectDto>().With(project => project.ProjectId, ProjectId).Create()
                     },
-                    new List<TeamViewModel>
+                    new List<ProjectViewModel>
                     {
-                        new TeamViewModel {TeamId = 1, TeamName = "unique string 1", ProjectId = 1}
+                        fixture.Build<ProjectViewModel>().With(project => project.ProjectId, ProjectId).Create()
                     }
                 };
             }

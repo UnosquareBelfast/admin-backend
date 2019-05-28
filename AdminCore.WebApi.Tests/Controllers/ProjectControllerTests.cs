@@ -35,7 +35,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     }
 
     [Theory]
-    [ClassData(typeof(TeamControllerClassData.GetTeamsByProjectById_ServiceContainsListOfOneTeam_ReturnsOkWithTeamsInBodyClassData))]
+    [ClassData(typeof(ProjectControllerClassData.GetProjectById_ServiceContainsListOfTeams_ReturnsOkWithTeamsInBodyClassData))]
     public void GetProjectById_ServiceContainsListOfTeams_ReturnsOkWithTeamsInBody(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns)
     {
       // Arrange
