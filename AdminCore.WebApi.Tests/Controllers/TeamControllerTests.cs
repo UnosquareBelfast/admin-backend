@@ -254,7 +254,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var serviceReturns = new List<TeamDto>();
       teamServiceMock.GetByProjectId(Arg.Any<int>()).Returns(serviceReturns);
 
-      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(serviceReturns, null);
+      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(serviceReturns, new List<TeamViewModel>());
       var teamController = new TeamController(teamServiceMock, mapper);
 
       // Act
@@ -271,10 +271,9 @@ namespace AdminCore.WebApi.Tests.Controllers
       // Arrange
       var teamServiceMock = Substitute.For<ITeamService>();
 
-      var serviceReturns = new List<TeamDto>();
       teamServiceMock.GetByProjectId(Arg.Any<int>()).Returns(x => null);
 
-      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(serviceReturns, null);
+      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(null, null);
       var teamController = new TeamController(teamServiceMock, mapper);
 
       // Act
