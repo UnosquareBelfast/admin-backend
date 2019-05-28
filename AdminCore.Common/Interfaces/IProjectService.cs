@@ -6,12 +6,12 @@ namespace AdminCore.Common.Interfaces
 {
   public interface IProjectService
   {
-    ProjectDto CreateProject();
-    ProjectDto UpdateProject();
-    ProjectDto DeleteProject();
+    ProjectDto CreateProject(ProjectDto projectToSave);
+    void UpdateProject(ProjectDto projectToUpdate);
+    void DeleteProject(int projectId);
 
     IList<ProjectDto> GetProjects();
-    IList<ProjectDto> GetProjectsById();
-    IList<ProjectDto> GetProjectsByClientId();
+    IList<ProjectDto> GetProjectsById(int projectId);
+    IList<ProjectDto> GetProjectsByClientId(int clientId);
   }
 }

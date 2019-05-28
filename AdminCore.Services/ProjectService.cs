@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AdminCore.Common.Interfaces;
 using AdminCore.DAL;
+using AdminCore.DAL.Models;
 using AdminCore.DTOs.Project;
 using AdminCore.Services.Base;
 using AutoMapper;
@@ -15,34 +16,49 @@ namespace AdminCore.Services
             _mapper = mapper;
         }
 
-        public ProjectDto CreateProject()
+        public ProjectDto CreateProject(ProjectDto projectToSave)
         {
-            DatabaseContext.Pro
+            var project = _mapper.Map<Project>(projectToSave);
+            var savedProject = DatabaseContext.ProjectRepository.Insert(project);
+            return _mapper.Map<ProjectDto>(savedProject);
         }
 
-        public ProjectDto UpdateProject()
+        public void UpdateProject(ProjectDto projectToUpdate)
         {
-            throw new System.NotImplementedException();
+            var project = _mapper.Map<Project>(projectToUpdate);
+            DatabaseContext.ProjectRepository.Update(project);
         }
 
-        public ProjectDto DeleteProject()
+        public void DeleteProject(int projectId)
         {
-            throw new System.NotImplementedException();
+            DatabaseContext.ProjectRepository.Delete(projectId);
         }
 
         public IList<ProjectDto> GetProjects()
         {
-            throw new System.NotImplementedException();
+            var projectList = DatabaseContext.ProjectRepository.Get(null, null,
+                project => project.Client,
+                project => project.Teams,
+                project => project.ParentProject);
+            return _mapper.Map<IList<ProjectDto>>(projectList);
         }
 
-        public IList<ProjectDto> GetProjectsById()
+        public IList<ProjectDto> GetProjectsById(int projectId)
         {
-            throw new System.NotImplementedException();
+            var projectList = DatabaseContext.ProjectRepository.Get(project => project.ProjectId == projectId, null,
+                project => project.Client,
+                project => project.Teams,
+                project => project.ParentProject);
+            return _mapper.Map<IList<ProjectDto>>(projectList);
         }
 
-        public IList<ProjectDto> GetProjectsByClientId()
+        public IList<ProjectDto> GetProjectsByClientId(int clientId)
         {
-            throw new System.NotImplementedException();
+            var projectList = DatabaseContext.ProjectRepository.Get(project => project.ClientId == clientId, null,
+                project => project.Client,
+                project => project.Teams,
+                project => project.ParentProject);
+            return _mapper.Map<IList<ProjectDto>>(projectList);
         }
     }
 }
