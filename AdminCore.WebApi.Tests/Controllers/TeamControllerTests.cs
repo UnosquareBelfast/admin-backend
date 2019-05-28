@@ -9,7 +9,6 @@ using NSubstitute;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using AdminCore.Services;
 using AdminCore.WebApi.Tests.ClassData;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -251,9 +250,12 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       var teamServiceMock = Substitute.For<ITeamService>();
-      teamServiceMock.GetByProjectId(Arg.Any<int>()).Returns(new List<TeamDto>());
 
-      var teamController = new TeamController(teamServiceMock, _mapper);
+      var serviceReturns = new List<TeamDto>();
+      teamServiceMock.GetByProjectId(Arg.Any<int>()).Returns(serviceReturns);
+
+      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(serviceReturns, null);
+      var teamController = new TeamController(teamServiceMock, mapper);
 
       // Act
       var response = teamController.GetTeamsByProjectById(5);
@@ -268,9 +270,12 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       var teamServiceMock = Substitute.For<ITeamService>();
+
+      var serviceReturns = new List<TeamDto>();
       teamServiceMock.GetByProjectId(Arg.Any<int>()).Returns(x => null);
 
-      var teamController = new TeamController(teamServiceMock, _mapper);
+      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(serviceReturns, null);
+      var teamController = new TeamController(teamServiceMock, mapper);
 
       // Act
       var response = teamController.GetTeamsByProjectById(5);
