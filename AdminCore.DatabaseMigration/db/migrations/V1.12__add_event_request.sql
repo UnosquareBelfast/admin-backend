@@ -5,10 +5,10 @@
 */
 
   ----------------------------------------------------------------------------------------
-CREATE SEQUENCE IF NOT EXISTS public.request_type_request_type_id_seq;
-CREATE TABLE IF NOT EXISTS public.request_type
+CREATE SEQUENCE IF NOT EXISTS public.event_request_type_request_type_id_seq;
+CREATE TABLE IF NOT EXISTS public.event_request_type
 (
-    request_type_id integer NOT NULL DEFAULT nextval('request_type_request_type_id_seq'::regclass),
+    request_type_id integer NOT NULL,
     request_description character varying(255) NOT NULL,
     request_life_cycle integer NOT NULL,
     CONSTRAINT request_type_request_type_id_pkey PRIMARY KEY (request_type_id)
@@ -18,10 +18,10 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER SEQUENCE request_type_request_type_id_seq
-    OWNED BY request_type.request_type_id;
+ALTER SEQUENCE event_request_type_request_type_id_seq
+    OWNED BY event_request_type.request_type_id;
 
-INSERT INTO public.request_type (request_type_id, request_description, request_life_cycle)
+INSERT INTO public.event_request_type (request_type_id, request_description, request_life_cycle)
 VALUES (1, 'Client PTO request', 48)
 ON CONFLICT (request_type_id)
   DO NOTHING;
@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS public.event_request
     time_expires timestamp NOT NULL,
     expired boolean NOT NULL,
     auto_approved boolean NOT NULL,
-    CONSTRAINT request_type_request_type_id_fkey FOREIGN KEY (request_type_id)
-        REFERENCES public.request_type (request_type_id) MATCH SIMPLE
+    CONSTRAINT event_request_type_request_type_id_fkey FOREIGN KEY (request_type_id)
+        REFERENCES public.event_request_type (request_type_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
     CONSTRAINT event_event_id_fkey FOREIGN KEY (event_id)
