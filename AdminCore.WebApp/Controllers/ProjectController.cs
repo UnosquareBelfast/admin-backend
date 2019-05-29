@@ -70,7 +70,7 @@ namespace AdminCore.WebApi.Controllers
 
     [HttpGet("{projectId}")]
     [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
-    public IActionResult GetProjectById(int projectId)
+    public IActionResult GetProjectsById(int projectId)
     {
       var projectDtoList = _projectService.GetProjectsById(projectId);
       return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList));

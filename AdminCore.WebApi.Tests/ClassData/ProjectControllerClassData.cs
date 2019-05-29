@@ -11,7 +11,7 @@ namespace AdminCore.WebApi.Tests.ClassData
 {
     public class ProjectControllerClassData
     {
-        public class GetProjectById_ServiceContainsListOfTeams_ReturnsOkWithTeamsInBodyClassData : IEnumerable<object[]>
+        public class ListOfSpecificIdProjectDtosViewModelsClassData : IEnumerable<object[]>
         {
             public IEnumerator<object[]> GetEnumerator()
             {
@@ -25,12 +25,66 @@ namespace AdminCore.WebApi.Tests.ClassData
                     ProjectId,
                     new List<ProjectDto>
                     {
-                        fixture.Build<ProjectDto>().With(project => project.ProjectId, ProjectId).Create()
+                        fixture.Create<ProjectDto>()
                     },
                     new List<ProjectViewModel>
                     {
-                        fixture.Build<ProjectViewModel>().With(project => project.ProjectId, ProjectId).Create()
+                        fixture.Create<ProjectViewModel>()
                     }
+                };
+                yield return new object[]
+                {
+                    ProjectId,
+                    new List<ProjectDto>
+                    {
+                        fixture.Create<ProjectDto>(),
+                        fixture.Create<ProjectDto>()
+                    },
+                    new List<ProjectViewModel>
+                    {
+                        fixture.Create<ProjectViewModel>(),
+                        fixture.Create<ProjectViewModel>()
+                    }
+                };
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        public class ListOfProjectDtosCreateViewModelsClassData : IEnumerable<object[]>
+        {
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                var fixture = new Fixture();
+                fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+                fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+                // ARGS: projectId: int, serviceReturns: IList<ProjectDto>, controllerReturns: IList<ProjectViewModel>
+                yield return new object[]
+                {
+                    fixture.Create<CreateProjectViewModel>(),
+                    fixture.Create<ProjectDto>(),
+                    fixture.Create<ProjectViewModel>()
+                };
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        public class ListOfProjectDtosUpdateViewModelsClassData : IEnumerable<object[]>
+        {
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                var fixture = new Fixture();
+                fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+                fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+                // ARGS: projectId: int, serviceReturns: IList<ProjectDto>, controllerReturns: IList<ProjectViewModel>
+                yield return new object[]
+                {
+                    fixture.Create<UpdateProjectViewModel>(),
+                    fixture.Create<ProjectDto>(),
+                    fixture.Create<ProjectViewModel>()
                 };
             }
 
