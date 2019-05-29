@@ -25,8 +25,15 @@ namespace AdminCore.WebApi.Controllers
     [ProducesResponseType(typeof(CreateProjectViewModel), StatusCodes.Status201Created)]
     public IActionResult CreateProject([FromBody] CreateProjectViewModel projectToCreate)
     {
-      var createdObj = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate));
-      return Created(createdObj.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdObj));
+      try
+      {
+        var created = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate), out var createdProject);
+        return Created(createdProject.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdProject));
+      }
+      catch (Exception e)
+      {
+        return BadRequest();
+      }
     }
 
     [HttpPut]
@@ -36,8 +43,8 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        var updatedObj = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate));
-        return Ok(Mapper.Map<ProjectViewModel>(updatedObj));
+        var updated = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate), out var updatedProject);
+        return Ok(Mapper.Map<ProjectViewModel>(updatedProject));
       }
       catch (Exception e)
       {

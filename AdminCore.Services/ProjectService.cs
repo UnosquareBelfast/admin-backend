@@ -17,26 +17,55 @@ namespace AdminCore.Services
             _mapper = mapper;
         }
 
-        public ProjectDto CreateProject(ProjectDto projectToSave)
+        public bool CreateProject(ProjectDto projectToSave, out ProjectDto createdProject)
         {
-            var project = _mapper.Map<Project>(projectToSave);
-            var savedProject = DatabaseContext.ProjectRepository.Insert(project);
-            DatabaseContext.SaveChanges();
-            return _mapper.Map<ProjectDto>(savedProject);
+            try
+            {
+                var project = _mapper.Map<Project>(projectToSave);
+                var savedProject = DatabaseContext.ProjectRepository.Insert(project);
+                DatabaseContext.SaveChanges();
+
+                createdProject = _mapper.Map<ProjectDto>(savedProject);
+                return true;
+            }
+            catch (Exception e)
+            {
+                createdProject = null;
+                return false;
+            }
         }
 
-        public ProjectDto UpdateProject(ProjectDto projectToUpdate)
+        public bool UpdateProject(ProjectDto projectToUpdate, out ProjectDto updatedProject)
         {
-            var project = _mapper.Map<Project>(projectToUpdate);
-            var updateProject = DatabaseContext.ProjectRepository.Update(project);
-            DatabaseContext.SaveChanges();
-            return _mapper.Map<ProjectDto>(updateProject);
+            try
+            {
+                var project = _mapper.Map<Project>(projectToUpdate);
+                var updateProject = DatabaseContext.ProjectRepository.Update(project);
+                DatabaseContext.SaveChanges();
+
+                updatedProject = _mapper.Map<ProjectDto>(updateProject);
+                return true;
+            }
+            catch (Exception e)
+            {
+                updatedProject = null;
+                return false;
+            }
         }
 
-        public void DeleteProject(int projectId)
+        public bool DeleteProject(int projectId)
         {
-            DatabaseContext.ProjectRepository.Delete(projectId);
-            DatabaseContext.SaveChanges();
+            try
+            {
+                DatabaseContext.ProjectRepository.Delete(projectId);
+                DatabaseContext.SaveChanges();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
         public IList<ProjectDto> GetProjects()
@@ -45,7 +74,7 @@ namespace AdminCore.Services
                 project => project.Client,
                 project => project.Teams,
                 project => project.ParentProject);
-            return _mapper.Map<IList<ProjectDto>>(projectList);
+            return _mapper.Map<IList<ProjectDto>>(projectList ?? new List<Project>());
         }
 
         public IList<ProjectDto> GetProjectsById(int projectId)
@@ -54,7 +83,7 @@ namespace AdminCore.Services
                 project => project.Client,
                 project => project.Teams,
                 project => project.ParentProject);
-            return _mapper.Map<IList<ProjectDto>>(projectList);
+            return _mapper.Map<IList<ProjectDto>>(projectList ?? new List<Project>());
         }
 
         public IList<ProjectDto> GetProjectsByClientId(int clientId)
@@ -62,7 +91,7 @@ namespace AdminCore.Services
             var projectList = DatabaseContext.ProjectRepository.Get(project => project.ClientId == clientId, null,
                 project => project.Teams,
                 project => project.ParentProject);
-            return _mapper.Map<IList<ProjectDto>>(projectList);
+            return _mapper.Map<IList<ProjectDto>>(projectList ?? new List<Project>());
         }
     }
 }
