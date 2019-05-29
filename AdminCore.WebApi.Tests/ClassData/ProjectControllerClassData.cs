@@ -59,7 +59,7 @@ namespace AdminCore.WebApi.Tests.ClassData
                 fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
                 fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-                // ARGS: projectId: int, serviceReturns: IList<ProjectDto>, controllerReturns: IList<ProjectViewModel>
+                // ARGS: controllerInput: CreateProjectViewModel, serviceReturns: ProjectDto, controllerReturns: ProjectViewModel
                 yield return new object[]
                 {
                     fixture.Create<CreateProjectViewModel>(),
@@ -79,12 +79,34 @@ namespace AdminCore.WebApi.Tests.ClassData
                 fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
                 fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-                // ARGS: projectId: int, serviceReturns: IList<ProjectDto>, controllerReturns: IList<ProjectViewModel>
+                // ARGS: controllerInput: UpdateProjectViewModel, serviceReturns: ProjectDto, controllerReturns: ProjectViewModel
                 yield return new object[]
                 {
                     fixture.Create<UpdateProjectViewModel>(),
                     fixture.Create<ProjectDto>(),
                     fixture.Create<ProjectViewModel>()
+                };
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        public class RandomProjectIdClassData : IEnumerable<object[]>
+        {
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                var fixture = new Fixture();
+                fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+                fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+                // ARGS: projectId: int
+                yield return new object[]
+                {
+                    fixture.Create<int>()
+                };
+                yield return new object[]
+                {
+                    fixture.Create<int>()
                 };
             }
 

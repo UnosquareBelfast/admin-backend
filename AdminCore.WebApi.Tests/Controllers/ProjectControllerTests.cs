@@ -4,7 +4,6 @@ using AdminCore.WebApi.Controllers;
 using NSubstitute;
 using System.Collections.Generic;
 using System.Net;
-using AdminCore.DAL.Models;
 using AdminCore.DTOs.Project;
 using AdminCore.WebApi.Models.Project;
 using AdminCore.WebApi.Tests.ClassData;
@@ -230,6 +229,37 @@ namespace AdminCore.WebApi.Tests.Controllers
 
     #region DeleteProject
 
+    [Theory]
+    [ClassData(typeof(ProjectControllerClassData.RandomProjectIdClassData))]
+    public void DeleteProject_ServiceDeletesProject_ReturnsOk(int projectId)
+    {
+      // Arrange
+      GetMockedResourcesDeleteProject(projectId, out var projectServiceMock, out var projectController);
+
+      // Act
+      var response = projectController.DeleteProject(projectId);
+
+      // Assert
+      projectServiceMock.Received(1).DeleteProject(Arg.Any<int>());
+      response.Should().BeOfType<OkResult>();
+    }
+
+    [Fact]
+    public void DeleteProject_ServiceEncounterErrorDeletingProject_ReturnsBadRequest()
+    {
+      // Arrange
+      var projectServiceMock = Substitute.For<IProjectService>();
+      projectServiceMock.When(x => x.DeleteProject(Arg.Any<int>())).Do(x => throw new Exception());
+
+      var projectController = new ProjectController(projectServiceMock, null);
+
+      // Act
+      var response = projectController.DeleteProject(2832);
+
+      // Assert
+      projectServiceMock.Received(1).DeleteProject(Arg.Any<int>());
+      response.Should().BeOfType<BadRequestResult>();
+    }
 
     #endregion
 
@@ -280,6 +310,15 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       projectController = GetMockedProjectController(controllerInput, serviceReturns, projectServiceMock, out var mapper);
       mapper.Map<ProjectViewModel>(serviceReturns).Returns(controllerReturns);
+    }
+
+    private void GetMockedResourcesDeleteProject(int projectId,
+      out IProjectService projectServiceMock, out ProjectController projectController)
+    {
+      projectServiceMock = Substitute.For<IProjectService>();
+      projectServiceMock.When(x => x.DeleteProject(projectId));
+
+      projectController = new ProjectController(projectServiceMock, null);
     }
 
     private ProjectController GetMockedProjectController<TMapFrom, TMapTo>(TMapFrom mapFrom, TMapTo mapTo, IProjectService projectServiceMock, out IMapper mapper)
