@@ -40,7 +40,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.MailClients", "Ad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.MailClients.Tests", "AdminCore.MailClients.Tests\AdminCore.MailClients.Tests.csproj", "{7286768A-BDB9-4E23-9038-8FDB3C7D8C73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkGenerator", "LinkGenerator\LinkGenerator.csproj", "{396D4A30-4CA8-4C81-A62D-944926E78DCC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.LinkGenerator", "AdminCore.LinkGenerator\AdminCore.LinkGenerator.csproj", "{396D4A30-4CA8-4C81-A62D-944926E78DCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <RootNamespace>RequestLinkGenerator</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Hashids.net" Version="1.2.2" />
+    </ItemGroup>
+
+</Project>
