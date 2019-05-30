@@ -9,7 +9,11 @@ namespace AdminCore.Services.Mappings
   {
     public ProjectMapperProfile()
     {
-      CreateMap<ProjectDto, Project>().ReverseMap();
+      AllowNullCollections = true;
+      AllowNullDestinationValues = true;
+
+      CreateMap<ProjectDto, Project>();
+      CreateMap<Project, ProjectDto>();
     }
   }
 }
