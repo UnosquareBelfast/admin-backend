@@ -18,7 +18,7 @@ namespace AdminCore.DTOs.LinkGenerator
 
         public DateTime TimeCreated { get; set; }
 
-        public DateTime TimeExpired { get; set; }
+        public DateTime TimeExpires { get; set; }
 
         public bool Expired { get; set; }
 

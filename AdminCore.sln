@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.MailClients.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.LinkGenerator", "AdminCore.LinkGenerator\AdminCore.LinkGenerator.csproj", "{396D4A30-4CA8-4C81-A62D-944926E78DCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminCore.LinkGenerator.Tests", "AdminCore.LinkGenerator.Tests\AdminCore.LinkGenerator.Tests.csproj", "{E818A568-B143-40F7-B5B3-1D8467B6B13F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +118,10 @@ Global
 		{396D4A30-4CA8-4C81-A62D-944926E78DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{396D4A30-4CA8-4C81-A62D-944926E78DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{396D4A30-4CA8-4C81-A62D-944926E78DCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E818A568-B143-40F7-B5B3-1D8467B6B13F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E818A568-B143-40F7-B5B3-1D8467B6B13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E818A568-B143-40F7-B5B3-1D8467B6B13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E818A568-B143-40F7-B5B3-1D8467B6B13F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
