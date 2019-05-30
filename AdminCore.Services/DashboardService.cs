@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AdminCore.Constants;
-using AdminCore.DAL.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.Services
@@ -207,8 +206,15 @@ namespace AdminCore.Services
     private ClientSnapshotDto BuildClientSnapshot(Client client, DateTime date)
     {
       var clientSnapShot = _mapper.Map<ClientSnapshotDto>(client);
-      clientSnapShot.Teams = client.Projects.SelectMany(project => project.Teams).Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      clientSnapShot.Projects = client.Projects.Select(clientProject => BuildProjectSnapshot(clientProject, date)).ToList();
       return clientSnapShot;
+    }
+
+    private ProjectSnapshotDto BuildProjectSnapshot(Project project, DateTime date)
+    {
+      var projectSnapshot = _mapper.Map<ProjectSnapshotDto>(project);
+      projectSnapshot.Teams = project.Teams.Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      return projectSnapshot;
     }
 
     private TeamSnapshotDto BuildTeamSnapshot(Team team, DateTime date)

@@ -8,7 +8,6 @@ using System.Linq;
 using AdminCore.DTOs.Employee;
 using AdminCore.WebApi.Models.Dashboard;
 using AdminCore.WebApi.Models.Event;
-using AdminCore.WebApi.Models.EventMessage;
 
 namespace AdminCore.WebApi.Controllers
 {
