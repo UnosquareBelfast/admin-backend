@@ -5,10 +5,27 @@ using RequestLinkGenerator.Interfaces;
 
 namespace RequestLinkGenerator.LinkGenerators
 {
+    /// <summary>
+    /// Creates Event Request obj and generates link for that obj
+    /// </summary>
     public class EventRequest : ILinkGenerator
     {
+        /// <summary>
+        /// Creates Event Request while ensuring expiration date time is calculated considering only business days.
+        /// </summary>
+        /// <param name="eventId">Event Id</param>
+        /// <param name="eventDateId">Event Date Id</param>
+        /// <param name="requestTypeId">Request Type Id</param>
+        /// <param name="requestLifeCycle">Request Life Cycle, expected multiple of 24</param>
+        /// <returns>EventRequestDto obj</returns>
+        /// <exception cref="Exception">Is thrown given invalid requestLifeCycle</exception>
         public EventRequestDto CreateRequest(int eventId, int eventDateId, int requestTypeId, int requestLifeCycle, DateTime timeCreated)
         {
+            if (requestLifeCycle % Day != 0)
+            {
+                throw new Exception($"Request Life Cycle value is invalid, value={requestLifeCycle}");
+            }
+
             var salt = Guid.NewGuid().ToString("N");
             return new EventRequestDto
             {
@@ -24,6 +41,12 @@ namespace RequestLinkGenerator.LinkGenerators
             };
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eventRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public HashedLinkDto GenerateLink(EventRequestDto eventRequest)
         {
             if (eventRequest.Hash == null)
