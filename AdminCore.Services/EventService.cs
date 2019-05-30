@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using AdminCore.DTOs.LinkGenerator;
 
 namespace AdminCore.Services
 {
@@ -114,6 +115,12 @@ namespace AdminCore.Services
       {
         throw new Exception($"Event {eventId} doesn't exist or is already rejected");
       }
+    }
+    
+    public EventRequestDto GetEventRequest(string hashId)
+    {
+      var eventRequest = GetEventRequestByHashId(hashId);
+      return _mapper.Map<EventRequestDto>(eventRequest);
     }
 
     public void UpdateEventStatus(int eventId, EventStatuses status)
@@ -332,12 +339,25 @@ namespace AdminCore.Services
 
     private Event GetEventById(int id)
     {
-      return DatabaseContext.EventRepository.GetSingle(x => x.EventId == id,
-        x => x.EventDates,
-        x => x.Employee,
-        x => x.EventType,
-        x => x.EventStatus,
-        x => x.EventMessages);
+      return DatabaseContext.EventRepository.GetSingle(eventContext => eventContext.EventId == id,
+        eventContext => eventContext.EventDates,
+        eventContext => eventContext.Employee,
+        eventContext => eventContext.EventType,
+        eventContext => eventContext.EventStatus,
+        eventContext => eventContext.EventMessages);
+    }
+
+    private EventRequest GetEventRequestByHashId(string hashId)
+    {
+      return DatabaseContext.EventRequestRepository.GetSingle(eventRequest => eventRequest.Hash == hashId,
+        eventRequest => eventRequest.RequestTypeId,
+        eventRequest => eventRequest.EventId,
+        eventRequest => eventRequest.EventDateId,
+        eventRequest => eventRequest.Salt,
+        eventRequest => eventRequest.TimeCreated,
+        eventRequest => eventRequest.TimeExpires,
+        eventRequest => eventRequest.Expired,
+        eventRequest => eventRequest.AutoApproved);
     }
 
     private bool IsDateRangeLessThanTotalHolidaysRemaining(EventDateDto eventDates, int employeeId)

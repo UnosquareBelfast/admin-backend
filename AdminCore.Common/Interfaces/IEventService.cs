@@ -2,6 +2,7 @@
 using AdminCore.DTOs.Event;
 using System;
 using System.Collections.Generic;
+using AdminCore.DTOs.LinkGenerator;
 
 namespace AdminCore.Common.Interfaces
 {
@@ -22,6 +23,8 @@ namespace AdminCore.Common.Interfaces
     IList<EventDto> GetEventByType(EventTypes eventType);
 
     HolidayStatsDto GetHolidayStatsForUser(int employeeId);
+
+    EventRequestDto GetEventRequest(string hashId);
 
     void CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId);
 
