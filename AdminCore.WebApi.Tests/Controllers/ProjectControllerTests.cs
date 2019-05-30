@@ -10,7 +10,7 @@ using AdminCore.WebApi.Tests.ClassData;
 using AutoMapper;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Build.Framework;
+using Microsoft.EntityFrameworkCore;
 using NSubstitute.ExceptionExtensions;
 using Xunit;
 
@@ -182,16 +182,16 @@ namespace AdminCore.WebApi.Tests.Controllers
       var result = RetrieveValueFromActionResult<ProjectViewModel>(response, HttpStatusCode.Created);
 
       // Assert
-      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
+      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>());
       result.Should().BeEquivalentTo(controllerReturns);
     }
 
     [Fact]
-    public void CreateProject_ServiceEncountersException_ReturnsBadRequest()
+    public void CreateProject_ServiceEncountersDbUpdateException_ReturnsBadRequest()
     {
       // Arrange
       var projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.CreateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>()).Throws<Exception>();
+      projectServiceMock.CreateProject(Arg.Any<ProjectDto>()).Throws(info => new DbUpdateException("", (Exception)null));
 
       var mapper = SetupMockedMapper(new CreateProjectViewModel(), new ProjectDto());
       var projectController = new ProjectController(projectServiceMock, mapper);
@@ -200,7 +200,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var response = projectController.CreateProject(new CreateProjectViewModel());
 
       // Assert
-      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
+      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>());
       response.Should().BeOfType<BadRequestResult>();
     }
 
@@ -223,16 +223,16 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
 
-      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
+      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>());
       result.Should().BeEquivalentTo(controllerReturns);
     }
 
     [Fact]
-    public void UpdateProject_ServiceEncountersErrorUpdating_ReturnsBadRequest()
+    public void UpdateProject_ServiceEncountersDbUpdateException_ReturnsBadRequest()
     {
       // Arrange
       var projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.UpdateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>()).Throws<Exception>();
+      projectServiceMock.UpdateProject(Arg.Any<ProjectDto>()).Throws(info => new DbUpdateException("", (Exception)null));
 
       var mapper = SetupMockedMapper(new UpdateProjectViewModel(), new ProjectDto());
       var projectController = new ProjectController(projectServiceMock, mapper);
@@ -241,7 +241,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var response = projectController.UpdateProject(new UpdateProjectViewModel());
 
       // Assert
-      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
+      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>());
       response.Should().BeOfType<BadRequestResult>();
     }
 
@@ -265,11 +265,11 @@ namespace AdminCore.WebApi.Tests.Controllers
     }
 
     [Fact]
-    public void DeleteProject_ServiceEncounterErrorDeletingProject_ReturnsBadRequest()
+    public void DeleteProject_ServiceEncountersDbUpdateException_ReturnsBadRequest()
     {
       // Arrange
       var projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.DeleteProject(2832).Throws<Exception>();
+      projectServiceMock.When(x => x.DeleteProject(2832)).Do(x => throw new DbUpdateException("", (Exception)null));
 
       var projectController = new ProjectController(projectServiceMock, null);
 
@@ -316,12 +316,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       out IProjectService projectServiceMock, out ProjectController projectController, bool success = true)
     {
       projectServiceMock = Substitute.For<IProjectService>();
-      var anyProjectDto = Arg.Any<ProjectDto>();
-      projectServiceMock.CreateProject(serviceReturns, out anyProjectDto).Returns(x =>
-        {
-          x[1] = serviceReturns;
-          return success;
-        });
+      projectServiceMock.CreateProject(serviceReturns).Returns(serviceReturns);
 
       projectController = GetMockedProjectController(controllerInput, serviceReturns, projectServiceMock, out var mapper);
       mapper.Map<ProjectViewModel>(serviceReturns).Returns(controllerReturns);
@@ -331,13 +326,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       out IProjectService projectServiceMock, out ProjectController projectController, bool success = true)
     {
       projectServiceMock = Substitute.For<IProjectService>();
-      var anyProjectDto = Arg.Any<ProjectDto>();
-      projectServiceMock.UpdateProject(serviceReturns, out anyProjectDto).Returns(x =>
-      {
-        x[1] = serviceReturns;
-        return success;
-      });
-
+      projectServiceMock.UpdateProject(serviceReturns).Returns(serviceReturns);
 
       projectController = GetMockedProjectController(controllerInput, serviceReturns, projectServiceMock, out var mapper);
       mapper.Map<ProjectViewModel>(serviceReturns).Returns(controllerReturns);
@@ -347,7 +336,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       out IProjectService projectServiceMock, out ProjectController projectController, bool success = true)
     {
       projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.DeleteProject(projectId).Returns(success);
+      projectServiceMock.When(x => x.DeleteProject(projectId)).Do(x => { });
 
       projectController = new ProjectController(projectServiceMock, null);
     }

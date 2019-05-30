@@ -7,6 +7,7 @@ using AdminCore.DTOs.Project;
 using AdminCore.WebApi.Models.Client;
 using AdminCore.WebApi.Models.Project;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -27,10 +28,10 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        var created = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate), out var createdProject);
+        var createdProject = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate));
         return Created(createdProject.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdProject));
       }
-      catch (Exception e)
+      catch (DbUpdateException e)
       {
         return BadRequest();
       }
@@ -43,10 +44,10 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        var updated = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate), out var updatedProject);
+        var updatedProject = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate));
         return Ok(Mapper.Map<ProjectViewModel>(updatedProject));
       }
-      catch (Exception e)
+      catch (DbUpdateException e)
       {
         return BadRequest();
       }
@@ -61,7 +62,7 @@ namespace AdminCore.WebApi.Controllers
         _projectService.DeleteProject(projectId);
         return Ok();
       }
-      catch (Exception e)
+      catch (DbUpdateException e)
       {
         return BadRequest();
       }

@@ -6,6 +6,7 @@ using AdminCore.DAL.Models;
 using AdminCore.DTOs.Project;
 using AdminCore.Services.Base;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.Services
 {
@@ -17,55 +18,28 @@ namespace AdminCore.Services
             _mapper = mapper;
         }
 
-        public bool CreateProject(ProjectDto projectToSave, out ProjectDto createdProject)
+        public ProjectDto CreateProject(ProjectDto projectToCreate)
         {
-            try
-            {
-                var project = _mapper.Map<Project>(projectToSave);
-                var savedProject = DatabaseContext.ProjectRepository.Insert(project);
-                DatabaseContext.SaveChanges();
+            var project = _mapper.Map<Project>(projectToCreate);
+            var savedProject = DatabaseContext.ProjectRepository.Insert(project);
+            DatabaseContext.SaveChanges();
 
-                createdProject = _mapper.Map<ProjectDto>(savedProject);
-                return true;
-            }
-            catch (Exception e)
-            {
-                createdProject = null;
-                return false;
-            }
+            return _mapper.Map<ProjectDto>(savedProject);
         }
 
-        public bool UpdateProject(ProjectDto projectToUpdate, out ProjectDto updatedProject)
+        public ProjectDto UpdateProject(ProjectDto projectToUpdate)
         {
-            try
-            {
-                var project = _mapper.Map<Project>(projectToUpdate);
-                var updateProject = DatabaseContext.ProjectRepository.Update(project);
-                DatabaseContext.SaveChanges();
+            var project = _mapper.Map<Project>(projectToUpdate);
+            var updateProject = DatabaseContext.ProjectRepository.Update(project);
+            DatabaseContext.SaveChanges();
 
-                updatedProject = _mapper.Map<ProjectDto>(updateProject);
-                return true;
-            }
-            catch (Exception e)
-            {
-                updatedProject = null;
-                return false;
-            }
+            return _mapper.Map<ProjectDto>(updateProject);
         }
 
-        public bool DeleteProject(int projectId)
+        public void DeleteProject(int projectId)
         {
-            try
-            {
-                DatabaseContext.ProjectRepository.Delete(projectId);
-                DatabaseContext.SaveChanges();
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
+            DatabaseContext.ProjectRepository.Delete(projectId);
+            DatabaseContext.SaveChanges();
         }
 
         public IList<ProjectDto> GetProjects()
