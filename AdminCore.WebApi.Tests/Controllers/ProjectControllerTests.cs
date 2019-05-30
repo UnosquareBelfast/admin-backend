@@ -19,8 +19,6 @@ namespace AdminCore.WebApi.Tests.Controllers
   public class ProjectControllerTests : BaseControllerTest
   {
 
-    private ProjectDto _anyProjectDto = Arg.Any<ProjectDto>();
-
     #region GetProjects
 
     [Theory]
@@ -28,12 +26,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     public void GetProjects_ServiceContainsListOfProjects_ReturnsOkWithProjectsInBody(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns)
     {
       // Arrange
-//      GetMockedResourcesGetProjects(serviceReturns, controllerReturns, out var projectServiceMock, out var projectController);
-
-      var projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.GetProjects().Returns(new List<ProjectDto>());
-
-      var projectController = GetMockedProjectController(serviceReturns, controllerReturns, projectServiceMock, out _);
+      GetMockedResourcesGetProjects(serviceReturns, controllerReturns, out var projectServiceMock, out var projectController);
 
       // Act
       var response = projectController.GetProjects();
@@ -189,7 +182,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var result = RetrieveValueFromActionResult<ProjectViewModel>(response, HttpStatusCode.Created);
 
       // Assert
-      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>(), out _anyProjectDto);
+      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
       result.Should().BeEquivalentTo(controllerReturns);
     }
 
@@ -198,7 +191,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       var projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.CreateProject(Arg.Any<ProjectDto>(), out _anyProjectDto).Throws<Exception>();
+      projectServiceMock.CreateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>()).Throws<Exception>();
 
       var mapper = SetupMockedMapper(new CreateProjectViewModel(), new ProjectDto());
       var projectController = new ProjectController(projectServiceMock, mapper);
@@ -207,7 +200,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var response = projectController.CreateProject(new CreateProjectViewModel());
 
       // Assert
-      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>(), out _anyProjectDto);
+      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
       response.Should().BeOfType<BadRequestResult>();
     }
 
@@ -230,7 +223,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
 
-      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>(), out _anyProjectDto);
+      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
       result.Should().BeEquivalentTo(controllerReturns);
     }
 
@@ -239,7 +232,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       // Arrange
       var projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.UpdateProject(Arg.Any<ProjectDto>(), out _anyProjectDto).Throws<Exception>();
+      projectServiceMock.UpdateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>()).Throws<Exception>();
 
       var mapper = SetupMockedMapper(new UpdateProjectViewModel(), new ProjectDto());
       var projectController = new ProjectController(projectServiceMock, mapper);
@@ -248,7 +241,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var response = projectController.UpdateProject(new UpdateProjectViewModel());
 
       // Assert
-      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>(), out _anyProjectDto);
+      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>(), out Arg.Any<ProjectDto>());
       response.Should().BeOfType<BadRequestResult>();
     }
 
