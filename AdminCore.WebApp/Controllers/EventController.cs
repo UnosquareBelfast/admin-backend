@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
-using AdminCore.WebApi.Models;
 using AdminCore.WebApi.Models.DataTransform;
 
 namespace AdminCore.WebApi.Controllers
@@ -330,7 +329,7 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        DateTime dt = DateTime.Parse(date);
+        DateTime.Parse(date);
         return true;
       }
       catch

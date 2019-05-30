@@ -13,8 +13,6 @@ namespace AdminCore.MailClients.Tests.SMTP
 {
     public class SmtpMailSenderTest
     {
-        private readonly IFixture _fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
-
         [Fact]
         public void SendMessages_WithTwoMessageDtoObjectsInList_CallsSendOnSmtpClientTwoTimes()
         {
