@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using AdminCore.Common.Interfaces;
+using AdminCore.DTOs.LinkGenerator;
 using AdminCore.LinkGenerator.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace AdminCore.WebApi.Controllers
             _mapper = mapper;
             _dateService = dateService;
         }
-        
+
         [HttpGet("event-response/{hashId}")]
         public IActionResult GetEventByEventId(string hashId)
         {
@@ -37,32 +38,38 @@ namespace AdminCore.WebApi.Controllers
                 return GenerateResponse(HttpStatusCode.NoContent, $"Invalid request: {hashId}.");
             }
 
-            if (eventRequest.Expired)
-            {
-                resultStatus = GenerateResponse(HttpStatusCode.BadRequest, $"Request expired: {hashId}");
-            }
-            else if (eventRequest.AutoApproved)
+            if (eventRequest.Expired && eventRequest.AutoApproved)
             {
                 var lifeCycle = _eventService.GetEventRequestType(eventRequest.RequestTypeId).RequestLifeCycle;
                 resultStatus = GenerateResponse(HttpStatusCode.BadRequest, $"Request was automatically approved within {lifeCycle} hours as no response was recorded.");
 
-                // TODO ~ provide event reference number
+                // TODO ~ provide event reference number (https://unosquarebelfast.atlassian.net/browse/LM-58)
+            }
+            else if (eventRequest.Expired && !eventRequest.AutoApproved)
+            {
+                resultStatus = GenerateResponse(HttpStatusCode.BadRequest, $"Request expired: {hashId}");
             }
             else
             {
-                try
-                {
-                    var eventId = _eventRequestLinkGenerator.Decode(eventRequest.Salt, eventRequest.Hash);
-                    var eventDto = _eventService.GetEvent(eventId);
-                    // TODO ~ approve by client (use fs workflow)
-                }
-                catch (Exception e)
-                {
-                    resultStatus = GenerateResponse(HttpStatusCode.NotFound, $"Invalid request: {e.Message}.");
-                }
+                resultStatus = EvaluateEventRequest(resultStatus, eventRequest);
             }
 
             return resultStatus ?? GenerateResponse(HttpStatusCode.NoContent, $"Invalid request: {hashId}.");
+        }
+
+        private ObjectResult EvaluateEventRequest(ObjectResult resultStatus, EventRequestDto eventRequest)
+        {
+            try
+            {
+                var eventId = _eventRequestLinkGenerator.Decode(eventRequest.Salt, eventRequest.Hash);
+                var eventDto = _eventService.GetEvent(eventId);
+                // TODO ~ approve by client once workflow impl is completed (https://unosquarebelfast.atlassian.net/browse/LM-2)
+            }
+            catch (Exception e)
+            {
+                resultStatus = GenerateResponse(HttpStatusCode.NotFound, $"Invalid request: {e.Message}.");
+            }
+            return resultStatus;
         }
 
         private ObjectResult GenerateResponse(HttpStatusCode statusCode, string message)
