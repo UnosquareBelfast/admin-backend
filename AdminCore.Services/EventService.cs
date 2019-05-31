@@ -123,6 +123,17 @@ namespace AdminCore.Services
       return _mapper.Map<EventRequestDto>(eventRequest);
     }
 
+    public EventRequestTypeDto GetEventRequestType(int requestTypeId)
+    {
+      var requestType = GetEventRequestTypeByRequestTypeId(requestTypeId);
+      return _mapper.Map<EventRequestTypeDto>(requestType);
+    }
+
+    public void EvaluateRequest(EventRequestDto eventRequest)
+    {
+      // todo
+    }
+
     public void UpdateEventStatus(int eventId, EventStatuses status)
     {
       var eventToUpdate = GetEventById(eventId);
@@ -351,13 +362,19 @@ namespace AdminCore.Services
     {
       return DatabaseContext.EventRequestRepository.GetSingle(eventRequest => eventRequest.Hash == hashId,
         eventRequest => eventRequest.RequestTypeId,
-        eventRequest => eventRequest.EventId,
         eventRequest => eventRequest.EventDateId,
         eventRequest => eventRequest.Salt,
         eventRequest => eventRequest.TimeCreated,
         eventRequest => eventRequest.TimeExpires,
         eventRequest => eventRequest.Expired,
         eventRequest => eventRequest.AutoApproved);
+    }
+
+    private EventRequestType GetEventRequestTypeByRequestTypeId(int requestTypeId)
+    {
+      return DatabaseContext.EventRequestTypeRepository.GetSingle(eventRequest => eventRequest.RequestTypeId == requestTypeId,
+        requestType => requestType.RequestDescription,
+        requestType => requestType.RequestLifeCycle);
     }
 
     private bool IsDateRangeLessThanTotalHolidaysRemaining(EventDateDto eventDates, int employeeId)

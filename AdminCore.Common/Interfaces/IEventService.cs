@@ -26,6 +26,10 @@ namespace AdminCore.Common.Interfaces
 
     EventRequestDto GetEventRequest(string hashId);
 
+    EventRequestTypeDto GetEventRequestType(int requestTypeId);
+
+    void EvaluateRequest(EventRequestDto eventRequest);
+
     void CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId);
 
     void UpdateEvent(EventDateDto eventDateDto, string message, int employeeId);
