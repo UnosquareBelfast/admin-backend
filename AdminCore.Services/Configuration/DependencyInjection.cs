@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using AdminCore.DataETL;
+using AdminCore.LinkGenerator.Interfaces;
+using AdminCore.LinkGenerator.LinkGenerators;
 using AdminCore.MailClients.Interfaces;
 using AdminCore.MailClients.SMTP;
 using AdminCore.MailClients.SMTP.Adapters;
@@ -53,6 +55,8 @@ namespace AdminCore.Services.Configuration
         services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
         services.AddScoped<IMailSender, SmtpMailSender>();
         services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
+
+        services.AddScoped<ILinkGenerator, EventRequest>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

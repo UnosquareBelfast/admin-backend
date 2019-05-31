@@ -19,13 +19,12 @@
     <ProjectReference Include="..\AdminCore.DataETL\AdminCore.DataETL.csproj" />
     <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
     <ProjectReference Include="..\AdminCore.Extensions\AdminCore.Extensions.csproj" />
+    <ProjectReference Include="..\AdminCore.LinkGenerator\AdminCore.LinkGenerator.csproj" />
     <ProjectReference Include="..\AdminCore.MailClients\AdminCore.MailClients.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
-      <HintPath>..\..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.abstractions\2.1.1\lib\netstandard2.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
-    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Abstractions" />
   </ItemGroup>
 
 </Project>
