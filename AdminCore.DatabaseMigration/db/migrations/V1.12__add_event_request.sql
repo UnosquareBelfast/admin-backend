@@ -50,10 +50,6 @@ CREATE TABLE IF NOT EXISTS public.event_request
         REFERENCES public.event_request_type (request_type_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
-    CONSTRAINT event_event_id_fkey FOREIGN KEY (event_id)
-        REFERENCES public.event (event_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
     CONSTRAINT event_date_event_date_id_fkey FOREIGN KEY (event_date_id)
         REFERENCES public.event_date (event_date_id) MATCH SIMPLE
         ON UPDATE NO ACTION
