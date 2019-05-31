@@ -20,6 +20,8 @@ namespace AdminCore.DAL
     
     IRepository<EventRequest> EventRequestRepository { get; }
 
+    IRepository<EventRequestType> EventRequestTypeRepository { get; }
+
     IRepository<EventDate> EventDatesRepository { get; }
 
     IRepository<EventMessage> EventMessageRepository { get; }

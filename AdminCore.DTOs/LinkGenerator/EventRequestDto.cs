@@ -8,8 +8,6 @@ namespace AdminCore.DTOs.LinkGenerator
 
         public int RequestTypeId { get; set; }
 
-        public int EventId { get; set; }
-
         public int EventDateId { get; set; }
 
         public string Salt { get; set; }

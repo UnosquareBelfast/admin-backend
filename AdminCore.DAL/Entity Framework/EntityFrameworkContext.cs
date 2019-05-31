@@ -31,6 +31,8 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<EventRequest> _eventRequestRepository;
 
+    private IRepository<EventRequestType> _eventRequestTypeRepository;
+
     private IRepository<EventStatus> _eventStatusRepository;
 
     private IRepository<EventType> _eventTypeRepository;
@@ -43,9 +45,7 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<Team> _teamRepository;
 
-    public EntityFrameworkContext()
-    {
-    }
+    public EntityFrameworkContext() {}
 
     public EntityFrameworkContext(AdminCoreContext adminCoreContext)
     {
@@ -83,6 +83,9 @@ namespace AdminCore.DAL.Entity_Framework
 
     public IRepository<EventRequest> EventRequestRepository =>
       _eventRequestRepository ?? (_eventRequestRepository = RetrieveRepository<EventRequest>());
+
+    public IRepository<EventRequestType> EventRequestTypeRepository =>
+      _eventRequestTypeRepository ?? (_eventRequestTypeRepository = RetrieveRepository<EventRequestType>());
 
     public virtual IRepository<EventMessage> EventMessageRepository =>
       _eventMessageRepository ?? (_eventMessageRepository = RetrieveRepository<EventMessage>());
