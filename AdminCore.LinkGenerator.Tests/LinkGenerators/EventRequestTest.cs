@@ -1,8 +1,9 @@
 ﻿using System;
+using AdminCore.LinkGenerator.Interfaces;
+using AdminCore.LinkGenerator.LinkGenerators;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
-using RequestLinkGenerator.Interfaces;
-using RequestLinkGenerator.LinkGenerators;
+
 using Xunit;
 
 namespace AdminCore.LinkGenerator.Tests.LinkGenerators
