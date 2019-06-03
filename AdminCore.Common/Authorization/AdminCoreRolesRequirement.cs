@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using AdminCore.Constants.Enums;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AdminCore.Services.Authorization
+namespace AdminCore.Common.Authorization
 {
     public class AdminCoreRolesRequirement : IAuthorizationRequirement
     {

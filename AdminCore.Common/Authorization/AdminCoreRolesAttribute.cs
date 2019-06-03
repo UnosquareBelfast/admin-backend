@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AdminCore.Services.Authorization
+namespace AdminCore.Common.Authorization
 {
     public class AdminCoreRolesAttribute : AuthorizeAttribute
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AdminCore.Constants.Enums;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AdminCore.Services.Authorization
+namespace AdminCore.Common.Authorization
 {
     public class AdminCoreRolesPolicyProvider : IAuthorizationPolicyProvider
     {
@@ -29,9 +29,7 @@ namespace AdminCore.Services.Authorization
             return Task.FromResult<AuthorizationPolicy>(null);
         }
 
-        public Task<AuthorizationPolicy> GetDefaultPolicyAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public Task<AuthorizationPolicy> GetDefaultPolicyAsync() =>
+            Task.FromResult(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
     }
 }

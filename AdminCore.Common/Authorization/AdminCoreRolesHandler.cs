@@ -5,7 +5,7 @@ using AdminCore.Constants;
 using AdminCore.Constants.Enums;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AdminCore.Services.Authorization
+namespace AdminCore.Common.Authorization
 {
     public class AdminCoreRolesHandler : AuthorizationHandler<AdminCoreRolesRequirement>
     {

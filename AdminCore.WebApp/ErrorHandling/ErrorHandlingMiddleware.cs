@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using AdminCore.WebApi.Exceptions;
+using AdminCore.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 

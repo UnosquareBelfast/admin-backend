@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AdminCore.WebApi.Exceptions
+namespace AdminCore.Common.Exceptions
 {
   public class UserNotRegisteredException : Exception
   {

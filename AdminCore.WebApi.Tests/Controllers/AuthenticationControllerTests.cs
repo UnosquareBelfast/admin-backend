@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Net;
+using AdminCore.Common.Exceptions;
 using AdminCore.Common.Interfaces;
 using AdminCore.DTOs.Employee;
 using AdminCore.WebApi.Controllers;
-using AdminCore.WebApi.Exceptions;
 using AdminCore.WebApi.Mappings;
 using AdminCore.WebApi.Tests.Exceptions;
 using AutoMapper;

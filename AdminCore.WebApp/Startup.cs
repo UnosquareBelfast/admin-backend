@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using AdminCore.Services.Authorization;
+using AdminCore.Common.Authorization;
 using AdminCore.Services.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -32,7 +32,6 @@ namespace AdminCore.WebApi
 //        {
 //          policy.RequireClaim(ClaimTypes.Role, "Admin");
 //        })
-          options.AddPolicy("RoleRequirement", policy => policy.Requirements.Add(new AdminCoreRolesRequirement()))
           );
 
       services

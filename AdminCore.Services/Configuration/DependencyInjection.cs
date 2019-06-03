@@ -10,13 +10,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AdminCore.Common.Authorization;
 using AdminCore.DataETL;
 using AdminCore.MailClients.Interfaces;
 using AdminCore.MailClients.SMTP;
 using AdminCore.MailClients.SMTP.Adapters;
 using AdminCore.MailClients.SMTP.Configuration;
 using AdminCore.MailClients.SMTP.Interfaces;
-using AdminCore.Services.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AdminCore.Services.Configuration

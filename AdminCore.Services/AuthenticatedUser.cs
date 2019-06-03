@@ -3,10 +3,10 @@ using AdminCore.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using AdminCore.Common;
+using AdminCore.Common.Exceptions;
 using AdminCore.Constants;
 using AdminCore.Constants.Enums;
 using AdminCore.DTOs.Employee;
-using AdminCore.WebApi.Exceptions;
 
 namespace AdminCore.Services
 {
