@@ -48,12 +48,12 @@ namespace AdminCore.WebApi.Controllers
     public IActionResult GetEmployeeTeamSnapshot()
     {
       var employeeTeamSnapshot = _dashboardService.GetTeamDashboardEvents(_employee.EmployeeId, DateTime.Today);
-      if (employeeTeamSnapshot.Any())
+      if (employeeTeamSnapshot == null || !employeeTeamSnapshot.Any())
       {
-        return Ok(Mapper.Map<IList<ClientSnapshotViewModel>>(employeeTeamSnapshot));
+        return NoContent();
       }
 
-      return NoContent();
+      return Ok(Mapper.Map<IList<ClientSnapshotViewModel>>(employeeTeamSnapshot));
     }
 
     [HttpGet("getTeamEvents/{date}")]
