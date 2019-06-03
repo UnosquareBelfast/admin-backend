@@ -38,7 +38,7 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpPut]
-    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IList<ProjectViewModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult UpdateProject([FromBody] UpdateProjectViewModel projectToUpdate)
     {
@@ -69,7 +69,7 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IList<ProjectViewModel>), StatusCodes.Status200OK)]
     public IActionResult GetProjects()
     {
       var projectDtoList = _projectService.GetProjects();
@@ -77,7 +77,7 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("{projectId}")]
-    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IList<ProjectViewModel>), StatusCodes.Status200OK)]
     public IActionResult GetProjectsById(int projectId)
     {
       var projectDtoList = _projectService.GetProjectsById(projectId);
@@ -85,7 +85,7 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("client/{clientId}")]
-    [ProducesResponseType(typeof(IList<ClientViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IList<ProjectViewModel>), StatusCodes.Status200OK)]
     public IActionResult GetProjectsByClientId(int clientId)
     {
       var projectDtoList = _projectService.GetProjectsByClientId(clientId);
