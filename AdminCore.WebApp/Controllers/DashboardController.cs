@@ -8,6 +8,7 @@ using System.Linq;
 using AdminCore.DTOs.Employee;
 using AdminCore.WebApi.Models.Dashboard;
 using AdminCore.WebApi.Models.Event;
+using Microsoft.AspNetCore.Http;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -26,6 +27,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("getDashboardSnapshot")]
+    [ProducesResponseType(typeof(IList<DashboardEventViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetDashboardSnapshot()
     {
       var dashboardSnapshot = _dashboardService.GetEmployeeDashboardEvents(_employee.EmployeeId, DateTime.Today);
@@ -38,6 +41,7 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("getEmployeeEvents/{date}")]
+    [ProducesResponseType(typeof(IList<EventViewModel>), StatusCodes.Status200OK)]
     public IActionResult GetEmployeeEvents(DateTime date)
     {
       var employeeEvents = _dashboardService.GetEmployeeEventsForMonth(_employee.EmployeeId, date);
@@ -45,6 +49,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("getEmployeeTeamSnapshot")]
+    [ProducesResponseType(typeof(IList<ClientSnapshotViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetEmployeeTeamSnapshot()
     {
       var employeeTeamSnapshot = _dashboardService.GetTeamDashboardEvents(_employee.EmployeeId, DateTime.Today);
@@ -57,6 +63,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("getTeamEvents/{date}")]
+    [ProducesResponseType(typeof(IList<EventViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetTeamEvents(DateTime date)
     {
       var teamEvents = _dashboardService.GetEmployeeTeamEvents(_employee.EmployeeId, date);
