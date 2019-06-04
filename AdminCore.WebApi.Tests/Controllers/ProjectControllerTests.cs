@@ -4,6 +4,7 @@ using AdminCore.WebApi.Controllers;
 using NSubstitute;
 using System.Collections.Generic;
 using System.Net;
+using AdminCore.DAL.Models;
 using AdminCore.DTOs.Project;
 using AdminCore.WebApi.Models.Project;
 using AdminCore.WebApi.Tests.ClassData;
@@ -23,47 +24,55 @@ namespace AdminCore.WebApi.Tests.Controllers
 
     [Theory]
     [ClassData(typeof(ProjectControllerClassData.ListOfSpecificIdProjectDtosViewModelsClassData))]
-    public void GetProjects_ServiceContainsListOfProjects_ReturnsOkWithProjectsInBody(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns)
+    public void GetProjects_ServiceContainsProjects_ReturnsOkWithExpectedNumberItemsInBodyWithAllCallsReceived(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
+      int expectedReturnCount)
     {
       // Arrange
-      GetMockedResourcesGetProjects(serviceReturns, controllerReturns, out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjects(serviceReturns, controllerReturns, out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
       var response = projectController.GetProjects();
 
-      var resultList = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(expectedReturnCount);
       projectServiceMock.Received(1).GetProjects();
-      resultList.Should().BeEquivalentTo(controllerReturns);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == expectedReturnCount));
     }
 
     [Fact]
-    public void GetProjects_ServiceReturnsEmptyList_ReturnsOk()
+    public void GetProjects_ServiceReturnsEmptyList_ReturnsOkWithEmptyListInBodyWithAllCallsReceived()
     {
       // Arrange
-      GetMockedResourcesGetProjects(new List<ProjectDto>(), new List<ProjectViewModel>(), out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjects(new List<ProjectDto>(), new List<ProjectViewModel>(), out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
       var response = projectController.GetProjects();
 
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(0);
       projectServiceMock.Received(1).GetProjects();
-      Assert.IsType<OkObjectResult>(response);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
     }
 
     [Fact]
-    public void GetProjects_ServiceReturnsNull_ReturnsOk()
+    public void GetProjects_ServiceReturnsNull_ReturnsOkWithEmptyListInBodyWithAllCallsReceived()
     {
       // Arrange
-      GetMockedResourcesGetProjects(null, null, out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjects(null, new List<ProjectViewModel>(), out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
       var response = projectController.GetProjects();
 
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(0);
       projectServiceMock.Received(1).GetProjects();
-      Assert.IsType<OkObjectResult>(response);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
     }
 
     #endregion
@@ -72,47 +81,55 @@ namespace AdminCore.WebApi.Tests.Controllers
 
     [Theory]
     [ClassData(typeof(ProjectControllerClassData.ListOfSpecificIdProjectDtosViewModelsClassData))]
-    public void GetProjectsById_ServiceContainsListOfProjects_ReturnsOkWithProjectsInBody(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns)
+    public void GetProjectsById_ServiceContainsListOfProjects_ReturnsOkWithExpectedNumberItemsInBodyWithAllCallsReceived(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
+      int expectedReturnCount)
     {
       // Arrange
-      GetMockedResourcesGetProjectsById(projectId, serviceReturns, controllerReturns, out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjectsById(serviceReturns, controllerReturns, out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
       var response = projectController.GetProjectsById(projectId);
 
-      var resultList = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(expectedReturnCount);
       projectServiceMock.Received(1).GetProjectsById(Arg.Any<int>());
-      resultList.Should().BeEquivalentTo(controllerReturns);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == expectedReturnCount));
     }
 
     [Fact]
-    public void GetProjectsById_ServiceReturnsEmptyList_ReturnsOk()
+    public void GetProjectsById_ServiceReturnsEmptyList_ReturnsOkWithEmptyListInBodyWithAllCallsReceived()
     {
       // Arrange
-      GetMockedResourcesGetProjectsById(5, new List<ProjectDto>(), new List<ProjectViewModel>(), out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjectsById(new List<ProjectDto>(), new List<ProjectViewModel>(), out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
-      var response = projectController.GetProjectsById(5);
+      var response = projectController.GetProjectsById(546);
 
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(0);
       projectServiceMock.Received(1).GetProjectsById(Arg.Any<int>());
-      Assert.IsType<OkObjectResult>(response);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
     }
 
     [Fact]
-    public void GetProjectsById_ServiceReturnsNull_ReturnsOk()
+    public void GetProjectsById_ServiceReturnsNull_ReturnsOkWithEmptyListInBodyWithAllCallsReceived()
     {
       // Arrange
-      GetMockedResourcesGetProjectsById(5, null, null, out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjectsById(null, new List<ProjectViewModel>(), out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
-      var response = projectController.GetProjectsById(5);
+      var response = projectController.GetProjectsById(234);
 
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(0);
       projectServiceMock.Received(1).GetProjectsById(Arg.Any<int>());
-      Assert.IsType<OkObjectResult>(response);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
     }
 
     #endregion
@@ -121,47 +138,55 @@ namespace AdminCore.WebApi.Tests.Controllers
 
     [Theory]
     [ClassData(typeof(ProjectControllerClassData.ListOfSpecificIdProjectDtosViewModelsClassData))]
-    public void GetProjectsByClientId_ServiceContainsListOfProjects_ReturnsOkWithProjectsInBody(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns)
+    public void GetProjectsByClientId_ServiceContainsListOfProjects_ReturnsOkWithExpectedNumberItemsInBodyWithAllCallsReceived(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
+      int expectedReturnCount)
     {
       // Arrange
-      GetMockedResourcesGetProjectsByClientId(projectId, serviceReturns, controllerReturns, out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjectsByClientId(serviceReturns, controllerReturns, out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
       var response = projectController.GetProjectsByClientId(projectId);
 
-      var resultList = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(expectedReturnCount);
       projectServiceMock.Received(1).GetProjectsByClientId(Arg.Any<int>());
-      resultList.Should().BeEquivalentTo(controllerReturns);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == expectedReturnCount));
     }
 
     [Fact]
-    public void GetProjectsByClientId_ServiceReturnsEmptyList_ReturnsOk()
+    public void GetProjectsByClientId_ServiceReturnsEmptyList_ReturnsOkWithEmptyListInBodyWithAllCallsReceived()
     {
       // Arrange
-      GetMockedResourcesGetProjectsByClientId(5, new List<ProjectDto>(), new List<ProjectViewModel>(), out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjectsByClientId(new List<ProjectDto>(), new List<ProjectViewModel>(), out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
-      var response = projectController.GetProjectsByClientId(5);
+      var response = projectController.GetProjectsByClientId(543);
 
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(0);
       projectServiceMock.Received(1).GetProjectsByClientId(Arg.Any<int>());
-      Assert.IsType<OkObjectResult>(response);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
     }
 
     [Fact]
-    public void GetProjectsByClientId_ServiceReturnsNull_ReturnsOk()
+    public void GetProjectsByClientId_ServiceReturnsNull_ReturnsOkWithEmptyListInBodyWithAllCallsReceived()
     {
       // Arrange
-      GetMockedResourcesGetProjectsByClientId(5, null, null, out var projectServiceMock, out var projectController);
+      GetMockedResourcesGetProjectsByClientId(null, new List<ProjectViewModel>(), out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
-      var response = projectController.GetProjectsByClientId(5);
+      var response = projectController.GetProjectsByClientId(3211);
 
       // Assert
+      var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
+      result.Should().NotBeNull().And.HaveCount(0);
       projectServiceMock.Received(1).GetProjectsByClientId(Arg.Any<int>());
-      Assert.IsType<OkObjectResult>(response);
+
+      mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
     }
 
     #endregion
@@ -170,38 +195,41 @@ namespace AdminCore.WebApi.Tests.Controllers
 
     [Theory]
     [ClassData(typeof(ProjectControllerClassData.ListOfProjectDtosCreateViewModelsClassData))]
-    public void CreateProject_ServiceCreatesProject_ReturnsOkWithCreatedProjectInBody(CreateProjectViewModel controllerInput, ProjectDto serviceReturns,
-      ProjectViewModel controllerReturns)
+    public void CreateProject_ServiceCreatesProject_ReturnsOkWithCreatedProjectInBodyAndAllCalls(CreateProjectViewModel controllerInput, ProjectDto serviceReturns)
     {
       // Arrange
-      GetMockedResourcesCreateProject(controllerInput, serviceReturns, controllerReturns, out var projectServiceMock, out var projectController);
+      GetMockedResourcesCreateProject(serviceReturns, out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
       var response = projectController.CreateProject(controllerInput);
 
-      var result = RetrieveValueFromActionResult<ProjectViewModel>(response, HttpStatusCode.Created);
-
       // Assert
+      var result = RetrieveValueFromActionResult<ProjectViewModel>(response, HttpStatusCode.Created);
       projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>());
-      result.Should().BeEquivalentTo(controllerReturns);
+      result.Should().BeOfType<ProjectViewModel>();
+      mapper.Received(1).Map<ProjectDto>(Arg.Any<CreateProjectViewModel>());
+      mapper.Received(1).Map<ProjectViewModel>(Arg.Any<ProjectDto>());
     }
 
     [Fact]
-    public void CreateProject_ServiceEncountersDbUpdateException_ReturnsBadRequest()
+    public void CreateProject_ServiceEncountersDbUpdateException_ReturnsBadRequestAndAllCallsReceived()
     {
       // Arrange
       var projectServiceMock = Substitute.For<IProjectService>();
       projectServiceMock.CreateProject(Arg.Any<ProjectDto>()).Throws(info => new DbUpdateException("", (Exception)null));
 
-      var mapper = SetupMockedMapper(new CreateProjectViewModel(), new ProjectDto());
+      var mapper = Substitute.For<IMapper>();
+      mapper.Map<ProjectDto>(Arg.Any<CreateProjectViewModel>()).Returns(new ProjectDto());
+
       var projectController = new ProjectController(projectServiceMock, mapper);
 
       // Act
       var response = projectController.CreateProject(new CreateProjectViewModel());
 
       // Assert
-      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>());
       response.Should().BeOfType<BadRequestResult>();
+      projectServiceMock.Received(1).CreateProject(Arg.Any<ProjectDto>());
+      mapper.Received(1).Map<ProjectDto>(Arg.Any<CreateProjectViewModel>());
     }
 
     #endregion
@@ -210,39 +238,41 @@ namespace AdminCore.WebApi.Tests.Controllers
 
     [Theory]
     [ClassData(typeof(ProjectControllerClassData.ListOfProjectDtosUpdateViewModelsClassData))]
-    public void UpdateProject_ServiceUpdatesProject_ReturnsOkWithProjectInBody(UpdateProjectViewModel controllerInput, ProjectDto serviceReturns,
-      ProjectViewModel controllerReturns)
+    public void UpdateProject_ServiceUpdatesProject_ReturnsOkWithUpdatedProjectInBodyAndAllCalls(UpdateProjectViewModel controllerInput, ProjectDto serviceReturns)
     {
       // Arrange
-      GetMockedResourcesUpdateProject(controllerInput, serviceReturns, controllerReturns, out var projectServiceMock, out var projectController);
+      GetMockedResourcesUpdateProject(serviceReturns, out var projectServiceMock, out var projectController, out var mapper);
 
       // Act
       var response = projectController.UpdateProject(controllerInput);
 
-      var result = RetrieveValueFromActionResult<ProjectViewModel>(response);
-
       // Assert
-
+      var result = RetrieveValueFromActionResult<ProjectViewModel>(response);
       projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>());
-      result.Should().BeEquivalentTo(controllerReturns);
+      result.Should().BeOfType<ProjectViewModel>();
+      mapper.Received(1).Map<ProjectDto>(Arg.Any<UpdateProjectViewModel>());
+      mapper.Received(1).Map<ProjectViewModel>(Arg.Any<ProjectDto>());
     }
 
     [Fact]
-    public void UpdateProject_ServiceEncountersDbUpdateException_ReturnsBadRequest()
+    public void UpdateProject_ServiceEncountersDbUpdateException_ReturnsBadRequestAndAllCallsReceived()
     {
       // Arrange
       var projectServiceMock = Substitute.For<IProjectService>();
       projectServiceMock.UpdateProject(Arg.Any<ProjectDto>()).Throws(info => new DbUpdateException("", (Exception)null));
 
-      var mapper = SetupMockedMapper(new UpdateProjectViewModel(), new ProjectDto());
+      var mapper = Substitute.For<IMapper>();
+      mapper.Map<ProjectDto>(Arg.Any<UpdateProjectViewModel>()).Returns(new ProjectDto());
+
       var projectController = new ProjectController(projectServiceMock, mapper);
 
       // Act
       var response = projectController.UpdateProject(new UpdateProjectViewModel());
 
       // Assert
-      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>());
       response.Should().BeOfType<BadRequestResult>();
+      projectServiceMock.Received(1).UpdateProject(Arg.Any<ProjectDto>());
+      mapper.Received(1).Map<ProjectDto>(Arg.Any<UpdateProjectViewModel>());
     }
 
     #endregion
@@ -260,8 +290,8 @@ namespace AdminCore.WebApi.Tests.Controllers
       var response = projectController.DeleteProject(projectId);
 
       // Assert
-      projectServiceMock.Received(1).DeleteProject(Arg.Any<int>());
       response.Should().BeOfType<OkResult>();
+      projectServiceMock.Received(1).DeleteProject(Arg.Any<int>());
     }
 
     [Fact]
@@ -277,8 +307,8 @@ namespace AdminCore.WebApi.Tests.Controllers
       var response = projectController.DeleteProject(2832);
 
       // Assert
-      projectServiceMock.Received(1).DeleteProject(Arg.Any<int>());
       response.Should().BeOfType<BadRequestResult>();
+      projectServiceMock.Received(1).DeleteProject(Arg.Any<int>());
     }
 
     #endregion
@@ -286,54 +316,54 @@ namespace AdminCore.WebApi.Tests.Controllers
     #region MockCreation
 
     private void GetMockedResourcesGetProjects(IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
-      out IProjectService projectServiceMock, out ProjectController projectController)
+      out IProjectService projectServiceMock, out ProjectController projectController, out IMapper mapper)
     {
       projectServiceMock = Substitute.For<IProjectService>();
       projectServiceMock.GetProjects().Returns(serviceReturns);
 
-      projectController = GetMockedProjectController(serviceReturns, controllerReturns, projectServiceMock, out _);
+      projectController = GetMockedProjectController<IList<ProjectDto>, IList<ProjectViewModel>>(controllerReturns, projectServiceMock, out mapper);
     }
 
-    private void GetMockedResourcesGetProjectsById(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
-      out IProjectService projectServiceMock, out ProjectController projectController)
+    private void GetMockedResourcesGetProjectsById(IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
+      out IProjectService projectServiceMock, out ProjectController projectController, out IMapper mapper)
     {
       projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.GetProjectsById(projectId).Returns(serviceReturns);
+      projectServiceMock.GetProjectsById(Arg.Any<int>()).Returns(serviceReturns);
 
-      projectController = GetMockedProjectController(serviceReturns, controllerReturns, projectServiceMock, out _);
+      projectController = GetMockedProjectController<IList<ProjectDto>, IList<ProjectViewModel>>(controllerReturns, projectServiceMock, out mapper);
     }
 
-    private void GetMockedResourcesGetProjectsByClientId(int projectId, IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
-      out IProjectService projectServiceMock, out ProjectController projectController)
+    private void GetMockedResourcesGetProjectsByClientId(IList<ProjectDto> serviceReturns, IList<ProjectViewModel> controllerReturns,
+      out IProjectService projectServiceMock, out ProjectController projectController, out IMapper mapper)
     {
       projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.GetProjectsByClientId(projectId).Returns(serviceReturns);
+      projectServiceMock.GetProjectsByClientId(Arg.Any<int>()).Returns(serviceReturns);
 
-      projectController = GetMockedProjectController(serviceReturns, controllerReturns, projectServiceMock, out _);
+      projectController = GetMockedProjectController<IList<ProjectDto>, IList<ProjectViewModel>>(controllerReturns, projectServiceMock, out mapper);
     }
 
-    private void GetMockedResourcesCreateProject(CreateProjectViewModel controllerInput, ProjectDto serviceReturns, ProjectViewModel controllerReturns,
-      out IProjectService projectServiceMock, out ProjectController projectController, bool success = true)
+    private void GetMockedResourcesCreateProject(ProjectDto serviceReturns,
+      out IProjectService projectServiceMock, out ProjectController projectController, out IMapper mapper)
     {
       projectServiceMock = Substitute.For<IProjectService>();
-      projectServiceMock.CreateProject(serviceReturns).Returns(serviceReturns);
+      projectServiceMock.CreateProject(Arg.Any<ProjectDto>()).Returns(serviceReturns);
 
-      projectController = GetMockedProjectController(controllerInput, serviceReturns, projectServiceMock, out var mapper);
-      mapper.Map<ProjectViewModel>(serviceReturns).Returns(controllerReturns);
+      projectController = GetMockedProjectController<CreateProjectViewModel, ProjectDto>(serviceReturns, projectServiceMock, out mapper);
+      mapper.Map<ProjectViewModel>(Arg.Any<ProjectDto>()).Returns(new ProjectViewModel());
     }
 
-    private void GetMockedResourcesUpdateProject(UpdateProjectViewModel controllerInput, ProjectDto serviceReturns, ProjectViewModel controllerReturns,
-      out IProjectService projectServiceMock, out ProjectController projectController, bool success = true)
+    private void GetMockedResourcesUpdateProject(ProjectDto serviceReturns,
+      out IProjectService projectServiceMock, out ProjectController projectController, out IMapper mapper)
     {
       projectServiceMock = Substitute.For<IProjectService>();
       projectServiceMock.UpdateProject(serviceReturns).Returns(serviceReturns);
 
-      projectController = GetMockedProjectController(controllerInput, serviceReturns, projectServiceMock, out var mapper);
-      mapper.Map<ProjectViewModel>(serviceReturns).Returns(controllerReturns);
+      projectController = GetMockedProjectController<UpdateProjectViewModel, ProjectDto>(serviceReturns, projectServiceMock, out mapper);
+      mapper.Map<ProjectViewModel>(Arg.Any<ProjectDto>()).Returns(new ProjectViewModel());
     }
 
     private void GetMockedResourcesDeleteProject(int projectId,
-      out IProjectService projectServiceMock, out ProjectController projectController, bool success = true)
+      out IProjectService projectServiceMock, out ProjectController projectController)
     {
       projectServiceMock = Substitute.For<IProjectService>();
       projectServiceMock.When(x => x.DeleteProject(projectId)).Do(x => { });
@@ -341,9 +371,10 @@ namespace AdminCore.WebApi.Tests.Controllers
       projectController = new ProjectController(projectServiceMock, null);
     }
 
-    private ProjectController GetMockedProjectController<TMapFrom, TMapTo>(TMapFrom mapFrom, TMapTo mapTo, IProjectService projectServiceMock, out IMapper mapper)
+    private ProjectController GetMockedProjectController<TMapFrom, TMapTo>(TMapTo mapTo, IProjectService projectServiceMock, out IMapper mapper)
     {
-      mapper = SetupMockedMapper(mapFrom, mapTo);
+      mapper = Substitute.For<IMapper>();
+      mapper.Map<TMapTo>(Arg.Any<TMapFrom>()).Returns(mapTo);
       return new ProjectController(projectServiceMock, mapper);
     }
 

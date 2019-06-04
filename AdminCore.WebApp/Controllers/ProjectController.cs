@@ -73,7 +73,7 @@ namespace AdminCore.WebApi.Controllers
     public IActionResult GetProjects()
     {
       var projectDtoList = _projectService.GetProjects();
-      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList));
+      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList ?? new List<ProjectDto>()));
     }
 
     [HttpGet("{projectId}")]
@@ -81,7 +81,7 @@ namespace AdminCore.WebApi.Controllers
     public IActionResult GetProjectsById(int projectId)
     {
       var projectDtoList = _projectService.GetProjectsById(projectId);
-      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList));
+      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList ?? new List<ProjectDto>()));
     }
 
     [HttpGet("client/{clientId}")]
@@ -89,7 +89,7 @@ namespace AdminCore.WebApi.Controllers
     public IActionResult GetProjectsByClientId(int clientId)
     {
       var projectDtoList = _projectService.GetProjectsByClientId(clientId);
-      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList));
+      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList ?? new List<ProjectDto>()));
     }
   }
 }

@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AdminCore.DTOs.Project;
 using AdminCore.DTOs.Team;
 using AdminCore.WebApi.Models.Project;
@@ -19,32 +20,20 @@ namespace AdminCore.WebApi.Tests.ClassData
                 fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
                 fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-                // ARGS: projectId: int, serviceReturns: IList<ProjectDto>, controllerReturns: IList<ProjectViewModel>
+                // ARGS: projectId: int, serviceReturns: IList<ProjectDto>, expectedReturnCount: int
                 yield return new object[]
                 {
                     ProjectId,
-                    new List<ProjectDto>
-                    {
-                        fixture.Create<ProjectDto>()
-                    },
-                    new List<ProjectViewModel>
-                    {
-                        fixture.Create<ProjectViewModel>()
-                    }
+                    fixture.CreateMany<ProjectDto>(1).ToList(),
+                    fixture.CreateMany<ProjectViewModel>(1).ToList(),
+                    1
                 };
                 yield return new object[]
                 {
                     ProjectId,
-                    new List<ProjectDto>
-                    {
-                        fixture.Create<ProjectDto>(),
-                        fixture.Create<ProjectDto>()
-                    },
-                    new List<ProjectViewModel>
-                    {
-                        fixture.Create<ProjectViewModel>(),
-                        fixture.Create<ProjectViewModel>()
-                    }
+                    fixture.CreateMany<ProjectDto>(2).ToList(),
+                    fixture.CreateMany<ProjectViewModel>(2).ToList(),
+                    2
                 };
             }
 
@@ -59,12 +48,11 @@ namespace AdminCore.WebApi.Tests.ClassData
                 fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
                 fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-                // ARGS: controllerInput: CreateProjectViewModel, serviceReturns: ProjectDto, controllerReturns: ProjectViewModel
+                // ARGS: controllerInput: CreateProjectViewModel, serviceReturns: ProjectDto
                 yield return new object[]
                 {
                     fixture.Create<CreateProjectViewModel>(),
-                    fixture.Create<ProjectDto>(),
-                    fixture.Create<ProjectViewModel>()
+                    fixture.Create<ProjectDto>()
                 };
             }
 
@@ -79,12 +67,11 @@ namespace AdminCore.WebApi.Tests.ClassData
                 fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
                 fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-                // ARGS: controllerInput: UpdateProjectViewModel, serviceReturns: ProjectDto, controllerReturns: ProjectViewModel
+                // ARGS: controllerInput: UpdateProjectViewModel, serviceReturns: ProjectDto
                 yield return new object[]
                 {
                     fixture.Create<UpdateProjectViewModel>(),
-                    fixture.Create<ProjectDto>(),
-                    fixture.Create<ProjectViewModel>()
+                    fixture.Create<ProjectDto>()
                 };
             }
 

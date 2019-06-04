@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Project;
 using AutoFixture;
@@ -18,51 +19,27 @@ namespace AdminCore.Services.Tests.ClassData
 
                 var projectId = fixture.Create<int>();
 
-                // ARGS projectId: int, dbReturns: IList<Project>, serviceReturns: IList<ProjectDto>
+                // ARGS projectId: int, dbReturns: IList<Project>, serviceReturns: IList<ProjectDto>, expectedReturnCount: int
                 yield return new object[]
                 {
                     projectId,
-                    new List<Project>
-                    {
-                        fixture.Build<Project>().With(x => x.ProjectId, projectId).Create()
-                    },
-                    new List<ProjectDto>
-                    {
-                        fixture.Build<ProjectDto>().With(x => x.ProjectId, projectId).Create()
-                    }
+                    fixture.CreateMany<Project>(1).ToList(),
+                    fixture.CreateMany<ProjectDto>(1).ToList(),
+                    1
                 };
                 yield return new object[]
                 {
                     projectId,
-                    new List<Project>
-                    {
-                        fixture.Build<Project>().With(x => x.ProjectId, projectId).Create(),
-                        fixture.Build<Project>().With(x => x.ProjectId, projectId).Create()
-                    },
-                    new List<ProjectDto>
-                    {
-                        fixture.Build<ProjectDto>().With(x => x.ProjectId, projectId).Create(),
-                        fixture.Build<ProjectDto>().With(x => x.ProjectId, projectId).Create()
-                    }
-                };
-                yield return new object[]
-                {
-                    projectId,
-                    new List<Project>
-                    {
-                        fixture.Build<Project>().With(x => x.ProjectId, projectId).Create(),
-                        fixture.Build<Project>().With(x => x.ProjectId, projectId + 1).Create()
-                    },
-                    new List<ProjectDto>
-                    {
-                        fixture.Build<ProjectDto>().With(x => x.ProjectId, projectId).Create()
-                    }
+                    fixture.CreateMany<Project>(2).ToList(),
+                    fixture.CreateMany<ProjectDto>(2).ToList(),
+                    2
                 };
                 yield return new object[]
                 {
                     projectId,
                     new List<Project>(),
-                    new List<ProjectDto>()
+                    new List<ProjectDto>(),
+                    0
                 };
             }
 
