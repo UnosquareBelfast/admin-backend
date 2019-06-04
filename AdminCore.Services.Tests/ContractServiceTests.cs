@@ -13,6 +13,7 @@ using AdminCore.DAL.Models;
 using AdminCore.DTOs;
 using AdminCore.DTOs.Team;
 using AdminCore.Services.Mappings;
+using AdminCore.Services.Tests.ClassData;
 using AutoMapper;
 using FluentAssertions;
 using NSubstitute;
@@ -116,60 +117,53 @@ namespace AdminCore.Services.Tests
       Assert.Empty(result);
     }
 
-    [Fact]
-    public void GetContractByProjectId_ContractRepoHasOneContractWithProjectId_ReturnOneContractDtoThatMatchContract()
+    [Theory]
+    [ClassData(typeof(ContractServiceClassData.ProjectIdFixtureListDataGetContractByProjectId))]
+    public void GetContractByProjectId_ContractRepoReturnsNonEmptyList_ServiceReturnsCorrectNumberOfItemsAndCorrectCallsReceived(int projectId, IList<Contract> ormReturns, int expectedReturnCount)
     {
       // Arrange
-      var contract = BuildContractModel();
-      var contractList = new List<Contract>{ contract };
-
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpContractRepository(databaseContext, contractList);
-
-      var contractService = new ContractService(databaseContext, Mapper);
+      var contractServiceMock = GetMockedResourcesGetContractByProjectId(ormReturns, out var ormContext, out var mapper);
 
       // Act
-      var result = contractService.GetContractByProjectId(1);
+      contractServiceMock.GetContractByProjectId(projectId);
 
       // Assert
-      databaseContext.ContractRepository.Received(1).Get();
-      AssertContractAndContractDtoAreIdentical(contract, result.First());
+      ormContext.ContractRepository.Received(1).Get(Arg.Any<Expression<Func<Contract, bool>>>(),
+        Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(),
+        Arg.Any<Expression<Func<Contract, object>>[]>());
+      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == expectedReturnCount));
     }
 
     [Fact]
-    public void GetContractByProjectId_ContractRepoHasMultipleContractWithProjectId_ReturnTwoContractDtoThatMatchContract()
+    public void GetContractByProjectId_ContractRepoReturnsEmptyList_ServiceReturnsEmptyListAndCorrectCallsReceived()
     {
       // Arrange
-      var contract = BuildContractModel();
-      var contractList = new List<Contract>{ contract };
-
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpContractRepository(databaseContext, contractList);
-
-      var contractService = new ContractService(databaseContext, Mapper);
+      var contractServiceMock = GetMockedResourcesGetContractByProjectId(new List<Contract>(), out var ormContext, out var mapper);
 
       // Act
-      var result = contractService.GetContractByProjectId(1);
+      contractServiceMock.GetContractByProjectId(234);
 
       // Assert
-      databaseContext.ContractRepository.Received(1).Get();
-      AssertContractAndContractDtoAreIdentical(contract, result.First());
+      ormContext.ContractRepository.Received(1).Get(Arg.Any<Expression<Func<Contract, bool>>>(),
+        Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(),
+        Arg.Any<Expression<Func<Contract, object>>[]>());
+      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == 0));
     }
 
     [Fact]
-    public void GetContractByProjectId_ContractRepoHasNoContractWithProjectId_ReturnEmptyList()
+    public void GetContractByProjectIdContractRepoReturnsNull_ServiceReturnsEmptyListAndCorrectCallsReceived()
     {
       // Arrange
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpContractRepository(databaseContext, new List<Contract>());
-
-      var contractService = new ContractService(databaseContext, Mapper);
+      var contractServiceMock = GetMockedResourcesGetContractByProjectId(null, out var ormContext, out var mapper);
 
       // Act
-      var result = contractService.GetContractByProjectId(1);
+      contractServiceMock.GetContractByProjectId(3535);
 
       // Assert
-      result.Should().BeEmpty();
+      ormContext.ContractRepository.Received(1).Get(Arg.Any<Expression<Func<Contract, bool>>>(),
+        Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(),
+        Arg.Any<Expression<Func<Contract, object>>[]>());
+      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == 0));
     }
 
     [Fact]
@@ -297,6 +291,28 @@ namespace AdminCore.Services.Tests
       {
         Assert.Equal(0, contract.EndDate.Value.CompareTo(contractDto.EndDate));
       }
+    }
+
+    private ContractService GetMockedResourcesGetContractByProjectId(IList<Contract> dbReturns, out EntityFrameworkContext ormContext, out IMapper mapper)
+    {
+      ormContext = GetMockedContractRepoGet(dbReturns);
+
+      mapper = Substitute.For<IMapper>();
+      mapper.Map<IList<ContractDto>>(Arg.Any<List<Contract>>()).Returns(new List<ContractDto>());
+
+      return new ContractService(ormContext, mapper);
+    }
+
+    private EntityFrameworkContext GetMockedContractRepoGet(IList<Contract> dbReturns)
+    {
+      var ormContext = Substitute.For<EntityFrameworkContext>(Substitute.For<AdminCoreContext>(Substitute.For<IConfiguration>()));
+      var teamRepoMock = Substitute.For<IRepository<Contract>>();
+      teamRepoMock.Get(Arg.Any<Expression<Func<Contract, bool>>>(),
+        Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(),
+        Arg.Any<Expression<Func<Contract, object>>[]>()).Returns(dbReturns);
+
+      ormContext.ContractRepository.Returns(teamRepoMock);
+      return ormContext;
     }
   }
 }

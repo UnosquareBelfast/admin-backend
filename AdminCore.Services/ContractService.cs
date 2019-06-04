@@ -42,7 +42,7 @@ namespace AdminCore.Services
     {
       var contractList = DatabaseContext.ContractRepository.Get(contract => contract.Team.ProjectId == projectId, null,
         contract => contract.Team, contract => contract.Team.Project.Client);
-      return _mapper.Map<IList<ContractDto>>(contractList);
+      return _mapper.Map<IList<ContractDto>>(contractList ?? new List<Contract>());
     }
 
     public IList<ContractDto> GetContractByEmployeeIdAndTeamId(int employeeId, int teamId)
