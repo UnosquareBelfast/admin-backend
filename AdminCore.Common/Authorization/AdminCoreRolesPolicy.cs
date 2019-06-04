@@ -38,18 +38,6 @@ namespace AdminCore.Common.Authorization
                 _options.AddPolicy(policyName, policy);
             }
 
-//            if (policyName.StartsWith(POLICY_PREFIX, StringComparison.OrdinalIgnoreCase))
-//            {
-//                var splitList = policyName.Split(separator).ToList();
-//                splitList = splitList.GetRange(1, splitList.Count - 1);
-//
-//                var employeeRolesList = splitList.Select(x => (EmployeeRoles) Enum.Parse(typeof(EmployeeRoles), x)).ToList();
-//
-//                policy = new AuthorizationPolicyBuilder();
-//                policy.AddRequirements(new AdminCoreRolesRequirement(employeeRolesList));
-//                return Task.FromResult(policy.Build());
-//            }
-
             return policy;
         }
     }

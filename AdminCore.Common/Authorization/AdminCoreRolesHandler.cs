@@ -18,8 +18,7 @@ namespace AdminCore.Common.Authorization
                 return Task.CompletedTask;
             }
 
-//            var parsed = Enum.TryParse<EmployeeRoles>(context.User.FindFirst(claimPredicate).Value, out var userRole);
-            var userRole = ConvertToEmployeeRoles(context.User.FindFirst(claimPredicate).Value);
+            var userRole = AzureRoleEnumConvert.ConvertToEmployeeRoles(context.User.FindFirst(claimPredicate).Value);
 
             if (requirement.UserRoles.Contains(userRole))
             {
@@ -27,17 +26,6 @@ namespace AdminCore.Common.Authorization
             }
 
             return Task.CompletedTask;
-        }
-
-        private EmployeeRoles ConvertToEmployeeRoles(string roleName)
-        {
-            switch(roleName)
-            {
-                case "Admin":
-                    return EmployeeRoles.SystemAdministrator;
-                default:
-                    return EmployeeRoles.User;
-            }
         }
     }
 }
