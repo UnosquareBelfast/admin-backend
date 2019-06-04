@@ -14,8 +14,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
+using AdminCore.Common.Authorization;
 using AdminCore.WebApi.Models;
 using AdminCore.WebApi.Models.DataTransform;
+using ChoETL;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -159,6 +161,7 @@ namespace AdminCore.WebApi.Controllers
       return StatusCode((int)HttpStatusCode.NoContent, "No Holiday exists");
     }
 
+    [AdminCoreRoles(nameof(EmployeeRoles.SystemAdministrator))]
     [HttpPost]
     public IActionResult CreateEvent(CreateEventViewModel createEventViewModel)
     {

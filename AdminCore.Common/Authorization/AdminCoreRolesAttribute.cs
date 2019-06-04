@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,9 @@ namespace AdminCore.Common.Authorization
 
         private const char separator = '_';
 
-        public AdminCoreRolesAttribute(IList<string> adminCoreRoles) => AdminCoreRoles = adminCoreRoles;
+        public AdminCoreRolesAttribute(params string[] adminCoreEmployeeRoles) =>
+//            Policy = String.Join(',', adminCoreEmployeeRoles);
+            AdminCoreRoles = adminCoreEmployeeRoles;
 
         public IList<string> AdminCoreRoles
         {

@@ -27,12 +27,6 @@ namespace AdminCore.WebApi
           Newtonsoft.Json.ReferenceLoopHandling.Ignore;
       });
 
-      services.AddAuthorization(options =>
-//        options.AddPolicy("Admin", policy =>
-//        {
-//          policy.RequireClaim(ClaimTypes.Role, "Admin");
-//        })
-          );
 
       services
         .AddAuthentication(sharedOptions =>
@@ -44,6 +38,14 @@ namespace AdminCore.WebApi
           options.Audience = Configuration["AzureAd:ClientId"];
           options.Authority = $"{Configuration["AzureAd:Instance"]}{Configuration["AzureAd:TenantId"]}/v2.0/";
         });
+
+      services.AddAuthorization(
+//        options =>
+//        options.AddPolicy("Admin", policy =>
+//        {
+//          policy.RequireClaim(ClaimTypes.Role, "Admin");
+//        })
+      );
 
       services.AddSwaggerGen(c =>
       {

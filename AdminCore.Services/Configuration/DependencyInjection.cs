@@ -32,7 +32,10 @@ namespace AdminCore.Services.Configuration
       {
         if (services == null) services = new ServiceCollection();
         services.AddAutoMapper();
-        services.AddSingleton<IAuthorizationPolicyProvider, AdminCoreRolesPolicyProvider>();
+
+        services.AddSingleton<IAuthorizationPolicyProvider, AdminCoreRolesPolicy>();
+        services.AddSingleton<IAuthorizationHandler, AdminCoreRolesHandler>();
+
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddDbContext<AdminCoreContext>();
