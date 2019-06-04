@@ -11,6 +11,8 @@ using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using AdminCore.DTOs.Team;
 using AutoFixture;
 using Xunit;
 
@@ -18,152 +20,85 @@ namespace AdminCore.Services.Tests
 {
   public sealed class TeamServiceTests : BaseMockedDatabaseSetUp
   {
-    private static readonly IMapper Mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new TeamMapperProfile())));
-
-    private static readonly IConfiguration Configuration = Substitute.For<IConfiguration>();
-    private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
-
     private readonly Fixture _fixture;
 
     public TeamServiceTests()
     {
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-
       _fixture = new Fixture();
       _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
         .ForEach(b => _fixture.Behaviors.Remove(b));
       _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
 
-    [Theory]
-    [InlineData(1)]
-    [InlineData(65)]
-    public void GetByProjectId_DatabaseContainsOneTeamWithProjectId_ReturnsOneProject(int projectIdExpected)
+    [Fact]
+    public void GetByProjectId_OrmReturnsListOfTeams_RepoAndMapperReceiveCalls()
     {
-      var teamExpectedFixture = _fixture.Create<Team>();
-      teamExpectedFixture.ProjectId = projectIdExpected;
-      var teamListFixture = new List<Team>{ teamExpectedFixture };
-
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
-
-      var teamService = new TeamService(Mapper, databaseContext);
+      // Arrange
+      var dbReturns = _fixture.CreateMany<Team>(1).ToList();
+      var teamService = GetMockedResourcesGetByProjectId(dbReturns, out var ormContext, out var mapper);
 
       // Act
-      var teamActual = teamService.GetByProjectId(projectIdExpected);
+      teamService.GetByProjectId(7);
 
       // Assert
-      databaseContext.Received().TeamRepository.Get();
-      Assert.Equal(teamActual.Count, 1);
-      Assert.All(teamActual, dto => Assert.Equal(projectIdExpected, dto.ProjectId));
-    }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(65)]
-    public void GetByProjectId_DatabaseContainsMultipleTeamsOneWithProjectId_ReturnsOneProject(int projectIdExpected)
-    {
-      var teamListFixture = new List<Team>();
-      var rand = new Random();
-      _fixture.AddManyTo(teamListFixture, () => CreateNewTeamWithRandomProjectIdExcludingSpecified(rand, projectIdExpected));
-
-      teamListFixture.Add(CreateNewTeamFixtureWithSpecifiedProjectId(projectIdExpected));
-
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
-
-      var teamService = new TeamService(Mapper, databaseContext);
-
-      // Act
-      var teamActual = teamService.GetByProjectId(projectIdExpected);
-
-      // Assert
-      databaseContext.Received().TeamRepository.Get();
-      Assert.Equal(teamActual.Count, 1);
-      Assert.All(teamActual, dto => Assert.Equal(projectIdExpected, dto.ProjectId));
-    }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(65)]
-    public void GetByProjectId_DatabaseContainsMultipleTeamsTwoWithProjectId_ReturnsTwoProjects(int projectIdExpected)
-    {
-      var teamListFixture = new List<Team>();
-      var rand = new Random();
-      _fixture.AddManyTo(teamListFixture, () => CreateNewTeamWithRandomProjectIdExcludingSpecified(rand, projectIdExpected));
-
-      teamListFixture.Add(CreateNewTeamFixtureWithSpecifiedProjectId(projectIdExpected));
-      teamListFixture.Add(CreateNewTeamFixtureWithSpecifiedProjectId(projectIdExpected));
-
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
-
-      var teamService = new TeamService(Mapper, databaseContext);
-
-      // Act
-      var teamActual = teamService.GetByProjectId(projectIdExpected);
-
-      // Assert
-      databaseContext.Received().TeamRepository.Get();
-      Assert.Equal(teamActual.Count, 2);
-      Assert.All(teamActual, dto => Assert.Equal(projectIdExpected, dto.ProjectId));
+      ormContext.Received().TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
+        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
+        Arg.Any<Expression<Func<Team, object>>[]>());
+      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null && x.Count == 1));
     }
 
     [Fact]
-    public void GetByProjectId_DatabaseContainsMultipleTeamsNoneWithProjectId_ReturnsEmptyList()
+    public void GetByProjectId_OrmReturnsEmptyList_RepoAndMapperReceiveCalls()
     {
-      int projectIdNotPresentInDb = 5;
-
-      var teamListFixture = new List<Team>();
-      var rand = new Random();
-      _fixture.AddManyTo(teamListFixture, () => CreateNewTeamWithRandomProjectIdExcludingSpecified(rand, projectIdNotPresentInDb));
-
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpTeamRepository(databaseContext, teamListFixture);
-
-      var teamService = new TeamService(Mapper, databaseContext);
+      // Arrange
+      var teamService = GetMockedResourcesGetByProjectId(new List<Team>(), out var ormContext, out var mapper);
 
       // Act
-      var teamActual = teamService.GetByProjectId(projectIdNotPresentInDb);
+      teamService.GetByProjectId(78);
 
       // Assert
-      databaseContext.Received().TeamRepository.Get();
-      Assert.Equal(teamActual.Count, 0);
+      ormContext.Received().TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
+        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
+        Arg.Any<Expression<Func<Team, object>>[]>());
+      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null && x.Count == 0));
     }
 
-    [Theory]
-    [InlineData(1)]
-    [InlineData(65)]
-    public void GetByProjectId_DatabaseContainsZeroTeamsWithProjectId_ReturnsEmptyList(int projectId)
+    [Fact]
+    public void GetByProjectId_OrmReturnsNull_RepoAndMapperReceiveCalls()
     {
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpTeamRepository(databaseContext, new List<Team>());
-
-      var teamService = new TeamService(Mapper, databaseContext);
+      // Arrange
+      var teamService = GetMockedResourcesGetByProjectId(null, out var ormContext, out var mapper);
 
       // Act
-      var teamActual = teamService.GetByProjectId(projectId);
+      teamService.GetByProjectId(93);
 
       // Assert
-      databaseContext.Received().TeamRepository.Get();
-      Assert.Empty(teamActual);
+      ormContext.Received().TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
+        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
+        Arg.Any<Expression<Func<Team, object>>[]>());
+      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null));
     }
 
-    private Team CreateNewTeamFixtureWithSpecifiedProjectId(int projectId)
+    private TeamService GetMockedResourcesGetByProjectId(IList<Team> dbReturns, out EntityFrameworkContext ormContext, out IMapper mapper)
     {
-      var teamFixture = _fixture.Create<Team>();
-      teamFixture.ProjectId = projectId;
+      ormContext = GetMockedProjectRepoGet(dbReturns);
 
-      return teamFixture;
+      mapper = Substitute.For<IMapper>();
+      mapper.Map<IList<TeamDto>>(Arg.Any<List<Team>>()).Returns(new List<TeamDto>());
+
+      return new TeamService(mapper, ormContext);
     }
 
-    private Team CreateNewTeamWithRandomProjectIdExcludingSpecified(Random rand, int excludeProjectId)
+    private EntityFrameworkContext GetMockedProjectRepoGet(IList<Team> dbReturns)
     {
-      var randInt = rand.Next();
-      return new Team
-      {
-        ProjectId = randInt != excludeProjectId ? randInt : randInt + 1
-      };
+      var ormContext = Substitute.For<EntityFrameworkContext>(Substitute.For<AdminCoreContext>(Substitute.For<IConfiguration>()));
+      var teamRepoMock = Substitute.For<IRepository<Team>>();
+      teamRepoMock.Get(Arg.Any<Expression<Func<Team, bool>>>(),
+        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
+        Arg.Any<Expression<Func<Team, object>>[]>()).Returns(dbReturns);
+
+      ormContext.TeamRepository.Returns(teamRepoMock);
+      return ormContext;
     }
   }
 }

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AdminCore.DTOs.Team;
 using AdminCore.WebApi.Models.Team;
+using AutoFixture;
 
 namespace AdminCore.WebApi.Tests.ClassData
 {
@@ -11,52 +13,16 @@ namespace AdminCore.WebApi.Tests.ClassData
         {
             public IEnumerator<object[]> GetEnumerator()
             {
+                var fixture = new Fixture();
+                fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+                fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
                 // ARGS: projectId: int, serviceReturns: IList<TeamDto>, controllerReturns: IList<TeamViewModel>
                 yield return new object[]
                 {
                     ProjectId,
-                    new List<TeamDto>
-                    {
-                        new TeamDto {TeamId = 1, TeamName = "unique string 1", ProjectId = 1}
-                    },
-                    new List<TeamViewModel>
-                    {
-                        new TeamViewModel {TeamId = 1, TeamName = "unique string 1", ProjectId = 1}
-                    }
-                };
-                yield return new object[]
-                {
-                    ProjectId,
-                    new List<TeamDto>
-                    {
-                        new TeamDto
-                        {
-                            TeamId = 1,
-                            TeamName = "unique string 1",
-                            ProjectId = 1
-                        },
-                        new TeamDto
-                        {
-                            TeamId = 1,
-                            TeamName = "unique string 99",
-                            ProjectId = 1
-                        }
-                    },
-                    new List<TeamViewModel>
-                    {
-                        new TeamViewModel
-                        {
-                            TeamId = 1,
-                            TeamName = "unique string 1",
-                            ProjectId = 1
-                        },
-                        new TeamViewModel
-                        {
-                            TeamId = 1,
-                            TeamName = "unique string 99",
-                            ProjectId = 1
-                        }
-                    }
+                    fixture.CreateMany<TeamDto>().ToList(),
+                    fixture.CreateMany<TeamViewModel>().ToList(),
                 };
             }
 
