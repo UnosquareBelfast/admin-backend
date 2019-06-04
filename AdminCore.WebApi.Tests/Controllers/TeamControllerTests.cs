@@ -228,34 +228,23 @@ namespace AdminCore.WebApi.Tests.Controllers
     public void GetTeamsByProjectById_ServiceContainsListOfTeams_ReturnsOkWithTeamsInBody(int projectId, IList<TeamDto> serviceReturns, IList<TeamViewModel> controllerReturns)
     {
       // Arrange
-      var teamServiceMock = Substitute.For<ITeamService>();
-      teamServiceMock.GetByProjectId(projectId).Returns(serviceReturns);
-
-      var mapper = SetupMockedMapper(serviceReturns, controllerReturns);
-
-      var teamController = new TeamController(teamServiceMock, mapper);
+      GetMockedResourcesGetByProjectId(projectId, serviceReturns, out var teamServiceMock, out var teamController, out var mapper);
 
       // Act
       var response = teamController.GetTeamsByProjectById(projectId);
 
-      var resultList = RetrieveValueFromActionResult<IList<TeamViewModel>>(response);
+      RetrieveValueFromActionResult<IList<TeamViewModel>>(response);
 
       // Assert
       teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
-      resultList.Should().BeEquivalentTo(controllerReturns);
+      mapper.Received(1).Map<IList<TeamViewModel>>(Arg.Any<IList<TeamDto>>());
     }
 
     [Fact]
-    public void GetTeamsByProjectById_ServiceReturnsNoTeamsEmptyList_ReturnsNoContent()
+    public void GetTeamsByProjectById_ServiceReturnsEmptyList_ReturnsNoContent()
     {
       // Arrange
-      var teamServiceMock = Substitute.For<ITeamService>();
-
-      var serviceReturns = new List<TeamDto>();
-      teamServiceMock.GetByProjectId(Arg.Any<int>()).Returns(serviceReturns);
-
-      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(serviceReturns, new List<TeamViewModel>());
-      var teamController = new TeamController(teamServiceMock, mapper);
+      GetMockedResourcesGetByProjectId(5, new List<TeamDto>(), out var teamServiceMock, out var teamController, out _);
 
       // Act
       var response = teamController.GetTeamsByProjectById(5);
@@ -269,12 +258,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     public void GetTeamsByProjectById_ServiceReturnsNullTeams_ReturnsNoContent()
     {
       // Arrange
-      var teamServiceMock = Substitute.For<ITeamService>();
-
-      teamServiceMock.GetByProjectId(Arg.Any<int>()).Returns(x => null);
-
-      var mapper = SetupMockedMapper<IList<TeamDto>, IList<TeamViewModel>>(null, null);
-      var teamController = new TeamController(teamServiceMock, mapper);
+      GetMockedResourcesGetByProjectId(8, null, out var teamServiceMock, out var teamController, out var mapper);
 
       // Act
       var response = teamController.GetTeamsByProjectById(5);
@@ -282,6 +266,18 @@ namespace AdminCore.WebApi.Tests.Controllers
       // Assert
       teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
       Assert.IsType<NoContentResult>(response);
+    }
+
+    private void GetMockedResourcesGetByProjectId(int projectId, IList<TeamDto> serviceReturns,
+      out ITeamService teamServiceMock, out TeamController teamController, out IMapper mapper)
+    {
+      teamServiceMock = Substitute.For<ITeamService>();
+      teamServiceMock.GetByProjectId(projectId).Returns(serviceReturns);
+
+      mapper = Substitute.For<IMapper>();
+      mapper.Map<IList<TeamViewModel>>(Arg.Any<IList<TeamDto>>());
+
+      teamController = new TeamController(teamServiceMock, mapper);
     }
   }
 }
