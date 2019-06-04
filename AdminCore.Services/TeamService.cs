@@ -39,7 +39,7 @@ namespace AdminCore.Services
     public IList<TeamDto> GetByProjectId(int projectId)
     {
       var teamList = DatabaseContext.TeamRepository.Get(x => x.ProjectId == projectId);
-      return _mapper.Map<IList<TeamDto>>(teamList);
+      return _mapper.Map<IList<TeamDto>>(teamList ?? new List<Team>());
     }
 
     public TeamDto Save(TeamDto newTeamDto)
