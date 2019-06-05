@@ -1,3 +1,5 @@
+using AdminCore.Constants.Enums;
+using AdminCore.DTOs.Employee;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AdminCore.Common.Authorization
@@ -8,6 +10,6 @@ namespace AdminCore.Common.Authorization
 
         private const char separator = '_';
 
-        public AdminCoreRolesAttribute(params string[] adminCoreEmployeeRoles) => Policy = $"{POLICY_PREFIX}{separator}{string.Join(separator, adminCoreEmployeeRoles)}";
+        public AdminCoreRolesAttribute(params EmployeeRoles[] adminCoreEmployeeRoles) => Policy = $"{POLICY_PREFIX}{separator}{string.Join(separator, adminCoreEmployeeRoles)}";
     }
 }
