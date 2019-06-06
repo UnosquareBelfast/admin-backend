@@ -174,7 +174,8 @@ ALTER TABLE public.event
 ----------------------------------------------------------------------------------------
 INSERT INTO public.employee_role (employee_role_id, description)
 VALUES (4, 'Cse'),
-       (5, 'Client')
+       (5, 'Client'),
+       (6, 'HumanResources')
 ON CONFLICT (employee_role_id)
              DO NOTHING;
 
