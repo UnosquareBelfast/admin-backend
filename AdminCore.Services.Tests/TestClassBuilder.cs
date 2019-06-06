@@ -27,7 +27,7 @@ namespace AdminCore.Services.Tests
     }
 
     internal static Event BuildEvent(int eventId, int employeeId, EventStatus eventStatus, EventType eventType,
-      ICollection<EventDate> eventDates)
+      IList<EventDate> eventDates)
     {
       return new Event
       {
@@ -151,16 +151,16 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    internal static EventDateDto GenericEventDateDto()
+    internal static EventDateDto GenericEventDateDto(DateTime startDate = default(DateTime), DateTime endDate = default(DateTime), bool isHalfDay = false)
     {
       var eventDateDto = new EventDateDto
       {
-        StartDate = new DateTime(2018, 12, 03),
-        EndDate = new DateTime(2018, 12, 05),
+        StartDate = startDate,
+        EndDate = endDate,
         EventId = 1,
         Event = Mapper.Map<EventDto>(BuildEvent(1, 1,
           ApprovedEventStatus(), AnnualLeaveEventType())),
-        IsHalfDay = false
+        IsHalfDay = isHalfDay
       };
       return eventDateDto;
     }

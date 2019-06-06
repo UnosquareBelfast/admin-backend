@@ -27,11 +27,11 @@ namespace AdminCore.DTOs.Event
 
     public EventTypeDto EventType { get; set; }
 
-    public ICollection<EventMessageDto> EventMessages { get; set; }
+    public IList<EventMessageDto> EventMessages { get; set; }
 
     public string LatestMessage { get; set; }
 
-    public ICollection<EventDateDto> EventDates { get; set; }
+    public IList<EventDateDto> EventDates { get; set; }
 
     public DateTime LastModified { get; set; }
   }

@@ -11,8 +11,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using AdminCore.Common;
+using System.Net.Mime;
+using AdminCore.WebApi.Models;
+using AdminCore.WebApi.Models.DataTransform;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -26,14 +30,19 @@ namespace AdminCore.WebApi.Controllers
     private readonly EmployeeDto _employee;
     private readonly IEventMessageService _eventMessageService;
     private readonly IEventWorkflowService _eventWorkflowService;
+    private readonly ICsvService _csvService;
+    private readonly IDateService _dateService;
 
-    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser, IEventWorkflowService eventWorkflowService)
+    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser, IEventWorkflowService eventWorkflowService,
+      ICsvService csvService, IDateService dateService)
       : base(mapper)
     {
       _eventService = wfhEventService;
       _eventMessageService = eventMessageService;
       _mapper = mapper;
       _employee = authenticatedUser.RetrieveLoggedInUser();
+      _csvService = csvService;
+      _dateService = dateService;
       _eventWorkflowService = eventWorkflowService;
     }
 
@@ -84,7 +93,7 @@ namespace AdminCore.WebApi.Controllers
 
       return StatusCode((int)HttpStatusCode.NoContent, $"No event found for employee ID: {employeeId}");
     }
-    
+
     [HttpGet("findEmployeeHolidayStats")]
     public IActionResult GetEmployeeHolidayStats()
     {
@@ -116,6 +125,17 @@ namespace AdminCore.WebApi.Controllers
         return Ok(_mapper.Map<IList<EventViewModel>>(events));
       }
       return StatusCode((int)HttpStatusCode.NoContent, "No Event exists");
+    }
+
+    [HttpGet("findByEventStatus/{eventStatusId}/{eventTypeId}/csv")]
+    public IActionResult GetEventByStatusTypeCsv(int eventStatusId, int eventTypeId)
+    {
+      var events = _eventService.GetEventByStatus((EventStatuses)eventStatusId, (EventTypes)eventTypeId);
+      var mappedEvents = _mapper.Map<IList<EventDataTransformModel>>(events);
+
+      var stream = new MemoryStream(_csvService.Generate(mappedEvents));
+      return File(stream, MediaTypeNames.Application.Octet,
+        $"{(EventStatuses)eventStatusId}_{(EventTypes)eventTypeId}_Report{_dateService.GetCurrentDateTime():dd/MM/yyyy}.csv");
     }
 
     [HttpGet("findEventMessages/{eventId}")]
@@ -180,12 +200,13 @@ namespace AdminCore.WebApi.Controllers
       {
         _eventService.IsEventValid(eventDatesToUpdate, _employee.EmployeeId);
         _eventService.UpdateEvent(eventDatesToUpdate, updateEventViewModel.Message, _employee.EmployeeId);
-        return Ok("Holiday has been successfully updated");
+        return Ok("Holiday has been successfully updated.");
       }
       catch (Exception ex)
       {
-        Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Error updating holiday: " + ex.Message);
+        var message = ex.Message;
+        Logger.LogError(message);
+        return StatusCode((int)HttpStatusCode.InternalServerError, $"Error updating holiday {message}.");
       }
     }
 
@@ -195,7 +216,7 @@ namespace AdminCore.WebApi.Controllers
     {
       return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponseApprove);
     }
-    
+
     [HttpPut("cancelEvent")]
     public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
     {
@@ -212,7 +233,7 @@ namespace AdminCore.WebApi.Controllers
     private IActionResult ProcessEvent(int eventId, Func<EventDto, EmployeeDto, WorkflowFsmStateInfo> workflowProcessFunc, string eventMessage = null)
     {
       try
-      {       
+      {
         var leaveEvent = _eventService.GetEvent(eventId);
 
         try
@@ -226,7 +247,7 @@ namespace AdminCore.WebApi.Controllers
           var workflowResultState = workflowProcessFunc(leaveEvent, _employee);
           // Add message to event.
           _eventService.AddRejectMessageToEvent(eventId, eventMessage, _employee.EmployeeId);
-              
+
           UpdateEventStatus(workflowResultState, eventId);
 
           return Ok("Leave response sent successfully.\n" +
@@ -245,7 +266,7 @@ namespace AdminCore.WebApi.Controllers
         return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong sending leave response for event.");
       }
     }
-    
+
     private void UpdateEventStatus(WorkflowFsmStateInfo workflowResultState, int eventId)
     {
       if (workflowResultState.CurrentEventStatuses != EventStatuses.AwaitingApproval && workflowResultState.Completed)
@@ -253,7 +274,7 @@ namespace AdminCore.WebApi.Controllers
         _eventService.UpdateEventStatus(eventId, workflowResultState.CurrentEventStatuses);
       }
     }
-    
+
     [HttpPut("addMessageToEvent")]
     public IActionResult AddMessageToEvent(CreateEventMessageViewModel eventMessageViewModel)
     {
@@ -364,7 +385,7 @@ namespace AdminCore.WebApi.Controllers
     {
       return eventToApprove.EmployeeId == _employee.EmployeeId;
     }
-    
+
     private void ValidateIfHolidayEvent(CreateEventViewModel createEventViewModel, EventDateDto eventDates)
     {
       PublicHolidayValidation(createEventViewModel);

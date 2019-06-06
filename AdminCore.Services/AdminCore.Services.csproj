@@ -16,6 +16,7 @@
     <ProjectReference Include="..\AdminCore.Common\AdminCore.Common.csproj" />
     <ProjectReference Include="..\AdminCore.Constants\AdminCore.Constants.csproj" />
     <ProjectReference Include="..\AdminCore.DAL\AdminCore.DAL.csproj" />
+    <ProjectReference Include="..\AdminCore.DataETL\AdminCore.DataETL.csproj" />
     <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
     <ProjectReference Include="..\AdminCore.Extensions\AdminCore.Extensions.csproj" />
     <ProjectReference Include="..\AdminCore.FsmWorkflow\AdminCore.FsmWorkflow.csproj" />

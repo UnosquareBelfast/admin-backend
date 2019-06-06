@@ -13,6 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 using AdminCore.FsmWorkflow;
 using AdminCore.FsmWorkflow.Factory;
 using AdminCore.FsmWorkflow.FsmMachines;
+using AdminCore.DataETL;
 using AdminCore.MailClients.Interfaces;
 using AdminCore.MailClients.SMTP;
 using AdminCore.MailClients.SMTP.Adapters;
@@ -49,6 +50,10 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
+
+        services.AddTransient<IFileTransformAdapter, CsvFileTransformAdapter>();
+        services.AddTransient<ICsvService, CsvService>();
+
         services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
         services.AddScoped<IMailSender, SmtpMailSender>();
         services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();

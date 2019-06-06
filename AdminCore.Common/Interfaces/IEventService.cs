@@ -13,7 +13,7 @@ namespace AdminCore.Common.Interfaces
 
     IList<EventDto> GetEventsByEmployeeId(int employeeId, EventTypes eventType);
 
-    IList<EventDateDto> GetApprovedEventDatesByEmployeeAndStartAndEndDates(DateTime startDate, DateTime endDate, int employeeId);
+    IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatus);
 
     EventDto GetEvent(int id);
 
