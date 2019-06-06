@@ -6,6 +6,7 @@
     SystemAdministrator = 2,
     User = 3,
     Cse = 4,
-    Client = 5
+    Client = 5,
+    HumanResources = 6
   }
 }
