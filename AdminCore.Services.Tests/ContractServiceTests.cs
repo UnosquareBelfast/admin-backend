@@ -13,7 +13,9 @@ using AdminCore.DAL.Models;
 using AdminCore.DTOs;
 using AdminCore.DTOs.Team;
 using AdminCore.Services.Mappings;
+using AdminCore.Services.Tests.ClassData;
 using AutoMapper;
+using FluentAssertions;
 using NSubstitute;
 using NSubstitute.Extensions;
 using NSubstitute.ReturnsExtensions;
@@ -117,6 +119,38 @@ namespace AdminCore.Services.Tests
       Assert.Empty(result);
     }
 
+    [Theory]
+    [ClassData(typeof(ContractServiceClassData.ProjectIdFixtureListDataGetContractByProjectId))]
+    public void GetContractByProjectId_ContractRepoReturnsNonEmptyList_ServiceReturnsCorrectNumberOfItemsAndCorrectCallsReceived(int projectId, IList<Contract> dbReturns,
+      IList<ContractDto> serviceExpected)
+    {
+      // Arrange
+      var contractServiceMock = GetMockedResourcesGetContractByProjectId(dbReturns, out var ormContext, out var mapper);
+
+      // Act
+      var serviceActual = contractServiceMock.GetContractByProjectId(projectId);
+
+      // Assert
+      ormContext.ContractRepository.Received(1).Get();
+//      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == expectedReturnCount));
+      serviceActual.Should().BeEquivalentTo(serviceExpected);
+    }
+
+    [Fact]
+    public void GetContractByProjectId_ContractRepoReturnsEmptyList_ServiceReturnsEmptyListAndCorrectCallsReceived()
+    {
+      // Arrange
+      var contractServiceMock = GetMockedResourcesGetContractByProjectId(new List<Contract>(), out var ormContext, out var mapper);
+
+      // Act
+      var serviceActual = contractServiceMock.GetContractByProjectId(234);
+
+      // Assert
+      ormContext.ContractRepository.Received(1).Get();
+//      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == 0));
+      serviceActual.Should().BeEquivalentTo(new List<ContractDto>());
+    }
+
     [Fact]
     public void GetContractByEmployeeIdAndTeamId_ContractRepoHasOneContract_ReturnsContractDtoThatMatchesContract()
     {
@@ -148,10 +182,23 @@ namespace AdminCore.Services.Tests
     public void TestDeleteContractAttemptsDeleteIfExistingContractIsFound()
     {
       var contract = BuildContractModel();
-      _databaseContext.ContractRepository.GetSingle(Arg.Any<Expression<Func<Contract, bool>>>(), Arg.Any<Expression<Func<Contract, object>>>(), Arg.Any<Expression<Func<Contract, object>>>()).Returns(contract);
 
-      _contractService.DeleteContract(contract.ContractId);
-      _databaseContext.ContractRepository.Received(1).Delete(contract);
+      var databaseContext = Substitute.For<IDatabaseContext>().Configure();
+      IEnumerable<Type> profiles = new List<Type>
+      {
+        new ContractMapperProfile().GetType(),
+        new TeamMapperProfile().GetType()
+      };
+      IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfiles(profiles)));
+
+
+      var contractService = new ContractService(databaseContext, mapper);
+
+      databaseContext.ContractRepository.GetSingle(Arg.Any<Expression<Func<Contract, bool>>>(),
+        Arg.Any<Expression<Func<Contract, object>>>(), Arg.Any<Expression<Func<Contract, object>>>()).Returns(contract);
+
+      contractService.DeleteContract(contract.ContractId);
+      databaseContext.ContractRepository.Received(1).Delete(contract);
 
     }
 
@@ -243,6 +290,17 @@ namespace AdminCore.Services.Tests
       {
         Assert.Equal(0, contract.EndDate.Value.CompareTo(contractDto.EndDate));
       }
+    }
+
+    private ContractService GetMockedResourcesGetContractByProjectId(IList<Contract> dbReturns, out EntityFrameworkContext ormContext, out IMapper mapper)
+    {
+      var efContext = SetupMockedOrmContext(out var dbContext);
+      ormContext = SetUpGenericRepository(efContext, dbReturns,
+        repository => { efContext.Configure().ContractRepository.Returns(repository); }, dbContext);
+
+      mapper = Substitute.ForPartsOf<Mapper>(new MapperConfiguration(cfg => cfg.AddProfile(new ContractMapperProfile()))).Configure();
+
+      return new ContractService(ormContext, mapper);
     }
   }
 }

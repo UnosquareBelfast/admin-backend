@@ -8,8 +8,11 @@ using AdminCore.DTOs.Team;
 using AdminCore.WebApi.Controllers;
 using AdminCore.WebApi.Mappings;
 using AdminCore.WebApi.Models.Contract;
+using AdminCore.WebApi.Models.Team;
+using AdminCore.WebApi.Tests.ClassData;
 using AdminCore.WebApi.Tests.Exceptions;
 using AutoMapper;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
@@ -146,6 +149,51 @@ namespace AdminCore.WebApi.Tests.Controllers
       _contractService.Received(1).GetContractByEmployeeIdAndTeamId(testId, testId);
     }
 
+    [Theory]
+    [ClassData(typeof(ContractControllerClassData.ProjectIdFixtureListDataGetContractByProjectId))]
+    public void GetContractByProjectId_ServiceReturnsListOfContracts_ReturnsOkWithContractsInBody(int projectId, IList<ContractDto> serviceReturns, int expectedReturnCount)
+    {
+      // Arrange
+      GetMockedResourcesGetContractByProjectId(projectId, serviceReturns, out var contractServiceMock, out var contractController, out var mapper);
+
+      // Act
+      var response = contractController.GetContractByProjectId(projectId);
+
+      // Assert
+      response.Should().BeOfType<OkObjectResult>();
+      contractServiceMock.Received(1).GetContractByProjectId(Arg.Any<int>());
+      mapper.Received(1).Map<IList<ContractViewModel>>(Arg.Is<IList<ContractDto>>(x => x != null && x.Count == expectedReturnCount));
+    }
+
+    [Fact]
+    public void GetContractByProjectId_ServiceReturnsEmptyListOfContracts_ReturnsNoContent()
+    {
+      // Arrange
+      GetMockedResourcesGetContractByProjectId(600, new List<ContractDto>(), out var contractServiceMock, out var contractController, out var mapper);
+
+      // Act
+      var response = contractController.GetContractByProjectId(600);
+
+      // Assert
+      response.Should().BeOfType<NoContentResult>();
+      contractServiceMock.Received(1).GetContractByProjectId(Arg.Any<int>());
+    }
+
+
+    [Fact]
+    public void GetContractByProjectId_ServiceReturnsNullListOfContracts_ReturnsNoContent()
+    {
+      // Arrange
+      GetMockedResourcesGetContractByProjectId(3123, null, out var contractServiceMock, out var contractController, out var mapper);
+
+      // Act
+      var response = contractController.GetContractByProjectId(3123);
+
+      // Assert
+      response.Should().BeOfType<NoContentResult>();
+      contractServiceMock.Received(1).GetContractByProjectId(Arg.Any<int>());
+    }
+
     [Fact]
     public void TestCreateContractReturnsOkObjectResultWithSuccessMsgWhenServiceDoesNotThrowException()
     {
@@ -248,6 +296,18 @@ namespace AdminCore.WebApi.Tests.Controllers
       Assert.Equal(contractViewModel.Team.TeamId, contractDto.Team.TeamId);
       Assert.Equal(0, contractViewModel.StartDate.CompareTo(contractDto.StartDate));
       Assert.Equal(0, contractViewModel.EndDate.CompareTo(contractDto.EndDate));
+    }
+
+    private void GetMockedResourcesGetContractByProjectId(int projectId, IList<ContractDto> serviceReturns,
+      out IContractService contractServiceMock, out ContractController contractController, out IMapper mapper)
+    {
+      contractServiceMock = Substitute.For<IContractService>();
+      contractServiceMock.GetContractByProjectId(projectId).Returns(serviceReturns);
+
+      mapper = Substitute.For<IMapper>();
+      mapper.Map<IList<ContractViewModel>>(Arg.Any<IList<ContractDto>>()).Returns(new List<ContractViewModel>());
+
+      contractController = new ContractController(mapper, contractServiceMock);
     }
   }
 }
