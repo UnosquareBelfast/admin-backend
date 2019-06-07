@@ -51,7 +51,7 @@ namespace AdminCore.Services.Tests
       var serviceActual = teamService.GetByProjectId(78);
 
       // Assert
-      ormContext.Received().TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
+      ormContext.Received(1).TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
         Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
         Arg.Any<Expression<Func<Team, object>>[]>());
 //      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null && x.Count == 0));
