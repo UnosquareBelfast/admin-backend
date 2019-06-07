@@ -1,4 +1,5 @@
-﻿using AdminCore.Common.Interfaces;
+﻿using System;
+using AdminCore.Common.Interfaces;
 using AdminCore.DAL;
 using AdminCore.DAL.Database;
 using AdminCore.DAL.Entity_Framework;
@@ -72,44 +73,12 @@ namespace AdminCore.Services.Tests
       return databaseContext;
     }
 
-    protected virtual EntityFrameworkContext SetUpContractRepository(EntityFrameworkContext databaseContext, IList<Contract> contractList)
+    protected virtual EntityFrameworkContext SetUpGenericRepository<T>(EntityFrameworkContext databaseContext, IList<T> itemList, Action<IRepository<T>> RepoReturnsAction) where T : class
     {
-      var mockContractRepository = GetMockedRepository(contractList);
-      databaseContext.Configure().ContractRepository.Returns(mockContractRepository);
-      databaseContext.When(x => x.RetrieveRepository<Contract>()).DoNotCallBase();
+      var mockRepo = GetMockedRepository(itemList);
+      RepoReturnsAction(mockRepo);
 
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-
-      return databaseContext;
-    }
-
-    protected virtual EntityFrameworkContext SetUpTeamRepository(EntityFrameworkContext databaseContext, IList<Team> teamList)
-    {
-      var mockTeamRepository = GetMockedRepository(teamList);
-      databaseContext.Configure().TeamRepository.Returns(mockTeamRepository);
-      databaseContext.When(x => x.RetrieveRepository<Team>()).DoNotCallBase();
-
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-
-      return databaseContext;
-    }
-
-    protected virtual EntityFrameworkContext SetUpClientRepository(EntityFrameworkContext databaseContext, IList<Client> clientList)
-    {
-      var mockClientRepository = GetMockedRepository(clientList);
-      databaseContext.Configure().ClientRepository.Returns(mockClientRepository);
-      databaseContext.When(x => x.RetrieveRepository<Client>()).DoNotCallBase();
-
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-
-      return databaseContext;
-    }
-
-    protected virtual EntityFrameworkContext SetUpProjectRepository(EntityFrameworkContext databaseContext, IList<Project> projectList)
-    {
-      var mockProjectRepository = GetMockedRepository(projectList);
-      databaseContext.Configure().ProjectRepository.Returns(mockProjectRepository);
-      databaseContext.When(x => x.RetrieveRepository<Project>()).DoNotCallBase();
+      databaseContext.When(x => x.RetrieveRepository<T>()).DoNotCallBase();
 
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
 
