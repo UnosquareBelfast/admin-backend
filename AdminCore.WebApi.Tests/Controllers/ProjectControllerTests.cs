@@ -52,7 +52,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects();
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
@@ -69,7 +69,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects();
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
@@ -109,7 +109,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects(546);
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
@@ -126,7 +126,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects(234);
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
@@ -166,7 +166,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects(null, 232);
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
@@ -183,7 +183,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects(null, 647);
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
@@ -223,7 +223,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects(555, 232);
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
@@ -240,7 +240,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       // Assert
       var result = RetrieveValueFromActionResult<IList<ProjectViewModel>>(response);
-      result.Should().NotBeNull().And.HaveCount(0);
+      result.Should().BeEmpty();
       projectServiceMock.Received(1).GetProjects(123, 647);
 
       mapper.Received(1).Map<IList<ProjectViewModel>>(Arg.Is<List<ProjectDto>>(x => x != null && x.Count == 0));
