@@ -60,9 +60,9 @@ namespace AdminCore.Services.Tests
 
     private TeamService GetMockedResourcesGetByProjectId(IList<Team> dbReturns, out EntityFrameworkContext ormContext, out IMapper mapper)
     {
-      var databaseContext = SetupMockedDatabaseContext();
+      var databaseContext = SetupMockedOrmContext(out var dbContext);
       ormContext = SetUpGenericRepository(databaseContext, dbReturns,
-        repository => { databaseContext.Configure().TeamRepository.Returns(repository); });
+        repository => { databaseContext.Configure().TeamRepository.Returns(repository); }, dbContext);
 
       mapper = Substitute.ForPartsOf<Mapper>(new MapperConfiguration(cfg => cfg.AddProfile(new TeamMapperProfile()))).Configure();
 
