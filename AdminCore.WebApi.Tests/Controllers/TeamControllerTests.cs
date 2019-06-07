@@ -9,6 +9,8 @@ using NSubstitute;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using AdminCore.WebApi.Tests.ClassData;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute.ReturnsExtensions;
 using Xunit;
@@ -72,7 +74,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       {
         TeamId = 1,
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       var result = _teamController.UpdateTeam(updateViewModel);
@@ -87,7 +89,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       {
         TeamId = 1,
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       _teamService.When(x => x.Save(Arg.Any<TeamDto>())).Throw(new Exception("Test Exception"));
@@ -104,7 +106,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       var result = _teamController.CreateTeam(updateViewModel);
@@ -118,7 +120,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       _teamService.When(x => x.Save(Arg.Any<TeamDto>())).Throw(new Exception("Test Exception"));
@@ -219,6 +221,63 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       var resultValue = RetrieveValueFromActionResult<string>(result, HttpStatusCode.InternalServerError);
       Assert.Equal("No teams found with client ID 1", resultValue);
+    }
+
+    [Theory]
+    [ClassData(typeof(TeamControllerClassData.GetTeamsByProjectById_ServiceContainsListOfOneTeam_ReturnsOkWithTeamsInBodyClassData))]
+    public void GetTeamsByProjectById_ServiceContainsListOfTeams_ReturnsOkWithTeamsInBody(int projectId, IList<TeamDto> serviceReturns, IList<TeamViewModel> controllerReturns)
+    {
+      // Arrange
+      GetMockedResourcesGetByProjectId(projectId, serviceReturns, out var teamServiceMock, out var teamController, out var mapper);
+
+      // Act
+      var response = teamController.GetTeamsByProjectById(projectId);
+
+      RetrieveValueFromActionResult<IList<TeamViewModel>>(response);
+
+      // Assert
+      teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
+      mapper.Received(1).Map<IList<TeamViewModel>>(Arg.Is<IList<TeamDto>>(x => x != null && x.Count >= 1));
+    }
+
+    [Fact]
+    public void GetTeamsByProjectById_ServiceReturnsEmptyList_ReturnsNoContent()
+    {
+      // Arrange
+      GetMockedResourcesGetByProjectId(5, new List<TeamDto>(), out var teamServiceMock, out var teamController, out _);
+
+      // Act
+      var response = teamController.GetTeamsByProjectById(5);
+
+      // Assert
+      teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
+      Assert.IsType<NoContentResult>(response);
+    }
+
+    [Fact]
+    public void GetTeamsByProjectById_ServiceReturnsNullTeams_ReturnsNoContent()
+    {
+      // Arrange
+      GetMockedResourcesGetByProjectId(8, null, out var teamServiceMock, out var teamController, out var _);
+
+      // Act
+      var response = teamController.GetTeamsByProjectById(5);
+
+      // Assert
+      teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
+      Assert.IsType<NoContentResult>(response);
+    }
+
+    private void GetMockedResourcesGetByProjectId(int projectId, IList<TeamDto> serviceReturns,
+      out ITeamService teamServiceMock, out TeamController teamController, out IMapper mapper)
+    {
+      teamServiceMock = Substitute.For<ITeamService>();
+      teamServiceMock.GetByProjectId(projectId).Returns(serviceReturns);
+
+      mapper = Substitute.For<IMapper>();
+      mapper.Map<IList<TeamViewModel>>(Arg.Any<IList<TeamDto>>()).Returns(new List<TeamViewModel>());
+
+      teamController = new TeamController(teamServiceMock, mapper);
     }
   }
 }
