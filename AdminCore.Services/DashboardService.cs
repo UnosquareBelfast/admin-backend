@@ -83,14 +83,14 @@ namespace AdminCore.Services
       var teamsForEmployee = GetTeamIdsForEmployee(employeeId, date);
       var clientList = DatabaseContext.ClientRepository
         .GetAsQueryable(QueryClientsWithContractsForEmployeeId(teamsForEmployee, date))
-        ?.Include(client => client.Projects)
+        .Include(client => client.Projects)
         .ThenInclude(project => project.Teams)
         .ThenInclude(team => team.Contracts)
         .ThenInclude(contract => contract.Employee)
         .ThenInclude(employee => employee.Events)
         .ThenInclude(evnt => evnt.EventDates);
 
-      return clientList?.Select(client => BuildClientSnapshot(client, date)).ToList() ?? new List<ClientSnapshotDto>();
+      return clientList.Select(client => BuildClientSnapshot(client, date)).ToList();
     }
 
     public static bool EmployeeDashboardEventsQuery(int employeeId, DateTime date, Event evnt)
@@ -130,7 +130,7 @@ namespace AdminCore.Services
     private List<int> GetTeamIdsForEmployee(int employeeId, DateTime date)
     {
       return DatabaseContext.TeamRepository.Get(team => team.Contracts.Any(contract => contract.EmployeeId == employeeId && DateService.ContractIsActiveDuringDate(contract, date)))
-        ?.Select(team => team.TeamId).ToList() ?? new List<int>();
+        .Select(team => team.TeamId).ToList();
     }
 
     private static bool EmployeeDashboardEvents(Event evnt, int employeeId, int cancelled, DateTime startOfMonth, DateTime endOfMonth)
@@ -187,7 +187,7 @@ namespace AdminCore.Services
 
     private static EmployeeSnapshotDto CreateEmployeeSnapshotFromContract(Contract contract)
     {
-      return new EmployeeSnapshotDto()
+      return new EmployeeSnapshotDto
       {
         Email = contract.Employee.Email,
         EmployeeId = contract.EmployeeId,

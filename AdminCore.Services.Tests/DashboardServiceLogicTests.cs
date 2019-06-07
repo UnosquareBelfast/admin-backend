@@ -129,27 +129,6 @@ namespace AdminCore.Services.Tests
       clientSnapShotActual.Should().BeEmpty();
     }
 
-    [Fact]
-    public void GetTeamDashboardEvents_ReposReturnNull_EmptySnapShotReturned()
-    {
-      // Arrange
-      GetMockedResourcesGetTeamDashboardEvents(null, null, null, null,
-        null, null, out var mapper, out var dashboardService, out var ormContext);
-
-      // Act
-      var clientSnapShotActual = dashboardService.GetTeamDashboardEvents(6, new DateTime(2019, 5, 6));
-
-      // Assert
-      ormContext.TeamRepository.Received(1).Get(Arg.Any<Expression<Func<Team, bool>>>(),
-        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
-        Arg.Any<Expression<Func<Team, object>>[]>());
-      ormContext.ClientRepository.Received(1).GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
-        Arg.Any<Func<IQueryable<Client>, IOrderedQueryable<Client>>>(),
-        Arg.Any<Expression<Func<Client, object>>[]>());
-
-      clientSnapShotActual.Should().BeEmpty();
-    }
-
     private void GetMockedResourcesGetTeamDashboardEvents(IList<Team> teamRepoOut, IQueryable<Client> clientRepoOut,
       ClientSnapshotDto clientSnapshotMapOut, ProjectSnapshotDto projectSnapshotMapOut, TeamSnapshotDto teamSnapshotMapOut, EmployeeSnapshotDto employeeSnapshotMapOut,
       out IMapper mapper, out DashboardService dashboardService, out EntityFrameworkContext ormContext)
