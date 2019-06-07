@@ -71,7 +71,8 @@ namespace AdminCore.Services.Tests
       var contractList = new List<Contract>{ contract };
 
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpContractRepository(databaseContext, contractList);
+      databaseContext = SetUpGenericRepository(databaseContext, contractList,
+        repository => { databaseContext.Configure().ContractRepository.Returns(repository); });
 
       var contractService = new ContractService(databaseContext, Mapper);
 
@@ -97,7 +98,8 @@ namespace AdminCore.Services.Tests
       var contractList = new List<Contract>{ contract };
 
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpContractRepository(databaseContext, contractList);
+      databaseContext = SetUpGenericRepository(databaseContext, contractList,
+        repository => { databaseContext.Configure().ContractRepository.Returns(repository); });
 
       var contractService = new ContractService(databaseContext, Mapper);
 
@@ -123,7 +125,8 @@ namespace AdminCore.Services.Tests
       var contractList = new List<Contract>{ contract };
 
       var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpContractRepository(databaseContext, contractList);
+      databaseContext = SetUpGenericRepository(databaseContext, contractList,
+        repository => { databaseContext.Configure().ContractRepository.Returns(repository); });
 
       var contractService = new ContractService(databaseContext, Mapper);
 
