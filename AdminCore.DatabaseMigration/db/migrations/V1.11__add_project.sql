@@ -80,4 +80,5 @@ WHERE
 
 ----------------------------------------------------------------------------------------
 ALTER TABLE public.team
-DROP COLUMN client_id;
+DROP COLUMN client_id,
+ALTER COLUMN project_id SET NOT NULL;
