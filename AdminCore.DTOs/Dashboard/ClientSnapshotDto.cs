@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace AdminCore.DTOs.Dashboard
 {
@@ -10,6 +8,6 @@ namespace AdminCore.DTOs.Dashboard
 
     public string ClientName { get; set; }
 
-    public ICollection<TeamSnapshotDto> Teams { get; set; }
+    public ICollection<ProjectSnapshotDto> Projects { get; set; }
   }
 }

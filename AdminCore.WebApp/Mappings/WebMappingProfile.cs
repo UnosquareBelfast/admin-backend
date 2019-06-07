@@ -72,6 +72,7 @@ namespace AdminCore.WebApi.Mappings
       CreateMap<ContractDto, UpdateContractViewModel>().ReverseMap();
 
       CreateMap<ClientSnapshotDto, ClientSnapshotViewModel>().ReverseMap();
+      CreateMap<ProjectSnapshotDto, ProjectSnapshotViewModel>().ReverseMap();
       CreateMap<TeamSnapshotDto, TeamSnapshotViewModel>().ReverseMap();
       CreateMap<EmployeeSnapshotDto, EmployeeSnapshotViewModel>().ReverseMap();
     }

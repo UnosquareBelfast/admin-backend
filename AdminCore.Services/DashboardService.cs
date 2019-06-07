@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AdminCore.Constants;
-using AdminCore.DAL.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace AdminCore.Services
@@ -130,7 +129,8 @@ namespace AdminCore.Services
 
     private List<int> GetTeamIdsForEmployee(int employeeId, DateTime date)
     {
-      return DatabaseContext.TeamRepository.Get(team => team.Contracts.Any(contract => contract.EmployeeId == employeeId && DateService.ContractIsActiveDuringDate(contract, date))).Select(team => team.TeamId).ToList();
+      return DatabaseContext.TeamRepository.Get(team => team.Contracts.Any(contract => contract.EmployeeId == employeeId && DateService.ContractIsActiveDuringDate(contract, date)))
+        .Select(team => team.TeamId).ToList();
     }
 
     private static bool EmployeeDashboardEvents(Event evnt, int employeeId, int cancelled, DateTime startOfMonth, DateTime endOfMonth)
@@ -187,7 +187,7 @@ namespace AdminCore.Services
 
     private static EmployeeSnapshotDto CreateEmployeeSnapshotFromContract(Contract contract)
     {
-      return new EmployeeSnapshotDto()
+      return new EmployeeSnapshotDto
       {
         Email = contract.Employee.Email,
         EmployeeId = contract.EmployeeId,
@@ -200,15 +200,21 @@ namespace AdminCore.Services
     {
       return client =>
         client.Projects.SelectMany(project => project.Teams).Any(team => teamIds.Contains(team.TeamId) &&
-          team.Contracts.Any(contract =>
-            DateService.ContractIsActiveDuringDate(contract, date)));
+          team.Contracts.Any(contract => DateService.ContractIsActiveDuringDate(contract, date)));
     }
 
     private ClientSnapshotDto BuildClientSnapshot(Client client, DateTime date)
     {
       var clientSnapShot = _mapper.Map<ClientSnapshotDto>(client);
-      clientSnapShot.Teams = client.Projects.SelectMany(project => project.Teams).Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      clientSnapShot.Projects = client.Projects.Select(clientProject => BuildProjectSnapshot(clientProject, date)).ToList();
       return clientSnapShot;
+    }
+
+    private ProjectSnapshotDto BuildProjectSnapshot(Project project, DateTime date)
+    {
+      var projectSnapshot = _mapper.Map<ProjectSnapshotDto>(project);
+      projectSnapshot.Teams = project.Teams.Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      return projectSnapshot;
     }
 
     private TeamSnapshotDto BuildTeamSnapshot(Team team, DateTime date)
