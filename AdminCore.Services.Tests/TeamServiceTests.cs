@@ -13,92 +13,60 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AdminCore.DTOs.Team;
+using AdminCore.Services.Tests.ClassData;
 using AutoFixture;
+using FluentAssertions;
+using NSubstitute.Extensions;
 using Xunit;
 
 namespace AdminCore.Services.Tests
 {
   public sealed class TeamServiceTests : BaseMockedDatabaseSetUp
   {
-    private readonly Fixture _fixture;
-
-    public TeamServiceTests()
-    {
-      _fixture = new Fixture();
-      _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
-        .ForEach(b => _fixture.Behaviors.Remove(b));
-      _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-    }
-
-    [Fact]
-    public void GetByProjectId_OrmReturnsListOfTeams_RepoAndMapperReceiveCalls()
+    [Theory]
+    [ClassData(typeof(TeamServiceClassData.TeamTeamDtosWithProjectIdClassData))]
+    public void GetByProjectId_DbReturnsListOfTeams_RepoAndMapperReceiveCalls(int projectId, List<Team> dbReturns, List<TeamDto> serviceExpected)
     {
       // Arrange
-      var dbReturns = _fixture.CreateMany<Team>(1).ToList();
       var teamService = GetMockedResourcesGetByProjectId(dbReturns, out var ormContext, out var mapper);
 
       // Act
-      teamService.GetByProjectId(7);
+      var serviceActual = teamService.GetByProjectId(projectId);
 
       // Assert
-      ormContext.Received().TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
+      ormContext.Received(1).TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
         Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
         Arg.Any<Expression<Func<Team, object>>[]>());
-      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null && x.Count == 1));
+      serviceActual.Should().BeEquivalentTo(serviceExpected);
+//      mapper.Received(1).Map<IList<TeamDto>>(Arg.Any<IList<Team>>());
     }
 
     [Fact]
-    public void GetByProjectId_OrmReturnsEmptyList_RepoAndMapperReceiveCalls()
+    public void GetByProjectId_DbReturnsEmptyList_RepoAndMapperReceiveCalls()
     {
       // Arrange
       var teamService = GetMockedResourcesGetByProjectId(new List<Team>(), out var ormContext, out var mapper);
 
       // Act
-      teamService.GetByProjectId(78);
+      var serviceActual = teamService.GetByProjectId(78);
 
       // Assert
       ormContext.Received().TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
         Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
         Arg.Any<Expression<Func<Team, object>>[]>());
-      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null && x.Count == 0));
-    }
-
-    [Fact]
-    public void GetByProjectId_OrmReturnsNull_RepoAndMapperReceiveCalls()
-    {
-      // Arrange
-      var teamService = GetMockedResourcesGetByProjectId(null, out var ormContext, out var mapper);
-
-      // Act
-      teamService.GetByProjectId(93);
-
-      // Assert
-      ormContext.Received().TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
-        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
-        Arg.Any<Expression<Func<Team, object>>[]>());
-      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null));
+//      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null && x.Count == 0));
+      serviceActual.Should().BeEquivalentTo(new List<TeamDto>());
     }
 
     private TeamService GetMockedResourcesGetByProjectId(IList<Team> dbReturns, out EntityFrameworkContext ormContext, out IMapper mapper)
     {
-      ormContext = GetMockedProjectRepoGet(dbReturns);
+      var databaseContext = SetupMockedOrmContext(out var dbContext);
+      ormContext = SetUpGenericRepository(databaseContext, dbReturns,
+        repository => { databaseContext.Configure().TeamRepository.Returns(repository); }, dbContext);
 
-      mapper = Substitute.For<IMapper>();
-      mapper.Map<IList<TeamDto>>(Arg.Any<List<Team>>()).Returns(new List<TeamDto>());
+      mapper = Substitute.ForPartsOf<Mapper>(new MapperConfiguration(cfg => cfg.AddProfile(new TeamMapperProfile()))).Configure();
 
       return new TeamService(mapper, ormContext);
-    }
-
-    private EntityFrameworkContext GetMockedProjectRepoGet(IList<Team> dbReturns)
-    {
-      var ormContext = Substitute.For<EntityFrameworkContext>(Substitute.For<AdminCoreContext>(Substitute.For<IConfiguration>()));
-      var teamRepoMock = Substitute.For<IRepository<Team>>();
-      teamRepoMock.Get(Arg.Any<Expression<Func<Team, bool>>>(),
-        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
-        Arg.Any<Expression<Func<Team, object>>[]>()).Returns(dbReturns);
-
-      ormContext.TeamRepository.Returns(teamRepoMock);
-      return ormContext;
     }
   }
 }
