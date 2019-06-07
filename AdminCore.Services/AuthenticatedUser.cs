@@ -5,7 +5,6 @@ using System.Security.Claims;
 using AdminCore.Common;
 using AdminCore.Constants;
 using AdminCore.Constants.Enums;
-using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
 using AdminCore.WebApi.Exceptions;
 
