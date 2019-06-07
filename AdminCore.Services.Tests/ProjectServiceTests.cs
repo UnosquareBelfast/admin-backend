@@ -257,7 +257,7 @@ namespace AdminCore.Services.Tests
       projectService.CreateProject(projectToCreate);
 
       // Assert
-      ormContext.Received(1).ProjectRepository.Insert(dbReturns);
+      ormContext.Received(1).ProjectRepository.Insert(Arg.Is<Project>(x => x.ProjectId == projectToCreate.ProjectId));
       ormContext.Received(1).SaveChanges();
 //      mapper.Received(1).Map<ProjectDto>(Arg.Any<Project>());
 //      mapper.Received(1).Map<Project>(Arg.Any<ProjectDto>());
@@ -278,7 +278,7 @@ namespace AdminCore.Services.Tests
       projectService.UpdateProject(projectToUpdate);
 
       // Assert
-      ormContext.Received(1).ProjectRepository.Update(dbReturns);
+      ormContext.Received(1).ProjectRepository.Update(Arg.Is<Project>(x => x.ProjectId == projectToUpdate.ProjectId));
       ormContext.Received(1).SaveChanges();
 //      mapper.Received(1).Map<ProjectDto>(Arg.Any<Project>());
 //      mapper.Received(1).Map<Project>(Arg.Any<ProjectDto>());
