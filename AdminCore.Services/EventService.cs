@@ -53,21 +53,19 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public IList<EventDateDto> GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
+    public bool IsEventAlreadyBooked(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
     {
       var eventStatus = (int)eventStatuses;
-      var eventDates = DatabaseContext.EventDatesRepository.Get(
-        current => 
-                    ((current.StartDate.Date == startDate.Date && current.EndDate.Date > endDate.Date) ||
-                    (current.StartDate.Date < startDate.Date && current.EndDate.Date > endDate.Date) || 
-                    (current.StartDate.Date < startDate.Date && current.EndDate.Date == endDate.Date) ||
-                    (current.StartDate.Date == startDate.Date && current.EndDate.Date == endDate.Date) ||
-                    (current.StartDate.Date > startDate.Date && current.EndDate.Date < endDate.Date)) &&
-                     current.Event.EmployeeId == employeeId &&
-                     current.Event.EventStatusId == eventStatus,
-            null, x => x.Event);
-
-      return _mapper.Map<IList<EventDateDto>>(eventDates);
+      return DatabaseContext.EventDatesRepository.Exists(
+        current =>
+          ((current.StartDate.Date == startDate.Date && current.EndDate.Date > endDate.Date) ||
+           (current.StartDate.Date < startDate.Date && current.EndDate.Date > endDate.Date) ||
+           (current.StartDate.Date < startDate.Date && current.EndDate.Date == endDate.Date) ||
+           (current.StartDate.Date == startDate.Date && current.EndDate.Date == endDate.Date) ||
+           (current.StartDate.Date > startDate.Date && current.EndDate.Date < endDate.Date)) &&
+          current.Event.EmployeeId == employeeId &&
+          current.Event.EventStatusId == eventStatus,
+        null, x => x.Event);
     }
 
     public EventDto GetEvent(int id)
@@ -353,21 +351,19 @@ namespace AdminCore.Services
 
     private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
     {
-      var approvedEmployeeEvents = GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+      var approvedEmployeeEvent = IsEventAlreadyBooked(
         eventDates.StartDate,
         eventDates.EndDate,
         employeeId,
-        EventStatuses.Approved
-        );
+        EventStatuses.Approved);
 
-      var awaitEmployeeEvents = GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
+      var awaitEmployeeEvent = IsEventAlreadyBooked(
         eventDates.StartDate,
         eventDates.EndDate,
         employeeId,
-        EventStatuses.AwaitingApproval
-        );
+        EventStatuses.AwaitingApproval);
 
-      if (approvedEmployeeEvents.Any() || awaitEmployeeEvents.Any())
+      if (approvedEmployeeEvent || awaitEmployeeEvent)
       {
         throw new Exception("Holiday dates already booked.");
       }

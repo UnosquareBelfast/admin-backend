@@ -709,7 +709,7 @@ namespace AdminCore.Services.Tests
 
     [Theory]
     [MemberData(nameof(EventDates))]
-    public void GetEventDatesByEmployeeAndStartAndEndDatesAndStatus_WithAlreadyBookedEventDates_ShouldReturnAlreadyBookedEvents(Tuple<DateTime, DateTime> eventDates)
+    public void isEventAlreadyBooked_WithAlreadyBookedEventDates_ShouldReturnAlreadyBookedEvents(Tuple<DateTime, DateTime> eventDates)
     {
       var (startDate, endDate) = eventDates;
 
@@ -758,11 +758,10 @@ namespace AdminCore.Services.Tests
       var eventService = GetEventService(databaseContext);
 
       // Act
-      var eventsByEmployeeId = eventService.GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
-        startDate, endDate, employeeId, EventStatuses.Approved);
+      var isEventAlreadyBooked = eventService.IsEventAlreadyBooked(startDate, endDate, employeeId, EventStatuses.Approved);
 
       // Assert
-      Assert.Equal(1, eventsByEmployeeId.Count);
+      Assert.True(isEventAlreadyBooked);
     }
 
     [Fact]
