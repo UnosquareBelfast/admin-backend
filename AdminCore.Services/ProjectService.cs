@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Xml.Linq;
 using AdminCore.Common.Interfaces;
 using AdminCore.DAL;
 using AdminCore.DAL.Models;
@@ -42,30 +44,17 @@ namespace AdminCore.Services
             DatabaseContext.SaveChanges();
         }
 
-        public IList<ProjectDto> GetProjects()
+        public IList<ProjectDto> GetProjects(int? projectId = null, int? clientId = null)
         {
-            var projectList = DatabaseContext.ProjectRepository.Get(null, null,
+            Expression<Func<Project, bool>> filterExpression = project =>
+                (projectId == null || project.ProjectId == projectId) &&
+                (clientId == null || project.ClientId == clientId);
+
+            var projectList = DatabaseContext.ProjectRepository.Get(filterExpression, null,
                 project => project.Client,
                 project => project.Teams,
                 project => project.ParentProject);
-            return _mapper.Map<IList<ProjectDto>>(projectList ?? new List<Project>());
-        }
-
-        public IList<ProjectDto> GetProjectsById(int projectId)
-        {
-            var projectList = DatabaseContext.ProjectRepository.Get(project => project.ProjectId == projectId, null,
-                project => project.Client,
-                project => project.Teams,
-                project => project.ParentProject);
-            return _mapper.Map<IList<ProjectDto>>(projectList ?? new List<Project>());
-        }
-
-        public IList<ProjectDto> GetProjectsByClientId(int clientId)
-        {
-            var projectList = DatabaseContext.ProjectRepository.Get(project => project.ClientId == clientId, null,
-                project => project.Teams,
-                project => project.ParentProject);
-            return _mapper.Map<IList<ProjectDto>>(projectList ?? new List<Project>());
+            return _mapper.Map<IList<ProjectDto>>(projectList) ?? new List<ProjectDto>();
         }
     }
 }

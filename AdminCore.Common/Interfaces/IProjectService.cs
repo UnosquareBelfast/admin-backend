@@ -9,8 +9,6 @@ namespace AdminCore.Common.Interfaces
         ProjectDto UpdateProject(ProjectDto projectToUpdate);
         void DeleteProject(int projectId);
 
-        IList<ProjectDto> GetProjects();
-        IList<ProjectDto> GetProjectsById(int projectId);
-        IList<ProjectDto> GetProjectsByClientId(int clientId);
+        IList<ProjectDto> GetProjects(int? projectId = null, int? clientId = null);
     }
 }

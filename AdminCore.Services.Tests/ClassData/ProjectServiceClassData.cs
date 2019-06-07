@@ -174,6 +174,65 @@ namespace AdminCore.Services.Tests.ClassData
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
+        public class GetByProjectIdClientIdRandomProjectsClassData : IEnumerable<object[]>
+        {
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                var fixture = new Fixture();
+                fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+                fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
+                var projectId = fixture.Create<int>();
+                var clientId = fixture.Create<int>();
+
+                // ARGS projectId: int, dbReturns: IList<Project>, serviceExpected: IList<ProjectDto>
+                yield return new object[]
+                {
+                    projectId,
+                    clientId,
+                    new List<Project>
+                    {
+                        new Project{ProjectId = projectId, ClientId = clientId}
+                    },
+                    new List<ProjectDto>
+                    {
+                        new ProjectDto{ProjectId = projectId, ClientId = clientId}
+                    }
+                };
+                yield return new object[]
+                {
+                    projectId,
+                    clientId,
+                    new List<Project>
+                    {
+                        new Project{ProjectId = projectId, ClientId = clientId},
+                        new Project{ProjectId = projectId, ClientId = clientId}
+                    },
+                    new List<ProjectDto>
+                    {
+                        new ProjectDto{ProjectId = projectId, ClientId = clientId},
+                        new ProjectDto{ProjectId = projectId, ClientId = clientId}
+                    }
+                };
+                yield return new object[]
+                {
+                    projectId,
+                    clientId,
+                    new List<Project>
+                    {
+                        new Project{ProjectId = projectId, ClientId = clientId},
+                        new Project{ProjectId = projectId + 2, ClientId = clientId + 2}
+                    },
+                    new List<ProjectDto>
+                    {
+                        new ProjectDto{ProjectId = projectId, ClientId = clientId}
+                    }
+                };
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
         public class InsertUpdateProjectRandomProjectDtoProject : IEnumerable<object[]>
         {
             public IEnumerator<object[]> GetEnumerator()

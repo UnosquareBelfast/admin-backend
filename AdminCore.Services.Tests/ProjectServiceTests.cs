@@ -2,27 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net.WebSockets;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
 using AdminCore.Common.Interfaces;
 using AdminCore.DAL;
 using AdminCore.DAL.Database;
 using AdminCore.DAL.Entity_Framework;
 using AdminCore.DAL.Models;
-using AdminCore.DTOs;
-using AdminCore.DTOs.Client;
 using AdminCore.DTOs.Project;
-using AdminCore.DTOs.Team;
 using AdminCore.Services.Mappings;
 using AdminCore.Services.Tests.ClassData;
 using AutoMapper;
 using FluentAssertions;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using NSubstitute.Extensions;
-using NSubstitute.ReturnsExtensions;
 using Xunit;
 
 namespace AdminCore.Services.Tests
@@ -33,7 +24,7 @@ namespace AdminCore.Services.Tests
 
     [Theory]
     [ClassData(typeof(ProjectServiceClassData.GetAllRandomProjectIdProjectsClassData))]
-    private void GetProjects_RepositoryReturnsListOfProjectsWithId_ReturnsListOfProjectsWithExpectedCountAndCallsReceived(IList<Project> dbReturns,
+    private void GetProjects_RepositoryReturnsListOfAllProjects_ReturnsListOfProjectsWithExpectedCountAndCallsReceived(IList<Project> dbReturns,
       IList<ProjectDto> serviceExpected)
     {
       // Arrange
@@ -80,7 +71,7 @@ namespace AdminCore.Services.Tests
       GetMockedResourcesProjectRepo(dbReturns, out var mapper, out var projectService, out var ormContext);
 
       // Act
-      var serviceActual = projectService.GetProjectsById(projectId);
+      var serviceActual = projectService.GetProjects(projectId);
 
       // Assert
 //      ormContext.Received(1).ProjectRepository.Get(x => x.ProjectId == projectId,
@@ -98,7 +89,7 @@ namespace AdminCore.Services.Tests
       GetMockedResourcesProjectRepo(new List<Project>(), out var mapper, out var projectService, out var ormContext);
 
       // Act
-      var serviceActual = projectService.GetProjectsById(6);
+      var serviceActual = projectService.GetProjects(6);
 
       // Assert
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
@@ -119,7 +110,7 @@ namespace AdminCore.Services.Tests
       var projectService = new ProjectService(mapper, ormContext);
 
       // Act
-      var serviceActual = projectService.GetProjectsById(6);
+      var serviceActual = projectService.GetProjects(6);
 
       // Assert
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
@@ -135,14 +126,14 @@ namespace AdminCore.Services.Tests
 
     [Theory]
     [ClassData(typeof(ProjectServiceClassData.GetByClientIdRandomProjectIdProjectsClassData))]
-    private void GetProjectsByClientId_RepositoryReturnsListOfProjectsWithId_ReturnsListOfProjectsWithExpectedCountAndCallsReceived(int projectId, IList<Project> dbReturns,
+    private void GetProjectsByClientId_RepositoryReturnsListOfProjectsWithClientId_ReturnsListOfProjectsWithExpectedCountAndCallsReceived(int clientId, IList<Project> dbReturns,
       IList<ProjectDto> serviceExpected)
     {
       // Arrange
       GetMockedResourcesProjectRepo(dbReturns, out var mapper, out var projectService, out var ormContext);
 
       // Act
-      var serviceActual = projectService.GetProjectsByClientId(projectId);
+      var serviceActual = projectService.GetProjects(null, clientId);
 
       // Assert
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
@@ -159,7 +150,7 @@ namespace AdminCore.Services.Tests
       GetMockedResourcesProjectRepo(new List<Project>(), out var mapper, out var projectService, out var ormContext);
 
       // Act
-      var serviceActual = projectService.GetProjectsByClientId(3262);
+      var serviceActual = projectService.GetProjects(null, 3262);
 
       // Assert
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
@@ -180,7 +171,68 @@ namespace AdminCore.Services.Tests
       var projectService = new ProjectService(mapper, ormContext);
 
       // Act
-      var serviceActual = projectService.GetProjectsByClientId(6);
+      var serviceActual = projectService.GetProjects(null, 6);
+
+      // Assert
+      ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
+        Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
+        Arg.Any<Expression<Func<Project, object>>[]>());
+//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
+      serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
+    }
+
+    #endregion
+
+    #region GetProjectsByProjectIdClientId
+
+    [Theory]
+    [ClassData(typeof(ProjectServiceClassData.GetByProjectIdClientIdRandomProjectsClassData))]
+    private void GetProjectsByProjectIdClientId_RepositoryReturnsListOfProjectsWithClientId_ReturnsListOfProjectsWithExpectedCountAndCallsReceived(int projectId, int clientId, IList<Project> dbReturns,
+      IList<ProjectDto> serviceExpected)
+    {
+      // Arrange
+      GetMockedResourcesProjectRepo(dbReturns, out var mapper, out var projectService, out var ormContext);
+
+      // Act
+      var serviceActual = projectService.GetProjects(projectId, clientId);
+
+      // Assert
+      ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
+        Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
+        Arg.Any<Expression<Func<Project, object>>[]>());
+//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == expectedReturnCount));
+      serviceActual.Should().BeEquivalentTo(serviceExpected);
+    }
+
+    [Fact]
+    private void GetProjectsByProjectIdClientId_DatabaseContextReturnsEmptyList_ReturnsEmptyListAndCallsReceived()
+    {
+      // Arrange
+      GetMockedResourcesProjectRepo(new List<Project>(), out var mapper, out var projectService, out var ormContext);
+
+      // Act
+      var serviceActual = projectService.GetProjects(12, 3262);
+
+      // Assert
+      ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
+        Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
+        Arg.Any<Expression<Func<Project, object>>[]>());
+//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
+      serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
+    }
+
+    [Fact]
+    private void GetProjectsByProjectIdClientId_DatabaseContextReturnsNull_ReturnsEmptyListAndCallsReceived()
+    {
+      // Arrange
+      var ormContext = GetMockedProjectRepoGet(null);
+
+      var mapper = Substitute.ForPartsOf<Mapper>(new MapperConfiguration(cfg => cfg.AddProfile(new ProjectMapperProfile()))).Configure();
+
+      var projectService = new ProjectService(mapper, ormContext);
+
+      // Act
+      var serviceActual = projectService.GetProjects(21, 6);
 
       // Assert
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),

@@ -70,25 +70,9 @@ namespace AdminCore.WebApi.Controllers
 
     [HttpGet]
     [ProducesResponseType(typeof(IList<ProjectViewModel>), StatusCodes.Status200OK)]
-    public IActionResult GetProjects()
+    public IActionResult GetProjects([FromQuery] int? projectId, [FromQuery] int? clientId)
     {
-      var projectDtoList = _projectService.GetProjects();
-      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList ?? new List<ProjectDto>()));
-    }
-
-    [HttpGet("{projectId}")]
-    [ProducesResponseType(typeof(IList<ProjectViewModel>), StatusCodes.Status200OK)]
-    public IActionResult GetProjectsById(int projectId)
-    {
-      var projectDtoList = _projectService.GetProjectsById(projectId);
-      return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList ?? new List<ProjectDto>()));
-    }
-
-    [HttpGet("client/{clientId}")]
-    [ProducesResponseType(typeof(IList<ProjectViewModel>), StatusCodes.Status200OK)]
-    public IActionResult GetProjectsByClientId(int clientId)
-    {
-      var projectDtoList = _projectService.GetProjectsByClientId(clientId);
+      var projectDtoList = _projectService.GetProjects(projectId, clientId);
       return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList ?? new List<ProjectDto>()));
     }
   }
