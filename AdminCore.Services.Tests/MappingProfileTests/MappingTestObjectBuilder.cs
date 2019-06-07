@@ -1,6 +1,7 @@
 using System;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs;
+using AdminCore.DTOs.Project;
 using AdminCore.DTOs.Team;
 
 namespace AdminCore.Services.Tests.MappingProfileTests
@@ -68,5 +69,54 @@ namespace AdminCore.Services.Tests.MappingProfileTests
         private const string TeamName = "Team Name";
         private const string ContactName = "Contact Name";
         private const string ContactEmail = "Contact Email";
+
+        public static Project GetDefaultProject()
+        {
+            return new Project
+            {
+                ProjectId = ProjectId,
+                ClientId = ClientId,
+                ProjectName = ProjectName2,
+                ProjectParentId = ProjectParentId
+            };
+        }
+
+        public static ProjectDto GetDefaultProjectDto()
+        {
+            return new ProjectDto
+            {
+                ProjectId = ProjectId,
+                ClientId = ClientId,
+                ProjectName = ProjectName2,
+                ProjectParentId = ProjectParentId
+            };
+        }
+
+        public static Project GetProjectNullParent()
+        {
+            return new Project
+            {
+                ProjectId = ProjectId,
+                ClientId = ClientId,
+                ProjectName = ProjectName2,
+                ProjectParentId = null
+            };
+        }
+
+        public static ProjectDto GetProjectDtoNullParent()
+        {
+            return new ProjectDto
+            {
+                ProjectId = ProjectId,
+                ClientId = ClientId,
+                ProjectName = ProjectName2,
+                ProjectParentId = null
+            };
+        }
+
+        private const int ProjectId = 1236;
+        private const int ClientId = 34;
+        private const string ProjectName2 = "Project name";
+        private const int ProjectParentId = 56;
     }
 }
