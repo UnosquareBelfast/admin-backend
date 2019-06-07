@@ -7,8 +7,8 @@ namespace AdminCore.WebApi.Models.Dashboard
   {
     public int ClientId { get; set; }
 
-    public string ClientName { get; set; } 
+    public string ClientName { get; set; }
 
-    public ICollection<TeamSnapshotViewModel> Teams { get; set; }
+    public ICollection<ProjectSnapshotViewModel> Projects { get; set; }
   }
 }
