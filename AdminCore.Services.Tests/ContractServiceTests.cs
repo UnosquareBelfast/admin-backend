@@ -146,9 +146,7 @@ namespace AdminCore.Services.Tests
       var serviceActual = contractServiceMock.GetContractByProjectId(234);
 
       // Assert
-      ormContext.ContractRepository.Received(1).Get(Arg.Any<Expression<Func<Contract, bool>>>(),
-        Arg.Any<Func<IQueryable<Contract>, IOrderedQueryable<Contract>>>(),
-        Arg.Any<Expression<Func<Contract, object>>[]>());
+      ormContext.ContractRepository.Received(1).Get();
 //      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ContractDto>());
     }
@@ -296,10 +294,9 @@ namespace AdminCore.Services.Tests
 
     private ContractService GetMockedResourcesGetContractByProjectId(IList<Contract> dbReturns, out EntityFrameworkContext ormContext, out IMapper mapper)
     {
-      var databaseContext = SetupMockedDatabaseContext();
-
-      ormContext = SetUpGenericRepository(databaseContext, dbReturns,
-        repository => { databaseContext.Configure().ContractRepository.Returns(repository); });
+      var efContext = SetupMockedOrmContext(out var dbContext);
+      ormContext = SetUpGenericRepository(efContext, dbReturns,
+        repository => { efContext.Configure().ContractRepository.Returns(repository); }, dbContext);
 
       mapper = Substitute.ForPartsOf<Mapper>(new MapperConfiguration(cfg => cfg.AddProfile(new ContractMapperProfile()))).Configure();
 
