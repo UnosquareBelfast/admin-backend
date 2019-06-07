@@ -698,21 +698,37 @@ namespace AdminCore.Services.Tests
       Assert.Equal(1, eventsByEmployeeId.Count);
     }
 
-    [Fact]
-    public void GetApprovedEventDatesByEmployeeIdAndStartAndEndDate_WithValidDatesAndApprovedStatus_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDate()
+    public static TheoryData<Tuple<DateTime, DateTime>> EventDates = new TheoryData<Tuple<DateTime, DateTime>>
     {
+      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 13), new DateTime(2019, 5, 16)),
+      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 14), new DateTime(2019, 5, 16)),
+      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 14), new DateTime(2019, 5, 17)),
+      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 13), new DateTime(2019, 5, 17)),
+      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 10), new DateTime(2019, 5, 20))
+    };
+
+    [Theory]
+    [MemberData(nameof(EventDates))]
+    public void GetEventDatesByEmployeeAndStartAndEndDatesAndStatus_WithAlreadyBookedEventDates_ShouldReturnAlreadyBookedEvents(Tuple<DateTime, DateTime> eventDates)
+    {
+      var (startDate, endDate) = eventDates;
+
       // Arrange
       const int employeeId = 1;
       const int eventId = 1;
-      var startDate = new DateTime(2018, 12, 05);
-      var endDate = new DateTime(2018, 12, 05);
 
       var eventType =
         TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
       var eventStatus = TestClassBuilder.ApprovedEventStatus();
 
-      var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate, eventId, employeeId, eventStatus, eventType);
+      var eventDateDto = TestClassBuilder.BuildEventDateDto(
+        new DateTime(2019, 5, 13),
+        new DateTime(2019, 5, 17),
+        eventId,
+        employeeId,
+        eventStatus,
+        eventType);
 
       var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
 
@@ -744,58 +760,6 @@ namespace AdminCore.Services.Tests
       // Act
       var eventsByEmployeeId = eventService.GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
         startDate, endDate, employeeId, EventStatuses.Approved);
-
-      // Assert
-      Assert.Equal(1, eventsByEmployeeId.Count);
-    }
-
-    [Fact]
-    public void
-      GetApprovedEventDatesByEmployeeIdAndStartAndEndDate_WithValidDatesAndAwaitingApprovalStatus_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDate()
-    {
-      // Arrange
-      const int employeeId = 1;
-      const int eventId = 1;
-      var startDate = new DateTime(2018, 12, 05);
-      var endDate = new DateTime(2018, 12, 05);
-
-      var eventType =
-        TestClassBuilder.AnnualLeaveEventType();
-      var eventTypesList = new List<EventType> { eventType };
-      var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
-
-      var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate, eventId, employeeId, eventStatus, eventType);
-
-      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
-
-      var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
-      var events = new List<Event> { newEvent };
-
-      var employee = TestClassBuilder.BuildGenericEmployee(events);
-      var employeeList = new List<Employee> { employee };
-
-      var eventWithEmployee = newEvent;
-      eventWithEmployee.Employee = employee;
-      var eventWithEmployeeList = new List<Event>
-      {
-        eventWithEmployee
-      };
-
-      var eventDateWithEventAndEmployeeList = Mapper.Map<EventDate>(eventDateDto);
-      eventDateWithEventAndEmployeeList.Event = eventWithEmployee;
-      var eventDatesWithEventAndEmployeeList = new List<EventDate> { eventDateWithEventAndEmployeeList };
-
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpEventRepository(databaseContext, eventWithEmployeeList);
-      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
-      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
-      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesWithEventAndEmployeeList);
-
-      var eventService = GetEventService(databaseContext);
-
-      // Act
-      var eventsByEmployeeId = eventService.GetEventDatesByEmployeeAndStartAndEndDatesAndStatus(
-        startDate, endDate, employeeId, EventStatuses.AwaitingApproval);
 
       // Assert
       Assert.Equal(1, eventsByEmployeeId.Count);
