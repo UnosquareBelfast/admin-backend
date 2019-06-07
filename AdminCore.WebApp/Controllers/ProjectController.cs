@@ -22,14 +22,29 @@ namespace AdminCore.WebApi.Controllers
       _projectService = projectService;
     }
 
+    private IActionResult HandleBadRequest(Func<IActionResult> serviceAction)
+    {
+      try
+      {
+        return serviceAction();
+      }
+      catch (DbUpdateException e)
+      {
+        return BadRequest();
+      }
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(CreateProjectViewModel), StatusCodes.Status201Created)]
     public IActionResult CreateProject([FromBody] CreateProjectViewModel projectToCreate)
     {
       try
       {
-        var createdProject = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate));
-        return Created(createdProject.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdProject));
+        return HandleBadRequest(() =>
+        {
+          var createdProject = _projectService.CreateProject(Mapper.Map<ProjectDto>(projectToCreate));
+          return Created(createdProject.ProjectId.ToString(), Mapper.Map<ProjectViewModel>(createdProject));
+        });
       }
       catch (DbUpdateException e)
       {
@@ -44,8 +59,11 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        var updatedProject = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate));
-        return Ok(Mapper.Map<ProjectViewModel>(updatedProject));
+        return HandleBadRequest(() =>
+        {
+          var updatedProject = _projectService.UpdateProject(Mapper.Map<ProjectDto>(projectToUpdate));
+          return Ok(Mapper.Map<ProjectViewModel>(updatedProject));
+        });
       }
       catch (DbUpdateException e)
       {
@@ -59,8 +77,11 @@ namespace AdminCore.WebApi.Controllers
     {
       try
       {
-        _projectService.DeleteProject(projectId);
-        return Ok();
+        return HandleBadRequest(() =>
+        {
+          _projectService.DeleteProject(projectId);
+          return Ok();
+        });
       }
       catch (DbUpdateException e)
       {
