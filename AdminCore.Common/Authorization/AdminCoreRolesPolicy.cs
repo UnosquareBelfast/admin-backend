@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminCore.Common.Interfaces;
+using AdminCore.Constants;
 using AdminCore.Constants.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
@@ -10,10 +11,6 @@ namespace AdminCore.Common.Authorization
 {
     public class AdminCoreRolesPolicy : DefaultAuthorizationPolicyProvider
     {
-        const string POLICY_PREFIX = "AdminCoreRoles";
-
-        private const char separator = '_';
-
         private readonly IConfiguration _configuration;
         private readonly AuthorizationOptions _options;
 
@@ -29,7 +26,7 @@ namespace AdminCore.Common.Authorization
 
             if (policy == null)
             {
-                var splitList = policyName.Split(separator).ToList();
+                var splitList = policyName.Split(PolicyProviderConstants.Separator).ToList();
                 splitList = splitList.GetRange(1, splitList.Count - 1);
 
                 var employeeRolesList = splitList.Select(x => (EmployeeRoles) Enum.Parse(typeof(EmployeeRoles), x)).ToList();
