@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants;
 using AdminCore.Constants.Enums;
+using AdminCore.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
@@ -26,8 +27,7 @@ namespace AdminCore.Common.Authorization
 
             if (policy == null)
             {
-                var splitList = policyName.Split(PolicyProviderConstants.Separator).ToList();
-                splitList = splitList.GetRange(1, splitList.Count - 1);
+                var splitList = policyName.GetContentFromPolicy();
 
                 var employeeRolesList = splitList.Select(x => (EmployeeRoles) Enum.Parse(typeof(EmployeeRoles), x)).ToList();
 
