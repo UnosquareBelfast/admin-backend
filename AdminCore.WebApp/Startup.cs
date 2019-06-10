@@ -39,13 +39,7 @@ namespace AdminCore.WebApi
           options.Authority = $"{Configuration["AzureAd:Instance"]}{Configuration["AzureAd:TenantId"]}/v2.0/";
         });
 
-      services.AddAuthorization(
-//        options =>
-//        options.AddPolicy("Admin", policy =>
-//        {
-//          policy.RequireClaim(ClaimTypes.Role, "Admin");
-//        })
-      );
+      services.AddAuthorization();
 
       services.AddSwaggerGen(c =>
       {

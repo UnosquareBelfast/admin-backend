@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
 using AdminCore.DTOs.Employee;
@@ -42,7 +43,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(200);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.OK);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
       eventService.Received(1).IsEventValid(Arg.Any<EventDateDto>(), employeeDto.EmployeeId);
       eventService.Received(1).CreateEvent(Arg.Any<EventDateDto>(), Arg.Any<EventTypes>(), employeeDto.EmployeeId);
@@ -60,7 +61,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(500);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
     }
 
@@ -79,7 +80,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(500);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
       eventService.Received(1).IsEventValid(Arg.Any<EventDateDto>(), employeeDto.EmployeeId);
       eventService.Received(1).CreateEvent(Arg.Any<EventDateDto>(), Arg.Any<EventTypes>(), employeeDto.EmployeeId);
@@ -99,7 +100,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(500);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
       eventService.Received(1).IsEventValid(Arg.Any<EventDateDto>(), employeeDto.EmployeeId);
     }
@@ -125,7 +126,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(200);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.OK);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
       eventService.Received(1).IsEventValid(Arg.Any<EventDateDto>(), employeeId);
       eventService.Received(1).CreateEvent(Arg.Any<EventDateDto>(), Arg.Any<EventTypes>(), employeeId);
@@ -145,7 +146,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(500);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
     }
 
@@ -166,7 +167,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(500);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
       eventService.Received(1).IsEventValid(Arg.Any<EventDateDto>(), employeeId);
       eventService.Received(1).CreateEvent(Arg.Any<EventDateDto>(), Arg.Any<EventTypes>(), employeeId);
@@ -188,7 +189,7 @@ namespace AdminCore.WebApi.Tests.Controllers
       var responseCast = response as ObjectResult;
 
       // Assert
-      responseCast.StatusCode.Should().Be(500);
+      responseCast.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
       mapper.Received(1).Map<EventDateDto>(Arg.Any<CreateEventViewModel>());
       eventService.Received(1).IsEventValid(Arg.Any<EventDateDto>(), employeeId);
     }
