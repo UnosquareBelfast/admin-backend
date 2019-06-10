@@ -39,6 +39,13 @@ namespace AdminCore.Extensions.Tests.ClassData
                     3,
                     new List<string> {"D"}
                 };
+                yield return new object[]
+                {
+                    "A_B_C_D",
+                    '_',
+                    4,
+                    new List<string>()
+                };
             }
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
