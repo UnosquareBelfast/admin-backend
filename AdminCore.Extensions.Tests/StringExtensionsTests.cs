@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AdminCore.Common.Authorization;
 using AdminCore.Extensions.Tests.ClassData;
 using Xunit;
 using FluentAssertions;
@@ -41,6 +42,13 @@ namespace AdminCore.Extensions.Tests
             // Act
             // Assert
             action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void test()
+        {
+            AdminCoreRolesHandler a = new AdminCoreRolesHandler();
+            a.
         }
     }
 }

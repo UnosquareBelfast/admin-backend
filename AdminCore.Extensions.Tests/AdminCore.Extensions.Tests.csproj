@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\AdminCore.Common\AdminCore.Common.csproj" />
       <ProjectReference Include="..\AdminCore.Extensions\AdminCore.Extensions.csproj" />
     </ItemGroup>
 

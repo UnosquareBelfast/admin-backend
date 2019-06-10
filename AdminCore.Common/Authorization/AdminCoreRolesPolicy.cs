@@ -27,7 +27,7 @@ namespace AdminCore.Common.Authorization
 
             if (policy == null)
             {
-                var splitList = policyName.SplitStringBySeparatorAndTakeRange(PolicyProviderConstants.Separator, 1);
+                var splitList = policyName.SplitStringBySeparatorAndTakeRange(PolicyProviderConstants.SeparatorAdminCoreRoles, 1);
 
                 var employeeRolesList = splitList.Select(x => (EmployeeRoles) Enum.Parse(typeof(EmployeeRoles), x)).ToList();
 

@@ -8,6 +8,6 @@ namespace AdminCore.Common.Authorization
     public class AdminCoreRolesAttribute : AuthorizeAttribute
     {
         public AdminCoreRolesAttribute(params EmployeeRoles[] adminCoreEmployeeRoles) => Policy =
-            $"{PolicyProviderConstants.PolicyPrefix}{PolicyProviderConstants.Separator}{string.Join(PolicyProviderConstants.Separator, adminCoreEmployeeRoles)}";
+            $"{PolicyProviderConstants.PolicyPrefixAdminCoreRoles}{PolicyProviderConstants.SeparatorAdminCoreRoles}{string.Join(PolicyProviderConstants.SeparatorAdminCoreRoles, adminCoreEmployeeRoles)}";
     }
 }
