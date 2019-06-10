@@ -13,6 +13,8 @@ namespace AdminCore.DTOs
 
     public string ClientName { get; set; }
 
+    public string ProjectName { get; set; }
+
     public int EmployeeId { get; set; }
 
     public DateTime StartDate { get; set; }

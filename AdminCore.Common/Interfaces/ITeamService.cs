@@ -9,6 +9,8 @@ namespace AdminCore.Common.Interfaces
 
     IList<TeamDto> GetByClientId(int clientId);
 
+    IList<TeamDto> GetByProjectId(int projectId);
+
     TeamDto Get(int id);
 
     TeamDto Save(TeamDto teamDto);

@@ -49,7 +49,7 @@ namespace AdminCore.DAL.Database
     public DbSet<EventStatus> EventStatuses { get; set; }
 
     public DbSet<EventType> EventTypes { get; set; }
-    
+
     public DbSet<EventTypeDaysNotice> EventTypeDaysNotice { get; set; }
 
     public DbSet<MandatoryEvent> MandatoryEvents { get; set; }
@@ -59,13 +59,15 @@ namespace AdminCore.DAL.Database
     public DbSet<Schedule> Schedules { get; set; }
 
     public DbSet<Team> Teams { get; set; }
-    
+
     public DbSet<EventWorkflow> EventWorkflows { get; set; }
-    
+
     public DbSet<EventTypeRequiredResponders> EventTypeRequiredResponders { get; set; }
 
     public DbSet<EmployeeApprovalResponse> EmployeeApprovalResponses { get; set; }
-    
+
+    public DbSet<Project> Projects { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       optionsBuilder.UseNpgsql(_configuration.RetrieveConnectionString());
@@ -74,11 +76,11 @@ namespace AdminCore.DAL.Database
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
-      
+
       // Must declare composite primary keys through fluent API.
       modelBuilder.Entity<EventTypeRequiredResponders>()
         .HasKey(o => new { o.EventTypeId, o.EmployeeRoleId });
-      
+
       foreach (var entityType in modelBuilder.Model.GetEntityTypes())
       {
         if (EntityIsSoftDeletable(entityType.ClrType))

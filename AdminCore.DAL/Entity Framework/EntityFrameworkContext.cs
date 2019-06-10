@@ -34,7 +34,7 @@ namespace AdminCore.DAL.Entity_Framework
     private IRepository<EventType> _eventTypeRepository;
 
     private IRepository<EventTypeDaysNotice> _eventTypeDaysNoticeRepository;
-    
+
     private IRepository<EntitledHoliday> _entitledHolidayRepository;
 
     private IRepository<MandatoryEvent> _mandatoryEventRepository;
@@ -42,12 +42,14 @@ namespace AdminCore.DAL.Entity_Framework
     private IRepository<Schedule> _scheduleRepository;
 
     private IRepository<Team> _teamRepository;
-    
+
     private IRepository<EventWorkflow> _eventWorkflowRepository;
-    
+
     private IRepository<EventTypeRequiredResponders> _eventTypeRequiredRespondersRepository;
-    
+
     private IRepository<EmployeeApprovalResponse> _employeeApprovalResponsesRepository;
+
+    private IRepository<Project> _projectRepository;
 
     public EntityFrameworkContext()
     {
@@ -98,8 +100,8 @@ namespace AdminCore.DAL.Entity_Framework
       _eventStatusRepository ?? (_eventStatusRepository = RetrieveRepository<EventStatus>());
 
     public virtual IRepository<EventType> EventTypeRepository =>
-      _eventTypeRepository ?? (_eventTypeRepository = RetrieveRepository<EventType>()); 
-    
+      _eventTypeRepository ?? (_eventTypeRepository = RetrieveRepository<EventType>());
+
     public virtual IRepository<EventTypeDaysNotice> EventTypeDaysNoticeRepository =>
       _eventTypeDaysNoticeRepository ?? (_eventTypeDaysNoticeRepository = RetrieveRepository<EventTypeDaysNotice>());
 
@@ -114,16 +116,19 @@ namespace AdminCore.DAL.Entity_Framework
 
     public virtual IRepository<Team> TeamRepository =>
       _teamRepository ?? (_teamRepository = RetrieveRepository<Team>());
-    
+
     public virtual IRepository<EventWorkflow> EventWorkflowRepository =>
       _eventWorkflowRepository ?? (_eventWorkflowRepository = RetrieveRepository<EventWorkflow>());
 
     public virtual IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository =>
       _eventTypeRequiredRespondersRepository ?? (_eventTypeRequiredRespondersRepository = RetrieveRepository<EventTypeRequiredResponders>());
-    
+
     public virtual IRepository<EmployeeApprovalResponse> EmployeeApprovalResponsesRepository =>
       _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<EmployeeApprovalResponse>());
-    
+
+    public virtual IRepository<Project> ProjectRepository =>
+      _projectRepository ?? (_projectRepository = RetrieveRepository<Project>());
+
     public virtual void SaveChanges()
     {
       _adminCoreContext.SaveChanges();

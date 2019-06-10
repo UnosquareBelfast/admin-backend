@@ -14,6 +14,9 @@ namespace AdminCore.DAL
     IList<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
         params Expression<Func<T, object>>[] includeProperties);
 
+    bool Exists(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+        params Expression<Func<T, object>>[] includeProperties);
+
     T GetSingle(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes);
 
     T GetSingleThenIncludes(Expression<Func<T, bool>> filter = null,
@@ -30,6 +33,6 @@ namespace AdminCore.DAL
 
     T Insert(T entity);
 
-    void Update(T entityToUpdate);
+    T Update(T entityToUpdate);
   }
 }

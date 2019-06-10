@@ -10,6 +10,7 @@ namespace AdminCore.Common.Interfaces
     IList<ContractDto> GetContractByEmployeeId(int employeeId);
 
     IList<ContractDto> GetContractByTeamId(int teamId);
+    IList<ContractDto> GetContractByProjectId(int projectId);
 
     IList<ContractDto> GetContractByEmployeeIdAndTeamId(int employeeId, int teamId);
 

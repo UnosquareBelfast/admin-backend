@@ -49,6 +49,7 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IEventWorkflowService, EventWorkflowService>();
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
+        services.AddTransient<IProjectService, ProjectService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
 
         services.AddTransient<IFileTransformAdapter, CsvFileTransformAdapter>();

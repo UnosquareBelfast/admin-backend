@@ -42,6 +42,8 @@ namespace AdminCore.DAL
     IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository { get; }
     IRepository<EmployeeApprovalResponse> EmployeeApprovalResponsesRepository { get; }
 
+    IRepository<Project> ProjectRepository { get; }
+
     void SaveChanges();
   }
 }
