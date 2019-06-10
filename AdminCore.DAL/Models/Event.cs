@@ -28,7 +28,7 @@ namespace AdminCore.DAL.Models
     public DateTime LastModified { get; set; }
 
     [ForeignKey("EventId")]
-    public ICollection<EventMessage> EventMessages { get; set; }
+    public IList<EventMessage> EventMessages { get; set; }
 
     [ForeignKey("EventStatusId")]
     public virtual EventStatus EventStatus { get; set; }
@@ -39,6 +39,6 @@ namespace AdminCore.DAL.Models
     [ForeignKey("EventTypeId")]
     public virtual EventType EventType { get; set; }
 
-    public virtual ICollection<EventDate> EventDates { get; set; }
+    public virtual IList<EventDate> EventDates { get; set; }
   }
 }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AdminCore.DataETL;
 using AdminCore.MailClients.Interfaces;
 using AdminCore.MailClients.SMTP;
 using AdminCore.MailClients.SMTP.Adapters;
@@ -46,6 +47,10 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IProjectService, ProjectService>();
         services.AddTransient<IEventMessageService, EventMessageService>();
+
+        services.AddTransient<IFileTransformAdapter, CsvFileTransformAdapter>();
+        services.AddTransient<ICsvService, CsvService>();
+
         services.AddScoped<ISmtpClient, SmtpMailKitClientAdapter>();
         services.AddScoped<IMailSender, SmtpMailSender>();
         services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
