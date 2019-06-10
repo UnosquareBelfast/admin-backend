@@ -76,7 +76,8 @@ namespace AdminCore.Services
       var teamsForEmployee = GetTeamIdsForEmployee(employeeId, date);
       var clientList = DatabaseContext.ClientRepository
         .GetAsQueryable(QueryClientsWithContractsForEmployeeId(teamsForEmployee, date))
-        .Include(client => client.Teams)
+        .Include(client => client.Projects)
+        .ThenInclude(project => project.Teams)
         .ThenInclude(team => team.Contracts)
         .ThenInclude(contract => contract.Employee)
         .ThenInclude(employee => employee.Events)
@@ -121,7 +122,8 @@ namespace AdminCore.Services
 
     private List<int> GetTeamIdsForEmployee(int employeeId, DateTime date)
     {
-      return DatabaseContext.TeamRepository.Get(team => team.Contracts.Any(contract => contract.EmployeeId == employeeId && DateService.ContractIsActiveDuringDate(contract, date))).Select(team => team.TeamId).ToList();
+      return DatabaseContext.TeamRepository.Get(team => team.Contracts.Any(contract => contract.EmployeeId == employeeId && DateService.ContractIsActiveDuringDate(contract, date)))
+        .Select(team => team.TeamId).ToList();
     }
 
     private static bool EmployeeDashboardEvents(Event evnt, int employeeId, int cancelled, DateTime startOfMonth, DateTime endOfMonth)
@@ -178,7 +180,7 @@ namespace AdminCore.Services
 
     private static EmployeeSnapshotDto CreateEmployeeSnapshotFromContract(Contract contract)
     {
-      return new EmployeeSnapshotDto()
+      return new EmployeeSnapshotDto
       {
         Email = contract.Employee.Email,
         EmployeeId = contract.EmployeeId,
@@ -190,16 +192,22 @@ namespace AdminCore.Services
     private static Expression<Func<Client, bool>> QueryClientsWithContractsForEmployeeId(IList<int> teamIds, DateTime date)
     {
       return client =>
-        client.Teams.Any(team => teamIds.Contains(team.TeamId) &&
-          team.Contracts.Any(contract =>
-            DateService.ContractIsActiveDuringDate(contract, date)));
+        client.Projects.SelectMany(project => project.Teams).Any(team => teamIds.Contains(team.TeamId) &&
+          team.Contracts.Any(contract => DateService.ContractIsActiveDuringDate(contract, date)));
     }
 
     private ClientSnapshotDto BuildClientSnapshot(Client client, DateTime date)
     {
       var clientSnapShot = _mapper.Map<ClientSnapshotDto>(client);
-      clientSnapShot.Teams = client.Teams.Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      clientSnapShot.Projects = client.Projects.Select(clientProject => BuildProjectSnapshot(clientProject, date)).ToList();
       return clientSnapShot;
+    }
+
+    private ProjectSnapshotDto BuildProjectSnapshot(Project project, DateTime date)
+    {
+      var projectSnapshot = _mapper.Map<ProjectSnapshotDto>(project);
+      projectSnapshot.Teams = project.Teams.Select(clientTeam => BuildTeamSnapshot(clientTeam, date)).ToList();
+      return projectSnapshot;
     }
 
     private TeamSnapshotDto BuildTeamSnapshot(Team team, DateTime date)

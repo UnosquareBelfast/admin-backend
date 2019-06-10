@@ -8,7 +8,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using AdminCore.WebApi.Validators;
+using Microsoft.AspNetCore.Http;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -25,6 +27,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(IList<ContractViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetContractById(int id)
     {
       var contractDto = _contractService.GetContractById(id);
@@ -37,6 +41,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("getByEmployeeId/{employeeId}")]
+    [ProducesResponseType(typeof(IList<ContractViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetContractByEmployeeId(int employeeId)
     {
       var contractDtos = _contractService.GetContractByEmployeeId(employeeId);
@@ -49,6 +55,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpGet("getByTeamId/{teamId}")]
+    [ProducesResponseType(typeof(IList<ContractViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetContractByTeamId(int teamId)
     {
       var contractDtos = _contractService.GetContractByTeamId(teamId);
@@ -60,7 +68,23 @@ namespace AdminCore.WebApi.Controllers
       return NoContent();
     }
 
+    [HttpGet("getByProjectId/{projectId}")]
+    [ProducesResponseType(typeof(IList<ContractViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult GetContractByProjectId(int projectId)
+    {
+      var contractDtos = _contractService.GetContractByProjectId(projectId);
+      if (contractDtos == null || !contractDtos.Any())
+      {
+        return NoContent();
+      }
+
+      return Ok(Mapper.Map<IList<ContractViewModel>>(contractDtos));
+    }
+
     [HttpGet("getByEmployeeIdAndTeamId/{employeeId}/{teamId}")]
+    [ProducesResponseType(typeof(IList<ContractViewModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult GetContractByEmployeeIdAndTeamId(int employeeId, int teamId)
     {
       var contractDtos = _contractService.GetContractByEmployeeIdAndTeamId(employeeId, teamId);
@@ -73,6 +97,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult CreateContract(CreateContractViewModel contract)
     {
       var contractDto = Mapper.Map<ContractDto>(contract);
@@ -96,6 +122,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpPut]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult UpdateContract(UpdateContractViewModel contract)
     {
       var contractDto = Mapper.Map<ContractDto>(contract);
@@ -112,6 +140,8 @@ namespace AdminCore.WebApi.Controllers
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult DeleteContract(int id)
     {
       try

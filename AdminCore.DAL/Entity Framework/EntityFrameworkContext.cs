@@ -41,6 +41,8 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<Team> _teamRepository;
 
+    private IRepository<Project> _projectRepository;
+
     public EntityFrameworkContext()
     {
     }
@@ -103,6 +105,9 @@ namespace AdminCore.DAL.Entity_Framework
 
     public virtual IRepository<Team> TeamRepository =>
       _teamRepository ?? (_teamRepository = RetrieveRepository<Team>());
+
+    public virtual IRepository<Project> ProjectRepository =>
+      _projectRepository ?? (_projectRepository = RetrieveRepository<Project>());
 
     public virtual void SaveChanges()
     {

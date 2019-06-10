@@ -8,6 +8,6 @@ namespace AdminCore.DTOs.Dashboard
 
     public string ClientName { get; set; }
 
-    public ICollection<TeamSnapshotDto> Teams { get; set; }
+    public ICollection<ProjectSnapshotDto> Projects { get; set; }
   }
 }
