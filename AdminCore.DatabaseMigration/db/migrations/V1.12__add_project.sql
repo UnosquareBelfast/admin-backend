@@ -22,9 +22,9 @@ CREATE TABLE IF NOT EXISTS public.project
       ON UPDATE NO ACTION
       ON DELETE NO ACTION,
     CONSTRAINT project_client_id_fkey FOREIGN KEY (client_id)
-        REFERENCES public.client (client_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+      REFERENCES public.client (client_id) MATCH SIMPLE
+      ON UPDATE NO ACTION
+      ON DELETE NO ACTION
 )
 WITH (
     OIDS = FALSE

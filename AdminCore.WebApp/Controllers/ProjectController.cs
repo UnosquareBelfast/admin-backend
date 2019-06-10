@@ -22,18 +22,6 @@ namespace AdminCore.WebApi.Controllers
       _projectService = projectService;
     }
 
-    private IActionResult HandleBadRequest(Func<IActionResult> serviceAction)
-    {
-      try
-      {
-        return serviceAction();
-      }
-      catch (DbUpdateException e)
-      {
-        return BadRequest();
-      }
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(CreateProjectViewModel), StatusCodes.Status201Created)]
     public IActionResult CreateProject([FromBody] CreateProjectViewModel projectToCreate)
@@ -95,6 +83,18 @@ namespace AdminCore.WebApi.Controllers
     {
       var projectDtoList = _projectService.GetProjects(projectId, clientId);
       return Ok(Mapper.Map<IList<ProjectViewModel>>(projectDtoList ?? new List<ProjectDto>()));
+    }
+
+    private IActionResult HandleBadRequest(Func<IActionResult> serviceAction)
+    {
+      try
+      {
+        return serviceAction();
+      }
+      catch (DbUpdateException e)
+      {
+        return BadRequest();
+      }
     }
   }
 }
