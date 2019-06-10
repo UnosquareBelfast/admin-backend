@@ -38,7 +38,6 @@ namespace AdminCore.Services.Tests
         Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
         Arg.Any<Expression<Func<Team, object>>[]>());
       serviceActual.Should().BeEquivalentTo(serviceExpected);
-//      mapper.Received(1).Map<IList<TeamDto>>(Arg.Any<IList<Team>>());
     }
 
     [Fact]
@@ -54,7 +53,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
         Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
         Arg.Any<Expression<Func<Team, object>>[]>());
-//      mapper.Received(1).Map<IList<TeamDto>>(Arg.Is<IList<Team>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<TeamDto>());
     }
 

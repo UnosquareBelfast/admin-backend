@@ -37,7 +37,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == expectedReturnCount));
       serviceActual.Should().BeEquivalentTo(serviceExpected);
     }
 
@@ -54,7 +53,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
     }
 
@@ -74,11 +72,9 @@ namespace AdminCore.Services.Tests
       var serviceActual = projectService.GetProjects(projectId);
 
       // Assert
-//      ormContext.Received(1).ProjectRepository.Get(x => x.ProjectId == projectId,
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == expectedReturnCount));
       serviceActual.Should().BeEquivalentTo(serviceExpected);
     }
 
@@ -95,7 +91,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
     }
 
@@ -116,7 +111,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
     }
 
@@ -139,7 +133,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == expectedReturnCount));
       serviceActual.Should().BeEquivalentTo(serviceExpected);
     }
 
@@ -156,7 +149,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
     }
 
@@ -177,7 +169,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
     }
 
@@ -200,7 +191,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == expectedReturnCount));
       serviceActual.Should().BeEquivalentTo(serviceExpected);
     }
 
@@ -217,7 +207,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
     }
 
@@ -238,7 +227,6 @@ namespace AdminCore.Services.Tests
       ormContext.Received(1).ProjectRepository.Get(Arg.Any<Expression<Func<Project, bool>>>(),
         Arg.Any<Func<IQueryable<Project>, IOrderedQueryable<Project>>>(),
         Arg.Any<Expression<Func<Project, object>>[]>());
-//      mapper.Received(1).Map<IList<ProjectDto>>(Arg.Is<IList<Project>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ProjectDto>());
     }
 
@@ -259,8 +247,6 @@ namespace AdminCore.Services.Tests
       // Assert
       ormContext.Received(1).ProjectRepository.Insert(Arg.Is<Project>(x => x.ProjectId == projectToCreate.ProjectId));
       ormContext.Received(1).SaveChanges();
-//      mapper.Received(1).Map<ProjectDto>(Arg.Any<Project>());
-//      mapper.Received(1).Map<Project>(Arg.Any<ProjectDto>());
     }
 
     #endregion
@@ -280,8 +266,6 @@ namespace AdminCore.Services.Tests
       // Assert
       ormContext.Received(1).ProjectRepository.Update(Arg.Is<Project>(x => x.ProjectId == projectToUpdate.ProjectId));
       ormContext.Received(1).SaveChanges();
-//      mapper.Received(1).Map<ProjectDto>(Arg.Any<Project>());
-//      mapper.Received(1).Map<Project>(Arg.Any<ProjectDto>());
     }
 
     #endregion

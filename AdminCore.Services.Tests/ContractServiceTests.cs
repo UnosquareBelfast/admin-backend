@@ -129,7 +129,6 @@ namespace AdminCore.Services.Tests
 
       // Assert
       ormContext.ContractRepository.Received(1).Get();
-//      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == expectedReturnCount));
       serviceActual.Should().BeEquivalentTo(serviceExpected);
     }
 
@@ -144,7 +143,6 @@ namespace AdminCore.Services.Tests
 
       // Assert
       ormContext.ContractRepository.Received(1).Get();
-//      mapper.Received(1).Map<IList<ContractDto>>(Arg.Is<IList<Contract>>(x => x != null && x.Count == 0));
       serviceActual.Should().BeEquivalentTo(new List<ContractDto>());
     }
 
