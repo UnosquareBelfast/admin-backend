@@ -43,12 +43,5 @@ namespace AdminCore.Extensions.Tests
             // Assert
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
-
-        [Fact]
-        public void test()
-        {
-            AdminCoreRolesHandler a = new AdminCoreRolesHandler();
-            a.
-        }
     }
 }

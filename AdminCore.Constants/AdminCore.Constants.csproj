@@ -4,4 +4,10 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc">
+      <HintPath>C:\Users\richard.gillen\.nuget\packages\castle.core\4.3.1\lib\netstandard1.5\Castle.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
