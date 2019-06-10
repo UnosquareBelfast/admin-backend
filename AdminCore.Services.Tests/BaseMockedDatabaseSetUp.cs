@@ -94,7 +94,7 @@ namespace AdminCore.Services.Tests
 
     protected virtual EntityFrameworkContext SetUpEventTypeDaysNoticeRepository(EntityFrameworkContext databaseContext, IList<EventTypeDaysNotice> eventTypeDaysNoticeList)
     {
-      var mockEventTypeDaysNoticeRepository = GetMockedRepository(eventTypeDaysNoticeList);
+      var mockEventTypeDaysNoticeRepository = GetMockedRepository(eventTypeDaysNoticeList, databaseContext);
       databaseContext.Configure().EventTypeDaysNoticeRepository.Returns(mockEventTypeDaysNoticeRepository);
       databaseContext.When(x => x.RetrieveRepository<EventTypeDaysNotice>()).DoNotCallBase();
 
@@ -105,7 +105,7 @@ namespace AdminCore.Services.Tests
 
     protected virtual EntityFrameworkContext SetUpEventWorkflowRepository(EntityFrameworkContext databaseContext, IList<EventWorkflow> eventWorkflowList)
     {
-      var mockEventWorkflowRepository = GetMockedRepository(eventWorkflowList);
+      var mockEventWorkflowRepository = GetMockedRepository(eventWorkflowList, databaseContext);
       databaseContext.Configure().EventWorkflowRepository.Returns(mockEventWorkflowRepository);
       databaseContext.When(x => x.RetrieveRepository<EventWorkflow>()).DoNotCallBase();
 
@@ -116,7 +116,7 @@ namespace AdminCore.Services.Tests
 
     protected virtual EntityFrameworkContext SetUpEventTypeRequiredRespondersRepository(EntityFrameworkContext databaseContext, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
     {
-      var mockRepository = GetMockedRepository(eventTypeRequiredRespondersList);
+      var mockRepository = GetMockedRepository(eventTypeRequiredRespondersList, databaseContext);
       databaseContext.Configure().EventTypeRequiredRespondersRepository.Returns(mockRepository);
       databaseContext.When(x => x.RetrieveRepository<EventTypeRequiredResponders>()).DoNotCallBase();
 
@@ -127,7 +127,7 @@ namespace AdminCore.Services.Tests
 
     protected virtual EntityFrameworkContext SetUpEmployeeApprovalResponseRepository(EntityFrameworkContext databaseContext, IList<EmployeeApprovalResponse> employeeApprovalResponseList)
     {
-      var mockRepository = GetMockedRepository(employeeApprovalResponseList);
+      var mockRepository = GetMockedRepository(employeeApprovalResponseList, databaseContext);
       databaseContext.Configure().EmployeeApprovalResponsesRepository.Returns(mockRepository);
       databaseContext.When(x => x.RetrieveRepository<EmployeeApprovalResponse>()).DoNotCallBase();
 

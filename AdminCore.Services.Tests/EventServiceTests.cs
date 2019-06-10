@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdminCore.Services.Tests.ClassData;
+using FluentAssertions;
 using Xunit;
 
 namespace AdminCore.Services.Tests
@@ -49,13 +50,12 @@ namespace AdminCore.Services.Tests
         Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
         IsHalfDay = false
       };
-      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
 
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
       databaseContextMock = SetUpEventRepository(databaseContextMock, new List<Event>());
       databaseContextMock = SetUpEventTypeRepository(databaseContextMock, eventTypesList);
       databaseContextMock = SetUpEmployeeRepository(databaseContextMock, employeeList);
-      databaseContextMock = SetUpEventDateRepository(databaseContextMock, eventDatesList);
+      databaseContextMock = SetUpEventDateRepository(databaseContextMock, new List<EventDate>());
       databaseContextMock = SetUpEventTypeDaysNoticeRepository(databaseContextMock, eventTypeDaysNoticeList);
 
       var dateServiceMock = Substitute.For<IDateService>();
@@ -112,11 +112,11 @@ namespace AdminCore.Services.Tests
 
       var eventService = new EventService(databaseContextMock, Mapper, dateServiceMock);
 
-      // Act
-      eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId, 0);
+      Func<EventDto> action = () => eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId, 0);
 
+      // Act
       // Assert
-      databaseContextMock.Received().EventRepository.Insert(Arg.Any<Event>());
+      action.Should().Throw<Exception>();
     }
 
     [Fact]

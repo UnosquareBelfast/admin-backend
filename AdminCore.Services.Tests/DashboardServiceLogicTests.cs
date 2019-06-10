@@ -99,7 +99,7 @@ namespace AdminCore.Services.Tests
         Arg.Any<Expression<Func<Team, object>>[]>());
       ormContext.ClientRepository.Received(1).GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
         Arg.Any<Func<IQueryable<Client>, IOrderedQueryable<Client>>>(),
-        Arg.Any<Expression<Func<Client, object>>[]>());
+        Arg.Any<(Expression<Func<Client, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)>());
       mapper.Received(1).Map<ClientSnapshotDto>(Arg.Any<Client>());
       mapper.Received(1).Map<ProjectSnapshotDto>(Arg.Any<Project>());
       mapper.Received(1).Map<TeamSnapshotDto>(Arg.Any<Team>());
@@ -124,7 +124,7 @@ namespace AdminCore.Services.Tests
         Arg.Any<Expression<Func<Team, object>>[]>());
       ormContext.ClientRepository.Received(1).GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
         Arg.Any<Func<IQueryable<Client>, IOrderedQueryable<Client>>>(),
-        Arg.Any<Expression<Func<Client, object>>[]>());
+        Arg.Any<(Expression<Func<Client, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)>());
 
       clientSnapShotActual.Should().BeEmpty();
     }
@@ -167,7 +167,7 @@ namespace AdminCore.Services.Tests
       var clientRepoMock = Substitute.For<IRepository<Client>>();
       clientRepoMock.GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
         Arg.Any<Func<IQueryable<Client>, IOrderedQueryable<Client>>>(),
-        Arg.Any<Expression<Func<Client, object>>[]>()).Returns(dbReturns);
+        Arg.Any<(Expression<Func<Client, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)>()).Returns(dbReturns);
 
       ormContext.ClientRepository.Returns(clientRepoMock);
       return ormContext;

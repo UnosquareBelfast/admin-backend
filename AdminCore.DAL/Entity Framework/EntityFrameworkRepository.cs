@@ -37,36 +37,37 @@ namespace AdminCore.DAL.Entity_Framework
     public IList<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
     {
       var newIncludes = includeProperties.Select(x => (includeProperty: x,  thenIncludes: (Expression<Func<object, object>>[])null)).ToArray();
-      
+
       return GetAsQueryable(filter, orderBy, newIncludes).ToList();
     }
 
     public bool Exists(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
     {
-      return GetAsQueryable(filter, orderBy, includeProperties).Any();
+      var newIncludes = includeProperties.Select(x => (includeProperty: x,  thenIncludes: (Expression<Func<object, object>>[])null)).ToArray();
+      return GetAsQueryable(filter, orderBy, newIncludes).Any();
     }
 
     public T GetSingle(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes)
     {
       var newIncludes = includes.Select(x => (includeProperty: x,  thenIncludes: (Expression<Func<object, object>>[])null)).ToArray();
-      
+
       var query = GetAsQueryable(filter, null, newIncludes);
 
       return query.SingleOrDefault();
     }
 
     public T GetSingleThenIncludes(Expression<Func<T, bool>> filter = null, params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
-    {     
+    {
       var query = GetAsQueryable(filter, null, includeDatas);
 
       return query.SingleOrDefault();
     }
-    
+
     public IList<T> GetThenIncludes(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
     {
       return GetAsQueryable(filter, orderBy, includeDatas).ToList();
     }
-    
+
     public T Insert(T entity)
     {
       return _dbSet.Add(entity)?.Entity;
@@ -99,11 +100,11 @@ namespace AdminCore.DAL.Entity_Framework
       return updatedEntity.Entity;
     }
 
-    private static IQueryable<T> IncludeEntities(IQueryable<T> query, 
+    private static IQueryable<T> IncludeEntities(IQueryable<T> query,
       params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
     {
       foreach (var (includeProperty, thenIncludes) in includeDatas)
-      { 
+      {
         if (includeProperty != null)
         {
           var newQuery = query.Include(includeProperty);
@@ -112,13 +113,13 @@ namespace AdminCore.DAL.Entity_Framework
             foreach (var thenInclude in thenIncludes)
             {
               newQuery = newQuery.ThenInclude(thenInclude);
-            }            
+            }
           }
 
           query = newQuery;
         }
       }
-  
+
       return query;
     }
   }
