@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using AdminCore.Constants;
 
 namespace AdminCore.Extensions
 {
     public static class StringExtensions
     {
-        public static List<string> GetContentFromPolicy(this string policyName)
+        public static IList<string> SplitStringBySeparatorAndTakeRange(this string policyName, char separator, int rangeMin)
         {
-            var splitList = policyName.Split(PolicyProviderConstants.Separator).ToList();
-            return splitList.GetRange(1, splitList.Count - 1);
+            var splitList = policyName.Split(separator).ToList();
+            return splitList.GetRange(rangeMin, splitList.Count - rangeMin);
         }
     }
 }
