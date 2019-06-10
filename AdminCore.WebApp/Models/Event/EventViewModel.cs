@@ -10,7 +10,7 @@ namespace AdminCore.WebApi.Models.Event
   {
     public int EventId { get; set; }
 
-    public ICollection<EventDateViewModel> EventDates { get; set; }
+    public IList<EventDateViewModel> EventDates { get; set; }
 
     public EmployeeViewModel Employee { get; set; }
 
@@ -18,7 +18,7 @@ namespace AdminCore.WebApi.Models.Event
 
     public EventTypeViewModel EventType { get; set; }
 
-    public ICollection<EventMessageViewModel> EventMessages { get; set; }
+    public IList<EventMessageViewModel> EventMessages { get; set; }
 
     public string LatestMessage { get; set; }
 
