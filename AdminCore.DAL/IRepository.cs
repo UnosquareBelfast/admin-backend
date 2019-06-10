@@ -24,6 +24,6 @@ namespace AdminCore.DAL
 
     T Insert(T entity);
 
-    void Update(T entityToUpdate);
+    T Update(T entityToUpdate);
   }
 }

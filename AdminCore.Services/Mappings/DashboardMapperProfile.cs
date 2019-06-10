@@ -9,6 +9,7 @@ namespace AdminCore.Services.Mappings
     public DashboardMapperProfile()
     {
       CreateMap<Client, ClientSnapshotDto>().ReverseMap();
+      CreateMap<Project, ProjectSnapshotDto>().ReverseMap();
       CreateMap<Team, TeamSnapshotDto>().ReverseMap();
       CreateMap<Employee, EmployeeSnapshotDto>().ReverseMap();
     }

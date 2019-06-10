@@ -75,10 +75,11 @@ namespace AdminCore.DAL.Entity_Framework
       return queryableData;
     }
 
-    public virtual void Update(T entityToUpdate)
+    public virtual T Update(T entityToUpdate)
     {
-      _dbSet.Attach(entityToUpdate);
+      var updatedEntity = _dbSet.Attach(entityToUpdate);
       ((EntityFrameworkContext)_context).Entry(entityToUpdate).State = EntityState.Modified;
+      return updatedEntity.Entity;
     }
 
     public IQueryable<T> IncludeEntities(IQueryable<T> query, Expression<Func<T, object>>[] includeProperties)

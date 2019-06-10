@@ -26,7 +26,7 @@ namespace AdminCore.Services
 
     public IList<TeamDto> GetByClientId(int clientId)
     {
-      var teamDbEntry = DatabaseContext.TeamRepository.Get(x => x.ClientId == clientId);
+      var teamDbEntry = DatabaseContext.TeamRepository.Get(team => team.Project.ClientId == clientId);
       return _mapper.Map<IList<TeamDto>>(teamDbEntry);
     }
 
@@ -34,6 +34,12 @@ namespace AdminCore.Services
     {
       var teamDbEntry = GetByTeamId(id);
       return _mapper.Map<TeamDto>(teamDbEntry);
+    }
+
+    public IList<TeamDto> GetByProjectId(int projectId)
+    {
+      var teamList = DatabaseContext.TeamRepository.Get(x => x.ProjectId == projectId);
+      return _mapper.Map<IList<TeamDto>>(teamList ?? new List<Team>());
     }
 
     public TeamDto Save(TeamDto newTeamDto)

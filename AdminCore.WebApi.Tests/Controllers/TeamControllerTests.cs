@@ -9,6 +9,8 @@ using NSubstitute;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using AdminCore.WebApi.Tests.ClassData;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute.ReturnsExtensions;
 using Xunit;
@@ -68,11 +70,11 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestUpdateTeamReturnsEmptyOkResponseWhenGivenValidInput()
     {
-      var updateViewModel = new UpdateTeamViewModel()
+      var updateViewModel = new UpdateTeamViewModel
       {
         TeamId = 1,
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       var result = _teamController.UpdateTeam(updateViewModel);
@@ -83,11 +85,11 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestUpdateTeamReturnsOkResponseWithErrorMessageWhenSaveThrowsAnException()
     {
-      var updateViewModel = new UpdateTeamViewModel()
+      var updateViewModel = new UpdateTeamViewModel
       {
         TeamId = 1,
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       _teamService.When(x => x.Save(Arg.Any<TeamDto>())).Throw(new Exception("Test Exception"));
@@ -101,10 +103,10 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestCreateTeamReturnsEmptyOkResponseWhenGivenValidInput()
     {
-      var updateViewModel = new CreateTeamViewModel()
+      var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       var result = _teamController.CreateTeam(updateViewModel);
@@ -115,10 +117,10 @@ namespace AdminCore.WebApi.Tests.Controllers
     [Fact]
     public void TestCreateTeamReturnsOkResponseWithErrorMessageWhenSaveThrowsAnException()
     {
-      var updateViewModel = new CreateTeamViewModel()
+      var updateViewModel = new CreateTeamViewModel
       {
         TeamName = "TestTeam",
-        ClientId = 1
+        ProjectId = 1
       };
 
       _teamService.When(x => x.Save(Arg.Any<TeamDto>())).Throw(new Exception("Test Exception"));
@@ -134,20 +136,20 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       const int testId = 1;
       const string testTeamName = "testTeam";
-      const int testClientId = 1;
+      const int testProjectId = 1;
 
-      var teamDtoReturnedFromService = new TeamDto()
+      var teamDtoReturnedFromService = new TeamDto
       {
         TeamId = testId,
         TeamName = testTeamName,
-        ClientId = testClientId
+        ProjectId = testProjectId
       };
 
-      var viewModelReturnedFromMapper = new TeamViewModel()
+      var viewModelReturnedFromMapper = new TeamViewModel
       {
         TeamId = testId,
         TeamName = testTeamName,
-        ClientId = testClientId
+        ProjectId = testProjectId
       };
 
       _mapper.Map<TeamViewModel>(teamDtoReturnedFromService).Returns(viewModelReturnedFromMapper);
@@ -177,29 +179,29 @@ namespace AdminCore.WebApi.Tests.Controllers
     {
       const int testTeamId = 1;
       const string testTeamName = "testTeam";
-      const int testClientId = 1;
+      const int testProjectId = 1;
 
-      var listOfViewModelsReturnedFromMapper = new List<TeamViewModel>()
+      var listOfViewModelsReturnedFromMapper = new List<TeamViewModel>
       {
-        new TeamViewModel()
+        new TeamViewModel
         {
           TeamId = testTeamId,
           TeamName = testTeamName,
-          ClientId = testClientId
+          ProjectId = testProjectId
         }
       };
 
-      var listOfDtosReturnedFromService = new List<TeamDto>()
+      var listOfDtosReturnedFromService = new List<TeamDto>
       {
-        new TeamDto()
+        new TeamDto
         {
           TeamId = testTeamId,
           TeamName = testTeamName,
-          ClientId = testClientId
+          ProjectId = testProjectId
         }
       };
 
-      _teamService.GetByClientId(testClientId).Returns(listOfDtosReturnedFromService);
+      _teamService.GetByClientId(testProjectId).Returns(listOfDtosReturnedFromService);
       _mapper.Map<IList<TeamViewModel>>(listOfDtosReturnedFromService).Returns(listOfViewModelsReturnedFromMapper);
 
       var result = _teamController.GetAllTeamsForClientId(1);
@@ -219,6 +221,63 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       var resultValue = RetrieveValueFromActionResult<string>(result, HttpStatusCode.InternalServerError);
       Assert.Equal("No teams found with client ID 1", resultValue);
+    }
+
+    [Theory]
+    [ClassData(typeof(TeamControllerClassData.GetTeamsByProjectById_ServiceContainsListOfOneTeam_ReturnsOkWithTeamsInBodyClassData))]
+    public void GetTeamsByProjectById_ServiceContainsListOfTeams_ReturnsOkWithTeamsInBody(int projectId, IList<TeamDto> serviceReturns, IList<TeamViewModel> controllerReturns)
+    {
+      // Arrange
+      GetMockedResourcesGetByProjectId(projectId, serviceReturns, out var teamServiceMock, out var teamController, out var mapper);
+
+      // Act
+      var response = teamController.GetTeamsByProjectById(projectId);
+
+      RetrieveValueFromActionResult<IList<TeamViewModel>>(response);
+
+      // Assert
+      teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
+      mapper.Received(1).Map<IList<TeamViewModel>>(Arg.Is<IList<TeamDto>>(x => x != null && x.Count >= 1));
+    }
+
+    [Fact]
+    public void GetTeamsByProjectById_ServiceReturnsEmptyList_ReturnsNoContent()
+    {
+      // Arrange
+      GetMockedResourcesGetByProjectId(5, new List<TeamDto>(), out var teamServiceMock, out var teamController, out _);
+
+      // Act
+      var response = teamController.GetTeamsByProjectById(5);
+
+      // Assert
+      teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
+      Assert.IsType<NoContentResult>(response);
+    }
+
+    [Fact]
+    public void GetTeamsByProjectById_ServiceReturnsNullTeams_ReturnsNoContent()
+    {
+      // Arrange
+      GetMockedResourcesGetByProjectId(8, null, out var teamServiceMock, out var teamController, out var _);
+
+      // Act
+      var response = teamController.GetTeamsByProjectById(5);
+
+      // Assert
+      teamServiceMock.Received(1).GetByProjectId(Arg.Any<int>());
+      Assert.IsType<NoContentResult>(response);
+    }
+
+    private void GetMockedResourcesGetByProjectId(int projectId, IList<TeamDto> serviceReturns,
+      out ITeamService teamServiceMock, out TeamController teamController, out IMapper mapper)
+    {
+      teamServiceMock = Substitute.For<ITeamService>();
+      teamServiceMock.GetByProjectId(projectId).Returns(serviceReturns);
+
+      mapper = Substitute.For<IMapper>();
+      mapper.Map<IList<TeamViewModel>>(Arg.Any<IList<TeamDto>>()).Returns(new List<TeamViewModel>());
+
+      teamController = new TeamController(teamServiceMock, mapper);
     }
   }
 }

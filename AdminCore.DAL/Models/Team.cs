@@ -12,8 +12,8 @@ namespace AdminCore.DAL.Models
     [Column("team_id")]
     public int TeamId { get; set; }
 
-    [Column("client_id")]
-    public int ClientId { get; set; }
+    [Column("project_id")]
+    public int ProjectId { get; set; }
 
     [Column("team_name")]
     public string TeamName { get; set; }
@@ -24,8 +24,8 @@ namespace AdminCore.DAL.Models
     [Column("contact_name")]
     public string ContactName { get; set; }
 
-    [ForeignKey("ClientId")]
-    public virtual Client Client { get; set; }
+    [ForeignKey("ProjectId")]
+    public virtual Project Project { get; set; }
 
     public virtual ICollection<Contract> Contracts { get; set; }
   }

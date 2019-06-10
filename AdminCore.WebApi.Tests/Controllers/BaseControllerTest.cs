@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using AutoMapper;
+using NSubstitute;
 using Xunit;
 
 namespace AdminCore.WebApi.Tests.Controllers

@@ -9,6 +9,7 @@ namespace AdminCore.Services.Tests
     public List<Contract> ContractRepository;
     public List<Country> CountryRepository;
     public List<Client> ClientRepository;
+    public List<Project> ProjectRepository;
     public List<Employee> EmployeeRepository;
     public List<EmployeeRole> EmployeeRoleRepository;
     public List<EmployeeStatus> EmployeeStatusRepository;
@@ -32,7 +33,7 @@ namespace AdminCore.Services.Tests
       var northernIreland = BuildCountry(1, "Northern Ireland");
       var mexico = BuildCountry(2, "Mexico");
 
-      CountryRepository = new List<Country>()
+      CountryRepository = new List<Country>
       {
         northernIreland,
         mexico
@@ -44,7 +45,7 @@ namespace AdminCore.Services.Tests
       var rejected = BuildEventStatus(3, "Rejected");
       var cancelled = BuildEventStatus(4, "Cancelled");
 
-      EventStatusRepository = new List<EventStatus>()
+      EventStatusRepository = new List<EventStatus>
       {
         awaitingApproval,
         approved,
@@ -60,7 +61,7 @@ namespace AdminCore.Services.Tests
       var sickLeave = BuildEventType(12, "Sick Leave", 3);
       var paternityLeave = BuildEventType(9, "Paternity Leave", 2);
 
-      EventTypeRepository = new List<EventType>()
+      EventTypeRepository = new List<EventType>
       {
         annualLeave,
         workingFromHome,
@@ -74,7 +75,7 @@ namespace AdminCore.Services.Tests
       var sysAdmin = BuildEmployeeRole(2, "System Administrator");
       var user = BuildEmployeeRole(3, "User");
 
-      EmployeeRoleRepository = new List<EmployeeRole>()
+      EmployeeRoleRepository = new List<EmployeeRole>
       {
         teamLeader,
         sysAdmin,
@@ -85,7 +86,7 @@ namespace AdminCore.Services.Tests
       var active = BuildEmployeeStatus(1, "Active");
       var inactive = BuildEmployeeStatus(2, "Inactive");
 
-      EmployeeStatusRepository = new List<EmployeeStatus>()
+      EmployeeStatusRepository = new List<EmployeeStatus>
       {
         active,
         inactive
@@ -96,11 +97,23 @@ namespace AdminCore.Services.Tests
       var fmiClient = BuildClient(2, "FMI");
       var harvardClient = BuildClient(3, "Harvard");
 
-      ClientRepository = new List<Client>()
+      ClientRepository = new List<Client>
       {
         internalClient,
         fmiClient,
         harvardClient
+      };
+
+      // Projects
+      var internalProject = BuildProject(1, 1, "Internal Project");
+      var fmiProject = BuildProject(2, 2, "Fmi Project");
+      var harvardProject = BuildProject(3, 3, "Harvard Project");
+
+      ProjectRepository = new List<Project>
+      {
+        internalProject,
+        fmiProject,
+        harvardProject
       };
 
       // Employees
@@ -110,7 +123,7 @@ namespace AdminCore.Services.Tests
       var employeeKurtis = BuildEmployee(4, "Kurtis", "Moore", "kurtis@test.com", northernIreland, user, active, 5);
       var employeeLee = BuildEmployee(4, "Lee", "McKay", "lee@test.com", northernIreland, user, active, 25);
 
-      EmployeeRepository = new List<Employee>()
+      EmployeeRepository = new List<Employee>
       {
         employeeNiall,
         employeeJamie,
@@ -118,11 +131,11 @@ namespace AdminCore.Services.Tests
       };
 
       // Teams
-      var teamInternal = BuildTeam(1, internalClient, "Internal Team");
-      var teamFmi = BuildTeam(2, fmiClient, "FMI Team");
-      var teamHarvard = BuildTeam(3, harvardClient, "Harvard Team");
+      var teamInternal = BuildTeam(1, 1, "Internal Team");
+      var teamFmi = BuildTeam(2, 2, "FMI Team");
+      var teamHarvard = BuildTeam(3, 3, "Harvard Team");
 
-      TeamRepository = new List<Team>()
+      TeamRepository = new List<Team>
       {
         teamInternal,
         teamFmi,
@@ -137,7 +150,7 @@ namespace AdminCore.Services.Tests
       var leeHarvardContract = BuildContract(5, teamHarvard, employeeLee, new DateTime(2018, 12, 17), new DateTime(2019, 02, 17));
       var eoinExternalContract = BuildContract(6, teamHarvard, employeeEoin, new DateTime(2018, 12, 03), null);
 
-      ContractRepository = new List<Contract>()
+      ContractRepository = new List<Contract>
       {
         niallInternalContract,
         jamieInternalContract,
@@ -147,28 +160,28 @@ namespace AdminCore.Services.Tests
         eoinExternalContract
       };
 
-      employeeNiall.Contracts = new List<Contract>()
+      employeeNiall.Contracts = new List<Contract>
       {
         niallInternalContract
       };
 
-      employeeJamie.Contracts = new List<Contract>()
+      employeeJamie.Contracts = new List<Contract>
       {
         jamieInternalContract
       };
 
-      employeeEoin.Contracts = new List<Contract>()
+      employeeEoin.Contracts = new List<Contract>
       {
         eoinInternalContract,
         eoinExternalContract
       };
 
-      employeeKurtis.Contracts = new List<Contract>()
+      employeeKurtis.Contracts = new List<Contract>
       {
         kurtisFmiContract
       };
 
-      employeeLee.Contracts = new List<Contract>()
+      employeeLee.Contracts = new List<Contract>
       {
         leeHarvardContract
       };
@@ -191,7 +204,7 @@ namespace AdminCore.Services.Tests
       var event15 = BuildEvent(15, employeeNiall, approved, annualLeave);
       var event16 = BuildEvent(16, employeeJamie, approved, mandatoryEvent);
 
-      EventRepository = new List<Event>()
+      EventRepository = new List<Event>
       {
         event1,
         event2,
@@ -211,7 +224,7 @@ namespace AdminCore.Services.Tests
         event16
       };
 
-      employeeNiall.Events = new List<Event>()
+      employeeNiall.Events = new List<Event>
       {
         event1,
         event2,
@@ -219,7 +232,7 @@ namespace AdminCore.Services.Tests
         event15
       };
 
-      employeeJamie.Events = new List<Event>()
+      employeeJamie.Events = new List<Event>
       {
         event4,
         event5,
@@ -227,21 +240,21 @@ namespace AdminCore.Services.Tests
         event16
       };
 
-      employeeEoin.Events = new List<Event>()
+      employeeEoin.Events = new List<Event>
       {
         event7,
         event8,
         event9
       };
 
-      employeeKurtis.Events = new List<Event>()
+      employeeKurtis.Events = new List<Event>
       {
         event10,
         event11,
         event12
       };
 
-      employeeLee.Events = new List<Event>()
+      employeeLee.Events = new List<Event>
       {
         event13,
         event14
@@ -288,7 +301,7 @@ namespace AdminCore.Services.Tests
       var eventDate38 = BuildEventDate(38, event15, new DateTime(2019, 02, 18), new DateTime(2019, 02, 22));
       var eventDate39 = BuildEventDate(39, event16, new DateTime(2019, 03, 04), new DateTime(2019, 03, 07));
 
-      EventDateRepository = new List<EventDate>()
+      EventDateRepository = new List<EventDate>
       {
         eventDate1,
         eventDate2,
@@ -331,105 +344,105 @@ namespace AdminCore.Services.Tests
         eventDate39
       };
 
-      event1.EventDates = new List<EventDate>()
+      event1.EventDates = new List<EventDate>
       {
         eventDate1,
         eventDate2
       };
 
-      event2.EventDates = new List<EventDate>()
+      event2.EventDates = new List<EventDate>
       {
         eventDate3,
         eventDate4,
         eventDate5
       };
 
-      event3.EventDates = new List<EventDate>()
+      event3.EventDates = new List<EventDate>
       {
         eventDate6,
         eventDate7,
         eventDate8
       };
 
-      event4.EventDates = new List<EventDate>()
+      event4.EventDates = new List<EventDate>
       {
         eventDate9,
         eventDate10
       };
 
-      event5.EventDates = new List<EventDate>()
+      event5.EventDates = new List<EventDate>
       {
         eventDate11,
         eventDate12,
         eventDate13
       };
 
-      event6.EventDates = new List<EventDate>()
+      event6.EventDates = new List<EventDate>
       {
         eventDate14,
         eventDate15,
         eventDate16
       };
 
-      event7.EventDates = new List<EventDate>()
+      event7.EventDates = new List<EventDate>
       {
         eventDate17,
         eventDate18
       };
 
-      event8.EventDates = new List<EventDate>()
+      event8.EventDates = new List<EventDate>
       {
         eventDate19,
         eventDate20,
         eventDate21
       };
 
-      event9.EventDates = new List<EventDate>()
+      event9.EventDates = new List<EventDate>
       {
         eventDate22,
         eventDate23,
         eventDate24
       };
 
-      event10.EventDates = new List<EventDate>()
+      event10.EventDates = new List<EventDate>
       {
         eventDate25,
         eventDate26
       };
 
-      event11.EventDates = new List<EventDate>()
+      event11.EventDates = new List<EventDate>
       {
         eventDate27,
         eventDate28,
         eventDate29
       };
 
-      event12.EventDates = new List<EventDate>()
+      event12.EventDates = new List<EventDate>
       {
         eventDate30,
         eventDate31,
         eventDate32
       };
 
-      event13.EventDates = new List<EventDate>()
+      event13.EventDates = new List<EventDate>
       {
         eventDate33,
         eventDate34
       };
 
-      event14.EventDates = new List<EventDate>()
+      event14.EventDates = new List<EventDate>
       {
         eventDate35,
         eventDate36,
         eventDate37
       };
 
-      event15.EventDates = new List<EventDate>()
+      event15.EventDates = new List<EventDate>
       {
         eventDate38
       };
 
-      event16.EventDates = new List<EventDate>()
+      event16.EventDates = new List<EventDate>
       {
         eventDate39
       };
@@ -437,7 +450,7 @@ namespace AdminCore.Services.Tests
       // Mandatory Events
       var christmasDay = BuildMandatoryEvent(1, 1, new DateTime(2019, 12, 25));
 
-      MandatoryEventRepository = new List<MandatoryEvent>()
+      MandatoryEventRepository = new List<MandatoryEvent>
       {
         christmasDay
       };
@@ -449,7 +462,7 @@ namespace AdminCore.Services.Tests
 
     private static EventDate BuildEventDate(int id, Event evnt, DateTime startDate, DateTime endDate)
     {
-      return new EventDate()
+      return new EventDate
       {
         EventDateId = id,
         Event = evnt,
@@ -462,36 +475,45 @@ namespace AdminCore.Services.Tests
 
     private static EmployeeRole BuildEmployeeRole(int employeeRoleId, string description)
     {
-      return new EmployeeRole()
+      return new EmployeeRole
       {
         EmployeeRoleId = employeeRoleId,
         Description = description
       };
     }
 
+    private static Project BuildProject(int projectId, int clientId, string projectName)
+    {
+      return new Project
+      {
+        ProjectId = projectId,
+        ClientId = clientId,
+        ProjectName = projectName
+      };
+    }
+
     private static Client BuildClient(int clientId, string clientName)
     {
-      return new Client()
+      return new Client
       {
         ClientId = clientId,
         ClientName = clientName
       };
     }
 
-    private static Team BuildTeam(int teamId, Client client, string teamName)
+    private static Team BuildTeam(int teamId, int projectId, string teamName)
     {
-      return new Team()
+      return new Team
       {
         TeamId = teamId,
-        ClientId = client.ClientId,
-        Client = client,
+        ProjectId = projectId,
         TeamName = teamName
       };
     }
 
     private static EventStatus BuildEventStatus(int eventStatusId, string eventStatusDescription)
     {
-      return new EventStatus()
+      return new EventStatus
       {
         EventStatusId = eventStatusId,
         Description = eventStatusDescription
@@ -500,7 +522,7 @@ namespace AdminCore.Services.Tests
 
     private static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int employeeRoleId)
     {
-      return new EventType()
+      return new EventType
       {
         EventTypeId = eventTypeId,
         Description = eventTypeDescription,
@@ -510,7 +532,7 @@ namespace AdminCore.Services.Tests
 
     private static Country BuildCountry(int countryId, string countryDescription)
     {
-      return new Country()
+      return new Country
       {
         CountryId = countryId,
         Description = countryDescription
@@ -519,7 +541,7 @@ namespace AdminCore.Services.Tests
 
     private static EmployeeStatus BuildEmployeeStatus(int id, string description)
     {
-      return new EmployeeStatus()
+      return new EmployeeStatus
       {
         EmployeeRoleId = id,
         Description = description
@@ -528,7 +550,7 @@ namespace AdminCore.Services.Tests
 
     private static EventMessageType BuildEventMessageType(int id, string description)
     {
-      return new EventMessageType()
+      return new EventMessageType
       {
         EventMessageId = id,
         Description = description
@@ -537,7 +559,7 @@ namespace AdminCore.Services.Tests
 
     private static Contract BuildContract(int contractId, Team team, Employee employee, DateTime startDate, DateTime? endDate)
     {
-      return new Contract()
+      return new Contract
       {
         ContractId = contractId,
         Employee = employee,
@@ -551,7 +573,7 @@ namespace AdminCore.Services.Tests
 
     private static Event BuildEvent(int eventId, Employee employee, EventStatus eventStatus, EventType eventType)
     {
-      return new Event()
+      return new Event
       {
         EventId = eventId,
         DateCreated = DateTime.Now,
@@ -566,7 +588,7 @@ namespace AdminCore.Services.Tests
 
     private static Employee BuildEmployee(int employeeId, string forename, string surname, string email, Country country, EmployeeRole role, EmployeeStatus status, int totalHolidays)
     {
-      return new Employee()
+      return new Employee
       {
         EmployeeId = employeeId,
         Forename = forename,
@@ -584,7 +606,7 @@ namespace AdminCore.Services.Tests
 
     private static MandatoryEvent BuildMandatoryEvent(int mandatoryEventId, int countryId, DateTime mandatoryEventDate)
     {
-      return new MandatoryEvent()
+      return new MandatoryEvent
       {
         MandatoryEventId = mandatoryEventId,
         CountryId = countryId,
