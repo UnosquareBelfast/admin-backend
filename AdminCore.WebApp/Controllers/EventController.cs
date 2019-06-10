@@ -14,8 +14,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
+using AdminCore.Common.Authorization;
 using AdminCore.WebApi.Models;
 using AdminCore.WebApi.Models.DataTransform;
+using ChoETL;
 
 namespace AdminCore.WebApi.Controllers
 {
@@ -162,12 +164,24 @@ namespace AdminCore.WebApi.Controllers
     [HttpPost]
     public IActionResult CreateEvent(CreateEventViewModel createEventViewModel)
     {
+      return CreateEventForEmployeeId(createEventViewModel, _employee.EmployeeId);
+    }
+
+    [AdminCoreRoles(EmployeeRoles.SystemAdministrator)]
+    [HttpPost("{employeeId}")]
+    public IActionResult CreateEvent(CreateEventViewModel createEventViewModel, int employeeId)
+    {
+      return CreateEventForEmployeeId(createEventViewModel, employeeId);
+    }
+
+    private IActionResult CreateEventForEmployeeId(CreateEventViewModel createEventViewModel, int employeeId)
+    {
       var eventDates = _mapper.Map<EventDateDto>(createEventViewModel);
       try
       {
-        ValidateIfHolidayEvent(createEventViewModel, eventDates);
-        _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
-        return Ok($"Event has been created successfully");
+        ValidateIfHolidayEvent(createEventViewModel, eventDates, employeeId);
+        _eventService.CreateEvent(eventDates, (EventTypes) createEventViewModel.EventTypeId, employeeId);
+        return Ok("Event has been created successfully");
       }
       catch (Exception ex)
       {
@@ -372,12 +386,12 @@ namespace AdminCore.WebApi.Controllers
       return eventToApprove.EmployeeId == _employee.EmployeeId;
     }
 
-    private void ValidateIfHolidayEvent(CreateEventViewModel createEventViewModel, EventDateDto eventDates)
+    private void ValidateIfHolidayEvent(CreateEventViewModel createEventViewModel, EventDateDto eventDates, int employeeId)
     {
       PublicHolidayValidation(createEventViewModel);
       if (IsHolidayEvent(createEventViewModel.EventTypeId))
       {
-        _eventService.IsEventValid(eventDates, _employee.EmployeeId);
+        _eventService.IsEventValid(eventDates, employeeId);
       }
     }
 

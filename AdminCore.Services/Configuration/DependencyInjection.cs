@@ -10,12 +10,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AdminCore.Common.Authorization;
 using AdminCore.DataETL;
 using AdminCore.MailClients.Interfaces;
 using AdminCore.MailClients.SMTP;
 using AdminCore.MailClients.SMTP.Adapters;
 using AdminCore.MailClients.SMTP.Configuration;
 using AdminCore.MailClients.SMTP.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AdminCore.Services.Configuration
 {
@@ -30,6 +32,10 @@ namespace AdminCore.Services.Configuration
       {
         if (services == null) services = new ServiceCollection();
         services.AddAutoMapper();
+
+        services.AddSingleton<IAuthorizationPolicyProvider, AdminCoreRolesPolicy>();
+        services.AddSingleton<IAuthorizationHandler, AdminCoreRolesHandler>();
+
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddDbContext<AdminCoreContext>();

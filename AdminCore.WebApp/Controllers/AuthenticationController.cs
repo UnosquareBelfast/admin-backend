@@ -9,10 +9,10 @@
 
 using System;
 using AdminCore.Common;
+using AdminCore.Common.Exceptions;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants;
 using AdminCore.DTOs.Employee;
-using AdminCore.WebApi.Exceptions;
 using AdminCore.WebApi.Models.Employee;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;

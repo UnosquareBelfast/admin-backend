@@ -7,6 +7,17 @@
   <ItemGroup>
     <ProjectReference Include="..\AdminCore.Constants\AdminCore.Constants.csproj" />
     <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
+    <ProjectReference Include="..\AdminCore.Extensions\AdminCore.Extensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc">
+      <HintPath>C:\Users\richard.gillen\.nuget\packages\castle.core\4.3.1\lib\netstandard1.5\Castle.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
