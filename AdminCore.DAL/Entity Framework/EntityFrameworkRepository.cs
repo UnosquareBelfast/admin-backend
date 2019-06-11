@@ -36,36 +36,19 @@ namespace AdminCore.DAL.Entity_Framework
 
     public IList<T> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
     {
-      var newIncludes = includeProperties.Select(x => (includeProperty: x,  thenIncludes: (Expression<Func<object, object>>[])null)).ToArray();
-
-      return GetAsQueryable(filter, orderBy, newIncludes).ToList();
+      return GetAsQueryable(filter, orderBy, includeProperties).ToList();
     }
 
     public bool Exists(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
     {
-      var newIncludes = includeProperties.Select(x => (includeProperty: x,  thenIncludes: (Expression<Func<object, object>>[])null)).ToArray();
-      return GetAsQueryable(filter, orderBy, newIncludes).Any();
+      return GetAsQueryable(filter, orderBy, includeProperties).Any();
     }
 
     public T GetSingle(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes)
     {
-      var newIncludes = includes.Select(x => (includeProperty: x,  thenIncludes: (Expression<Func<object, object>>[])null)).ToArray();
-
-      var query = GetAsQueryable(filter, null, newIncludes);
+      var query = GetAsQueryable(filter, null, includes);
 
       return query.SingleOrDefault();
-    }
-
-    public T GetSingleThenIncludes(Expression<Func<T, bool>> filter = null, params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
-    {
-      var query = GetAsQueryable(filter, null, includeDatas);
-
-      return query.SingleOrDefault();
-    }
-
-    public IList<T> GetThenIncludes(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
-    {
-      return GetAsQueryable(filter, orderBy, includeDatas).ToList();
     }
 
     public T Insert(T entity)
@@ -73,8 +56,7 @@ namespace AdminCore.DAL.Entity_Framework
       return _dbSet.Add(entity)?.Entity;
     }
 
-    public IQueryable<T> GetAsQueryable(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-      params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
+    public IQueryable<T> GetAsQueryable(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includes)
     {
       var queryableData = _dbSet.AsQueryable();
 
@@ -83,7 +65,7 @@ namespace AdminCore.DAL.Entity_Framework
         queryableData = queryableData.Where(filter);
       }
 
-      queryableData = IncludeEntities(queryableData, includeDatas);
+      queryableData = IncludeEntities(queryableData, includes);
 
       if (orderBy != null)
       {
@@ -100,23 +82,13 @@ namespace AdminCore.DAL.Entity_Framework
       return updatedEntity.Entity;
     }
 
-    private static IQueryable<T> IncludeEntities(IQueryable<T> query,
-      params (Expression<Func<T, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[] includeDatas)
+    public IQueryable<T> IncludeEntities(IQueryable<T> query, Expression<Func<T, object>>[] includeProperties)
     {
-      foreach (var (includeProperty, thenIncludes) in includeDatas)
+      if (includeProperties != null)
       {
-        if (includeProperty != null)
+        foreach (var includeProperty in includeProperties)
         {
-          var newQuery = query.Include(includeProperty);
-          if (thenIncludes != null && thenIncludes.Any())
-          {
-            foreach (var thenInclude in thenIncludes)
-            {
-              newQuery = newQuery.ThenInclude(thenInclude);
-            }
-          }
-
-          query = newQuery;
+          query = query.Include(includeProperty);
         }
       }
 

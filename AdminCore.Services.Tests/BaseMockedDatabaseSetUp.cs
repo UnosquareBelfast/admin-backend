@@ -162,7 +162,6 @@ namespace AdminCore.Services.Tests
       mockedRepository.When(x => x.Update(Arg.Any<T>())).DoNotCallBase();
       mockedRepository.When(x => x.Delete(Arg.Any<T>())).DoNotCallBase();
       mockedRepository.When(x => x.Delete(Arg.Any<object>())).DoNotCallBase();
-      mockedRepository.When(x => x.Insert(Arg.Any<T>())).DoNotCallBase();
 
       return mockedRepository;
     }

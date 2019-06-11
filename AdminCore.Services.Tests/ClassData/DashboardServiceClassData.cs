@@ -80,6 +80,7 @@ namespace AdminCore.Services.Tests.ClassData
                                                     ContractId = 1,
                                                     TeamId = 1,
                                                     EmployeeId = 1,
+                                                    StartDate = dateTimeToGet.AddDays(-1),
                                                     Employee = new Employee
                                                     {
                                                         EmployeeId = 1,

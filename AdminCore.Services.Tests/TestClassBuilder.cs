@@ -12,7 +12,7 @@ namespace AdminCore.Services.Tests
   {
     private static readonly IMapper Mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new EventMapperProfile())));
 
-    internal static Event BuildEvent(int eventId, int employeeId, EventStatus eventStatus, EventType eventType)
+    internal static Event BuildEvent(int eventId, int employeeId, EventStatus eventStatus, EventType eventType, int eventWorkflowId = 0)
     {
       return new Event
       {
@@ -23,6 +23,7 @@ namespace AdminCore.Services.Tests
         EventStatusId = eventStatus.EventStatusId,
         EventType = eventType,
         EventTypeId = eventType.EventTypeId,
+        EventWorkflowId = eventWorkflowId
       };
     }
 

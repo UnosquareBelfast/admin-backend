@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdminCore.Services.Tests.ClassData;
-using FluentAssertions;
 using Xunit;
 
 namespace AdminCore.Services.Tests
@@ -61,7 +60,6 @@ namespace AdminCore.Services.Tests
       var dateServiceMock = Substitute.For<IDateService>();
       dateServiceMock.GetCurrentDateTime().Returns(dateServiceNow);
 
-//      var eventService = GetEventService(databaseContext);
       var eventService = new EventService(databaseContextMock, Mapper, dateServiceMock);
 
       // Act
@@ -98,25 +96,29 @@ namespace AdminCore.Services.Tests
       };
       var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
 
-      var eventTypeDaysNoticeList = new List<EventTypeDaysNotice>();
+      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContext = SetUpEventRepository(databaseContext, new List<Event>());
+      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
+      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
+      databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+      databaseContext = SetUpEventTypeDaysNoticeRepository(databaseContext, new List<EventTypeDaysNotice>{
+        new EventTypeDaysNotice
+        {
+          LeaveLengthDays = 1,
+          DaysNotice = 1,
+          TimeNotice = new TimeSpan(0, 0, 0),
+          EventType = eventType,
+          EventTypeId = eventType.EventTypeId
+        }});
 
-      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventRepository(databaseContextMock, new List<Event>());
-      databaseContextMock = SetUpEventTypeRepository(databaseContextMock, eventTypesList);
-      databaseContextMock = SetUpEmployeeRepository(databaseContextMock, employeeList);
-      databaseContextMock = SetUpEventDateRepository(databaseContextMock, eventDatesList);
-      databaseContextMock = SetUpEventTypeDaysNoticeRepository(databaseContextMock, eventTypeDaysNoticeList);
-
-      var dateServiceMock = Substitute.For<IDateService>();
-      dateServiceMock.GetCurrentDateTime().Returns(DateTime.Now);
-
-      var eventService = new EventService(databaseContextMock, Mapper, dateServiceMock);
-
-      Func<EventDto> action = () => eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId, 0);
+      var eventService = GetEventService(databaseContext, startDate.AddDays(-2));
 
       // Act
+      var ex = Assert.Throws<Exception>(() =>
+        eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId, 0));
+
       // Assert
-      action.Should().Throw<Exception>();
+      Assert.Equal("Holiday dates already booked.", ex.Message);
     }
 
     [Fact]
@@ -125,8 +127,8 @@ namespace AdminCore.Services.Tests
       // Arrange
       const int employeeId = 1;
       const int eventId = 1;
-      var startDate = new DateTime(2018, 11, 05);
-      var endDate = new DateTime(2018, 11, 05);
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
 
       var eventType = TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
@@ -145,18 +147,23 @@ namespace AdminCore.Services.Tests
         IsHalfDay = true
       };
 
-      var databaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContext = SetUpEventRepository(databaseContext, new List<Event>());
-      databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
-      databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
-      databaseContext = SetUpEventDateRepository(databaseContext, new List<EventDate>());
+      var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
+      databaseContextMock = SetUpEventRepository(databaseContextMock, new List<Event>());
+      databaseContextMock = SetUpEventTypeRepository(databaseContextMock, eventTypesList);
+      databaseContextMock = SetUpEmployeeRepository(databaseContextMock, employeeList);
+      databaseContextMock = SetUpEventDateRepository(databaseContextMock, new List<EventDate>());
+      databaseContextMock = SetUpEventTypeDaysNoticeRepository(databaseContextMock, new List<EventTypeDaysNotice>());
 
-      var eventService = GetEventService(databaseContext);
+      var dateServiceMock = Substitute.For<IDateService>();
+      dateServiceMock.GetCurrentDateTime().Returns(DateTime.Now);
+
+      var eventService = new EventService(databaseContextMock, Mapper, dateServiceMock);
+
       // Act
       eventService.CreateEvent(eventDateDto, EventTypes.AnnualLeave, employeeId, 0);
 
       // Assert
-      databaseContext.Received().EventRepository.Insert(Arg.Any<Event>());
+      databaseContextMock.Received().EventRepository.Insert(Arg.Any<Event>());
     }
 
     [Fact]
@@ -191,8 +198,17 @@ namespace AdminCore.Services.Tests
       databaseContext = SetUpEventTypeRepository(databaseContext, eventTypesList);
       databaseContext = SetUpEmployeeRepository(databaseContext, employeeList);
       databaseContext = SetUpEventDateRepository(databaseContext, eventDatesList);
+      databaseContext = SetUpEventTypeDaysNoticeRepository(databaseContext, new List<EventTypeDaysNotice>{
+        new EventTypeDaysNotice
+        {
+          LeaveLengthDays = 1,
+          DaysNotice = 1,
+          TimeNotice = new TimeSpan(0, 0, 0),
+          EventType = eventType,
+          EventTypeId = eventType.EventTypeId
+        }});
 
-      var eventService = GetEventService(databaseContext);
+      var eventService = GetEventService(databaseContext, startDate.AddDays(-2));
 
       // Act
       var ex = Assert.Throws<Exception>(() =>
@@ -208,8 +224,8 @@ namespace AdminCore.Services.Tests
       // Arrange
       const int employeeId = 1;
       const int eventId = 1;
-      var startDate = new DateTime(2018, 10, 05);
-      var endDate = new DateTime(2018, 10, 05);
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
 
       var eventType = TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
@@ -260,8 +276,8 @@ namespace AdminCore.Services.Tests
     {
       const int employeeId = 1;
       const int eventId = 1;
-      var startDate = new DateTime(2018, 09, 03);
-      var endDate = new DateTime(2018, 09, 05);
+      var startDate = new DateTime(2018, 12, 03);
+      var endDate = new DateTime(2018, 12, 05);
 
       var eventType = TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
@@ -279,20 +295,17 @@ namespace AdminCore.Services.Tests
         Event = Mapper.Map<EventDto>(TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType)),
         IsHalfDay = false
       };
-      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(new EventDateDto()) };
 
+      var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
       var newEvent = TestClassBuilder.BuildEvent(eventId, employeeId, eventStatus, eventType, eventDatesList);
       var events = new List<Event> { newEvent };
-
-      var eventTypeDaysNoticeList = new List<EventTypeDaysNotice>();
 
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
       databaseContextMock = SetUpEventRepository(databaseContextMock, events);
       databaseContextMock = SetUpEventTypeRepository(databaseContextMock, eventTypesList);
       databaseContextMock = SetUpEmployeeRepository(databaseContextMock, employeeList);
-      databaseContextMock = SetUpEventDateRepository(databaseContextMock, eventDatesList);
-
-      databaseContextMock = SetUpEventTypeDaysNoticeRepository(databaseContextMock, eventTypeDaysNoticeList);
+      databaseContextMock = SetUpEventDateRepository(databaseContextMock, new List<EventDate>());
+      databaseContextMock = SetUpEventTypeDaysNoticeRepository(databaseContextMock, new List<EventTypeDaysNotice>());
 
       var dateServiceMock = Substitute.For<IDateService>();
       dateServiceMock.GetCurrentDateTime().Returns(DateTime.Now);
@@ -746,37 +759,22 @@ namespace AdminCore.Services.Tests
       Assert.Equal(1, eventsByEmployeeId.Count);
     }
 
-    public static TheoryData<Tuple<DateTime, DateTime>> EventDates = new TheoryData<Tuple<DateTime, DateTime>>
+    [Fact]
+    public void
+      GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus_WithValidDates_ReturnsListOfEventDatesByEmployeeIdAndStartAndEndDateAndEventStatus()
     {
-      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 13), new DateTime(2019, 5, 16)),
-      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 14), new DateTime(2019, 5, 16)),
-      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 14), new DateTime(2019, 5, 17)),
-      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 13), new DateTime(2019, 5, 17)),
-      new Tuple<DateTime, DateTime>(new DateTime(2019, 5, 10), new DateTime(2019, 5, 20))
-    };
-
-    [Theory]
-    [MemberData(nameof(EventDates))]
-    public void isEventAlreadyBooked_WithAlreadyBookedEventDates_ShouldReturnAlreadyBookedEvents(Tuple<DateTime, DateTime> eventDates)
-    {
-      var (startDate, endDate) = eventDates;
-
       // Arrange
       const int employeeId = 1;
       const int eventId = 1;
+      var startDate = new DateTime(2018, 12, 05);
+      var endDate = new DateTime(2018, 12, 05);
 
       var eventType =
         TestClassBuilder.AnnualLeaveEventType();
       var eventTypesList = new List<EventType> { eventType };
       var eventStatus = TestClassBuilder.ApprovedEventStatus();
 
-      var eventDateDto = TestClassBuilder.BuildEventDateDto(
-        new DateTime(2019, 5, 13),
-        new DateTime(2019, 5, 17),
-        eventId,
-        employeeId,
-        eventStatus,
-        eventType);
+      var eventDateDto = TestClassBuilder.BuildEventDateDto(startDate, endDate, eventId, employeeId, eventStatus, eventType);
 
       var eventDatesList = new List<EventDate> { Mapper.Map<EventDate>(eventDateDto) };
 
@@ -1738,9 +1736,10 @@ namespace AdminCore.Services.Tests
       Assert.Equal("Mandatory Event does not exist", ex.Message);
     }
 
-    private static EventService GetEventService(IDatabaseContext databaseContext)
+    private static EventService GetEventService(IDatabaseContext databaseContext, DateTime? dateServiceNow = null)
     {
-      IDateService dateService = new DateService();
+      var dateService = Substitute.For<IDateService>();
+      dateService.GetCurrentDateTime().Returns(dateServiceNow ?? DateTime.Now);
 
       return new EventService(databaseContext, Mapper, dateService);
     }
