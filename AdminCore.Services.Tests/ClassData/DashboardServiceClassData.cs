@@ -23,7 +23,8 @@ namespace AdminCore.Services.Tests.ClassData
 
                 var employees = new EmployeeSnapshotDto
                 {
-                    EmployeeId = EmployeeId
+                    EmployeeId = EmployeeId,
+                    Location = "In Office"
                 };
 
                 var teams = new TeamSnapshotDto
@@ -44,19 +45,54 @@ namespace AdminCore.Services.Tests.ClassData
                     Projects = new List<ProjectSnapshotDto> { projects }
                 };
 
-                // ARGS: employeeId: int, DateTime dateToGet, teamRepoOut IList<Team>, clientRepoOut IQueryable<Client>,
-                // clientSnapshotMapOut: ClientSnapshotDto, projectSnapshotMapOut: ProjectSnapshotDto, teamSnapshotMapOut: TeamSnapshotDto, employeeSnapshotMapOut: EmployeeSnapshotDto
+                var employee = new Employee
+                {
+                    EmployeeId = EmployeeId,
+
+                    Events = new List<Event>
+                    {
+                        new Event
+                        {
+                            EventId = 1,
+                            EventDates = new List<EventDate>
+                            {
+                                new EventDate
+                                {
+                                    EventDateId = 1,
+                                    StartDate = dateTimeToGet,
+                                    EndDate = dateTimeToGet
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var contract = new Contract
+                {
+                    ContractId = 1,
+                    TeamId = 1,
+                    EmployeeId = EmployeeId,
+                    StartDate = dateTimeToGet.AddDays(-1),
+                    Employee = employee
+                };
+
+                var team = new Team
+                {
+                    TeamId = 1,
+                    Contracts = new List<Contract>
+                    {
+                        contract
+                    }
+                };
+
+                // ARGS: employeeId: int, DateTime dateToGet, teamRepoOut IList<Team>, clientRepoOut IQueryable<Client>
                 yield return new object[]
                 {
                     EmployeeId,
                     dateTimeToGet,
                     new List<Team>
                     {
-                        new Team
-                        {
-                            TeamId = 1,
-                            ProjectId = 1
-                        }
+                        team
                     },
                     new List<Client>
                     {
@@ -70,49 +106,13 @@ namespace AdminCore.Services.Tests.ClassData
                                     ProjectId = 1,
                                     Teams = new List<Team>
                                     {
-                                        new Team
-                                        {
-                                            TeamId = 1,
-                                            Contracts = new List<Contract>
-                                            {
-                                                new Contract
-                                                {
-                                                    ContractId = 1,
-                                                    TeamId = 1,
-                                                    EmployeeId = 1,
-                                                    StartDate = dateTimeToGet.AddDays(-1),
-                                                    Employee = new Employee
-                                                    {
-                                                        EmployeeId = 1,
-                                                        Events = new List<Event>
-                                                        {
-                                                            new Event
-                                                            {
-                                                                EventId = 1,
-                                                                EventDates = new List<EventDate>
-                                                                {
-                                                                    new EventDate
-                                                                    {
-                                                                        EventDateId = 1,
-                                                                        StartDate = dateTimeToGet,
-                                                                        EndDate = dateTimeToGet
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        team
                                     }
                                 }
                             }
                         }
-                    }.AsQueryable(),
-                    clients,
-                    projects,
-                    teams,
-                    employees
+                    },
+                    clients
                 };
             }
 

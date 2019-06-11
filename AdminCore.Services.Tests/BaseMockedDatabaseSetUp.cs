@@ -25,15 +25,15 @@ namespace AdminCore.Services.Tests
       return Substitute.ForPartsOf<EntityFrameworkContext>(dbContext);
     }
 
-    protected virtual EntityFrameworkContext SetUpEventRepository(EntityFrameworkContext databaseContext, IList<Event> eventList)
+    protected virtual EntityFrameworkContext SetUpEventRepository(EntityFrameworkContext ormContext, IList<Event> eventList)
     {
-      var mockEventRepository = GetMockedRepository(eventList, databaseContext);
-      databaseContext.Configure().EventRepository.Returns(mockEventRepository);
-      databaseContext.When(x => x.RetrieveRepository<Event>()).DoNotCallBase();
+      var mockEventRepository = GetMockedRepository(eventList, ormContext);
+      ormContext.Configure().EventRepository.Returns(mockEventRepository);
+      ormContext.When(x => x.RetrieveRepository<Event>()).DoNotCallBase();
 
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
 
-      return databaseContext;
+      return ormContext;
     }
 
     protected virtual EntityFrameworkContext SetUpMandatoryEventRepository(EntityFrameworkContext databaseContext, IList<MandatoryEvent> mandatoryEventList)
