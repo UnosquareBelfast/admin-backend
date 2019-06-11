@@ -14,7 +14,7 @@ namespace AdminCore.Common.Interfaces
 
     IList<EventDto> GetEventsByEmployeeId(int employeeId, EventTypes eventType);
 
-    IList<EventDateDto> GetBookedEventDatesByEmployeeAndStartAndEndDatesAndEventStatus(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatus);
+    bool IsEventAlreadyBooked(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses);
 
     EventDto GetEvent(int id);
 

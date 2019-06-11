@@ -100,7 +100,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     }
 
     [Fact]
-    public void GetEmployeeTeamSnapshotReturnsOkResultWithClientSnapshotsWhenSnapshotsAreReturned()
+    public void GetEmployeeTeamSnapshot_ServiceReturnsSnapshotList_ReturnsOkResultWithClientSnapshots()
     {
       // Arrange
       var numberOfSnapshotModels = 6;
@@ -117,7 +117,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     }
 
     [Fact]
-    public void GetEmployeeTeamSnapshotReturnsNoContentResultWhenNoSnapshotsAreReturned()
+    public void GetEmployeeTeamSnapshot_ServiceReturnsEmptySnapshot_ReturnsNoContentResult()
     {
       // Arrange
       _dashboardService.GetTeamDashboardEvents(TestEmployeeId, Arg.Any<DateTime>()).Returns(new List<ClientSnapshotDto>());
@@ -130,6 +130,19 @@ namespace AdminCore.WebApi.Tests.Controllers
       _dashboardService.Received(1).GetTeamDashboardEvents(TestEmployeeId, Arg.Any<DateTime>());
     }
 
+    [Fact]
+    public void GetEmployeeTeamSnapshot_ServiceReturnsNull_ReturnsNoContentResult()
+    {
+      // Arrange
+      _dashboardService.GetTeamDashboardEvents(TestEmployeeId, Arg.Any<DateTime>()).Returns(x => null);
+
+      // Act
+      var result = _dashboardController.GetEmployeeTeamSnapshot();
+
+      // Assert
+      AssertObjectResultIsNull<List<ClientSnapshotViewModel>>(result, HttpStatusCode.NoContent);
+      _dashboardService.Received(1).GetTeamDashboardEvents(TestEmployeeId, Arg.Any<DateTime>());
+    }
 
     [Fact]
     public void GetTeamEventsReturnsOkResultWithEventsWhenServiceReturnsEvents()

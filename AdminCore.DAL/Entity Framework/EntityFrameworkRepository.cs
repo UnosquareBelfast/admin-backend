@@ -39,6 +39,11 @@ namespace AdminCore.DAL.Entity_Framework
       return GetAsQueryable(filter, orderBy, includeProperties).ToList();
     }
 
+    public bool Exists(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includeProperties)
+    {
+      return GetAsQueryable(filter, orderBy, includeProperties).Any();
+    }
+
     public T GetSingle(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes)
     {
       var query = GetAsQueryable(filter, null, includes);
@@ -70,10 +75,11 @@ namespace AdminCore.DAL.Entity_Framework
       return queryableData;
     }
 
-    public virtual void Update(T entityToUpdate)
+    public virtual T Update(T entityToUpdate)
     {
-      _dbSet.Attach(entityToUpdate);
+      var updatedEntity = _dbSet.Attach(entityToUpdate);
       ((EntityFrameworkContext)_context).Entry(entityToUpdate).State = EntityState.Modified;
+      return updatedEntity.Entity;
     }
 
     public IQueryable<T> IncludeEntities(IQueryable<T> query, Expression<Func<T, object>>[] includeProperties)

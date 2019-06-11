@@ -16,6 +16,6 @@ namespace AdminCore.DAL.Models
     [Column("client_name")]
     public string ClientName { get; set; }
 
-    public virtual ICollection<Team> Teams { get; set; }
+    public virtual ICollection<Project> Projects { get; set; }
   }
 }
