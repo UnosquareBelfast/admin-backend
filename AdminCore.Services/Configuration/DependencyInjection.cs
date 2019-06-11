@@ -56,7 +56,7 @@ namespace AdminCore.Services.Configuration
         services.AddScoped<IMailSender, SmtpMailSender>();
         services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
 
-        services.AddScoped<ILinkGenerator, EventRequest>();
+        services.AddScoped<ILinkGeneratorFactory, EventRequestFactory>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

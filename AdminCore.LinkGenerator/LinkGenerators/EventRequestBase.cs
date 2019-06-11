@@ -1,15 +1,13 @@
-﻿using System;
+using System;
 using System.Linq;
+using AdminCore.Constants.Enums;
 using AdminCore.DTOs.LinkGenerator;
 using AdminCore.LinkGenerator.Interfaces;
 using HashidsNet;
 
 namespace AdminCore.LinkGenerator.LinkGenerators
 {
-    /// <summary>
-    /// Creates Event Request obj and generates link for that obj
-    /// </summary>
-    public class EventRequest : ILinkGenerator
+    public class EventRequestBase : ILinkGenerator
     {
         /// <summary>
         /// Creates Event Request while ensuring expiration date time is calculated considering only business days.
@@ -21,7 +19,7 @@ namespace AdminCore.LinkGenerator.LinkGenerators
         /// <param name="timeCreated">Time request was created</param>
         /// <returns>EventRequestDto obj</returns>
         /// <exception cref="Exception">Is thrown given invalid requestLifeCycle</exception>
-        public EventRequestDto CreateRequest(int eventId, int eventDateId, int requestTypeId, int requestLifeCycle, DateTime timeCreated)
+        public virtual EventRequestDto CreateRequest(int eventId, int eventDateId, int requestTypeId, int requestLifeCycle, DateTime timeCreated)
         {
             if (requestLifeCycle % Day != 0)
             {
@@ -37,36 +35,45 @@ namespace AdminCore.LinkGenerator.LinkGenerators
                 Hash = new Hashids(salt, HashLength).Encode(eventId),
                 TimeCreated =  timeCreated,
                 TimeExpires = CalculateRequestExpirationDateTime(timeCreated, requestLifeCycle),
-                Expired = false,
+                Approved = false,
                 AutoApproved = false
             };
         }
 
         /// <summary>
-        /// todo
+        /// Generates URL given valid EventRequestDto obj.
         /// </summary>
         /// <param name="eventRequest"></param>
+        /// <param name="eventRequestResponse">EventRe</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public HashedLinkDto GenerateLink(EventRequestDto eventRequest)
+        public HashedLinkDto GenerateLink(EventRequestDto eventRequest, EventRequestResponse eventRequestResponse)
         {
-            if (eventRequest.Hash == null)
+            if (string.IsNullOrEmpty(eventRequest.Hash))
             {
-                throw new Exception("Hash value cannot be null");
+                throw new Exception("Hash value is in invalid format");
             }
-
-            // todo consider domain, route to be configurable
-            return new HashedLinkDto("localhost:8081", "event-response", eventRequest.Hash);
+            // TODO consider domain, route to be configurable
+            return new HashedLinkDto("localhost:8081", $"eventRequest/{(int)eventRequestResponse}", eventRequest.Hash);
         }
-
-        public int Decode(string salt, string hash)
+        
+        /// <summary>
+        /// Decodes hash to event Id given hash and salt
+        /// </summary>
+        /// <param name="salt">Salt value used with to produce Hashid</param>
+        /// <param name="hashid">Hashid value</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public int Decode(string salt, string hashid)
         {
-            var chunkedEventId = new Hashids(salt, HashLength).Decode(hash);
+            var chunkedEventId = new Hashids(salt, HashLength).Decode(hashid);
 
             if (chunkedEventId.Length == 0)
             {
-                throw new Exception($"event Id unknown, did not recognise {hash} request");
+                throw new Exception($"event Id unknown, did not recognise {hashid} request");
             }
+            
+            // Hashids decode function returns array of int, converting this array into valid int
             return chunkedEventId.Select((t, i) => t * Convert.ToInt32(Math.Pow(10, chunkedEventId.Length - i - 1))).Sum();
         }
 
@@ -90,7 +97,7 @@ namespace AdminCore.LinkGenerator.LinkGenerators
             return timeCreated;
         }
 
-        private const int HashLength = 16;
         private const int Day = 24;
+        private const int HashLength = 16;
     }
 }

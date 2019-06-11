@@ -1,14 +1,13 @@
-﻿using System;
+using System;
 using AdminCore.LinkGenerator.Interfaces;
 using AdminCore.LinkGenerator.LinkGenerators;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
-
 using Xunit;
 
 namespace AdminCore.LinkGenerator.Tests.LinkGenerators
 {
-    public class EventRequestTest
+    public class EventRequestBaseTest
     {
         private readonly IFixture _fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
@@ -107,9 +106,45 @@ namespace AdminCore.LinkGenerator.Tests.LinkGenerators
             Assert.Equal(expectedResult, eventRequestDto.TimeExpires);
         }
 
+        [Fact]
+        public void CreateRequest_WithInvalidRequestLifeCycleValue_ThrowsException()
+        {
+            
+        }
+
+        [Fact]
+        public void GenerateLink_WithNullHashValue_ThrowsException()
+        {
+            
+        }
+
+        [Fact]
+        public void GenerateLink_WithEmptyHashValue_ThrowsException()
+        {
+            
+        }
+
+        [Fact]
+        public void GenerateLink_WithValidHashValue_BuildsLink()
+        {
+            
+        }
+
+        [Fact]
+        public void Decode_WithIncorrectHash_FailsToDecodeAndThrowsException()
+        {
+            
+        }
+
+        [Fact]
+        public void Decode_WithCorrectHashAndSalt_ConvertsArrayOfIntIntoValidEventIdFormat()
+        {
+            
+        }
+
         private static ILinkGenerator GetEventRequest()
         {
-            return new EventRequest();
+            return new EventRequestBase();
         }
     }
 }

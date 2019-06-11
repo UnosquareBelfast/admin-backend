@@ -22,7 +22,11 @@ ALTER SEQUENCE event_request_type_request_type_id_seq
     OWNED BY event_request_type.request_type_id;
 
 INSERT INTO public.event_request_type (request_type_id, request_description, request_life_cycle)
-VALUES (1, 'Client PTO request', 48)
+VALUES (1, 'Client PTO Request', 48),
+       (2, 'Team Lead PTO Request', -1),
+       (3, 'HR PTO Request', 48),
+       (4, 'CSE PTO Request', -1)
+
 ON CONFLICT (request_type_id)
   DO NOTHING;
 
@@ -44,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public.event_request
     hash character varying(255) NOT NULL,
     time_created timestamp NOT NULL,
     time_expires timestamp NOT NULL,
-    expired boolean NOT NULL,
+    approved boolean NOT NULL,
     auto_approved boolean NOT NULL,
     CONSTRAINT event_request_type_request_type_id_fkey FOREIGN KEY (request_type_id)
         REFERENCES public.event_request_type (request_type_id) MATCH SIMPLE

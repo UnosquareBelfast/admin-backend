@@ -31,8 +31,8 @@ namespace AdminCore.DAL.Models
         [Column("time_expires")]
         public DateTime TimeExpires { get; set; }
 
-        [Column("expired")]
-        public bool Expired { get; set; }
+        [Column("approved")]
+        public bool Approved { get; set; }
 
         [Column("auto_approved")]
         public bool AutoApproved { get; set; }

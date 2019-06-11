@@ -1,8 +1,11 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Net.Http;
 using AdminCore.Common.Interfaces;
 using AdminCore.DTOs.LinkGenerator;
 using AdminCore.LinkGenerator.Interfaces;
+using AdminCore.WebApi.Models.EventRequest;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,10 +29,13 @@ namespace AdminCore.WebApi.Controllers
             _dateService = dateService;
         }
 
-        [HttpGet("event-response/{hashId}")]
-        public IActionResult GetEventByEventId(string hashId)
+        [HttpPost]
+        [Route("{requestType:regex(\\b(0|1)\\b)}/{hashId:length(16)}")]
+        public IActionResult PostEventRequestResponse(EventRequestResponseViewModel eventRequestResponse, int requestType, string hashId)
         {
-            ObjectResult resultStatus = null;
+            var requestResponse = eventRequestResponse.Comment;
+
+            ObjectResult resultStatus;
 
             var eventRequest = _eventService.GetEventRequest(hashId);
 
@@ -38,27 +44,24 @@ namespace AdminCore.WebApi.Controllers
                 return GenerateResponse(HttpStatusCode.NoContent, $"Invalid request: {hashId}.");
             }
 
-            if (eventRequest.Expired && eventRequest.AutoApproved)
+            // TODO ~ provide event reference number (https://unosquarebelfast.atlassian.net/browse/LM-58)
+            if (eventRequest.AutoApproved)
             {
                 var lifeCycle = _eventService.GetEventRequestType(eventRequest.RequestTypeId).RequestLifeCycle;
                 resultStatus = GenerateResponse(HttpStatusCode.BadRequest, $"Request was automatically approved within {lifeCycle} hours as no response was recorded.");
-
-                // TODO ~ provide event reference number (https://unosquarebelfast.atlassian.net/browse/LM-58)
-            }
-            else if (eventRequest.Expired && !eventRequest.AutoApproved)
-            {
-                resultStatus = GenerateResponse(HttpStatusCode.BadRequest, $"Request expired: {hashId}");
             }
             else
             {
-                resultStatus = EvaluateEventRequest(resultStatus, eventRequest);
+                resultStatus = EvaluateEventRequest(eventRequest);
             }
 
             return resultStatus ?? GenerateResponse(HttpStatusCode.NoContent, $"Invalid request: {hashId}.");
         }
 
-        private ObjectResult EvaluateEventRequest(ObjectResult resultStatus, EventRequestDto eventRequest)
+        private ObjectResult EvaluateEventRequest(EventRequestDto eventRequest)
         {
+            ObjectResult resultStatus = null;
+
             try
             {
                 var eventId = _eventRequestLinkGenerator.Decode(eventRequest.Salt, eventRequest.Hash);

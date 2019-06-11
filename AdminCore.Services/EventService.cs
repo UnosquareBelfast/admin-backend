@@ -129,9 +129,10 @@ namespace AdminCore.Services
       return _mapper.Map<EventRequestTypeDto>(requestType);
     }
 
+    // TODO
     public void EvaluateRequest(EventRequestDto eventRequest)
     {
-      // todo
+      throw new NotImplementedException();
     }
 
     public void UpdateEventStatus(int eventId, EventStatuses status)
@@ -366,7 +367,7 @@ namespace AdminCore.Services
         eventRequest => eventRequest.Salt,
         eventRequest => eventRequest.TimeCreated,
         eventRequest => eventRequest.TimeExpires,
-        eventRequest => eventRequest.Expired,
+        eventRequest => eventRequest.Approved,
         eventRequest => eventRequest.AutoApproved);
     }
 
