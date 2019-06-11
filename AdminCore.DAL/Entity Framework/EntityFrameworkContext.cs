@@ -50,6 +50,7 @@ namespace AdminCore.DAL.Entity_Framework
     private IRepository<EmployeeApprovalResponse> _employeeApprovalResponsesRepository;
 
     private IRepository<Project> _projectRepository;
+    private IRepository<SystemUser> _systemUserRepository;
 
     public EntityFrameworkContext()
     {
@@ -128,6 +129,9 @@ namespace AdminCore.DAL.Entity_Framework
 
     public virtual IRepository<Project> ProjectRepository =>
       _projectRepository ?? (_projectRepository = RetrieveRepository<Project>());
+
+    public virtual IRepository<SystemUser> SystemUserRepository =>
+      _systemUserRepository ?? (_systemUserRepository = RetrieveRepository<SystemUser>());
 
     public virtual void SaveChanges()
     {

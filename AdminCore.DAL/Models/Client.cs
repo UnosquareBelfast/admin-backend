@@ -12,9 +12,15 @@ namespace AdminCore.DAL.Models
     [Column("client_id")]
     public int ClientId { get; set; }
 
+    [Column("system_user_id")]
+    public int SystemUserId { get; set; }
+
     [StringLength(50)]
     [Column("client_name")]
     public string ClientName { get; set; }
+
+    [ForeignKey("SystemUserId")]
+    public virtual SystemUser SystemUser { get; set; }
 
     public virtual ICollection<Project> Projects { get; set; }
   }

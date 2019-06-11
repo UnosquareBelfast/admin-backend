@@ -6,6 +6,7 @@ using AdminCore.Services.Base;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
+using AdminCore.Constants.Enums;
 
 namespace AdminCore.Services
 {
@@ -31,6 +32,9 @@ namespace AdminCore.Services
       if (clientDto.ClientId == 0)
       {
         client = _mapper.Map<Client>(clientDto);
+
+        client.SystemUser = new SystemUser {SystemUserTypeId = (int)SystemUserTypes.Client};
+
         DatabaseContext.ClientRepository.Insert(client);
       }
       else

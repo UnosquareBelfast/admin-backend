@@ -27,6 +27,8 @@ namespace AdminCore.Services
       var employee = _mapper.Map<Employee>(newEmployeeDto);
       employee.TotalHolidays = CalculateTotalHolidaysFromStartDate(employee, newEmployeeDto.StartDate);
 
+      employee.SystemUser = new SystemUser{SystemUserTypeId = (int)SystemUserTypes.Employee};
+
       DatabaseContext.EmployeeRepository.Insert(employee);
       AddPublicHolidays(employee);
       DatabaseContext.SaveChanges();

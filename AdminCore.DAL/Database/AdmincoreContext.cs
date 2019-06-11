@@ -68,6 +68,8 @@ namespace AdminCore.DAL.Database
 
     public DbSet<Project> Projects { get; set; }
 
+    public DbSet<SystemUser> SystemUsers { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       optionsBuilder.UseNpgsql(_configuration.RetrieveConnectionString());
