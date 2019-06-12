@@ -59,7 +59,7 @@ namespace AdminCore.MailClients.Tests.SMTP
             IMailSender smtpSender = GetSmtpMailSender(smtpClient);
 
             // Act
-            var ex = Assert.Throws<InvalidOperationException>(() => smtpSender.SendMessages(new List<MailMessageDto>{}));
+            var ex = Assert.Throws<InvalidOperationException>(() => smtpSender.SendMessages(new List<MailMessageDto>()));
 
             // Assert
             Assert.Equal("Messages object cannot be null or empty", ex.Message);

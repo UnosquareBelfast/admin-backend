@@ -70,7 +70,7 @@ namespace AdminCore.LinkGenerator.LinkGenerators
 
             if (chunkedEventId.Length == 0)
             {
-                throw new Exception($"event Id unknown, did not recognise {hashid} request");
+                throw new Exception($"Event Id unknown, did not recognise {hashid} request");
             }
             
             // Hashids decode function returns array of int, converting this array into valid int
