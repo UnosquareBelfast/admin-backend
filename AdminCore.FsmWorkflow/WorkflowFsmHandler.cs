@@ -6,6 +6,7 @@ using AdminCore.Common.Exceptions;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL;
 using AdminCore.DAL.Models;
+using AdminCore.DTOs;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
 using AdminCore.FsmWorkflow.Factory;
@@ -41,7 +42,7 @@ namespace AdminCore.FsmWorkflow
             return eventWorkflow;
         }
 
-        public WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow)
+        public WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, SystemUserDto respondeeSystemUser, EmployeeRoles employeeRole, EventStatuses eventStatus, EventWorkflow eventWorkflow)
         {
             ILeaveWorkflow workflowFsm;
             var workflowStateData = RebuildWorkflowStateData(eventWorkflow);
@@ -58,8 +59,8 @@ namespace AdminCore.FsmWorkflow
                     throw new WorkflowException($"No workflow FSM exists for {((EventTypes)employeeEvent.EventTypeId).ToString()}");
             }
 
-            var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, respondeeEmployee.EmployeeRoleId.ToString());
-            eventWorkflow = UpdateEventAddApprovalResponse(respondeeEmployee, eventWorkflow, workflowStateData, eventStatus);
+            var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, ((int)employeeRole).ToString());
+            eventWorkflow = UpdateEventAddApprovalResponse(respondeeSystemUser, eventWorkflow, workflowStateData, eventStatus);
 
             _dbContext.EventWorkflowRepository.Update(eventWorkflow);
             _dbContext.SaveChanges();

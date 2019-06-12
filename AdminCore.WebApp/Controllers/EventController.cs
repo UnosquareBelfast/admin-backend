@@ -15,6 +15,7 @@ using System.IO;
 using System.Net;
 using AdminCore.Common;
 using System.Net.Mime;
+using AdminCore.DTOs;
 using AdminCore.WebApi.Models;
 using AdminCore.WebApi.Models.DataTransform;
 
@@ -214,23 +215,23 @@ namespace AdminCore.WebApi.Controllers
     [HttpPut("approveEvent")]
     public IActionResult ApproveEvent(ApproveEventViewModel approveEventViewModel)
     {
-      return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponseApprove);
-    }
-
-    [HttpPut("cancelEvent")]
-    public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
-    {
-      return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponseCancel);
+      return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponse, EventStatuses.Approved);
     }
 
     [Authorize("Admin")]
     [HttpPut("rejectEvent")]
     public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
     {
-      return ProcessEvent(rejectEventViewModel.EventId, _eventWorkflowService.WorkflowResponseReject, rejectEventViewModel.Message);
+      return ProcessEvent(rejectEventViewModel.EventId, _eventWorkflowService.WorkflowResponse, EventStatuses.Rejected, rejectEventViewModel.Message);
     }
 
-    private IActionResult ProcessEvent(int eventId, Func<EventDto, EmployeeDto, WorkflowFsmStateInfo> workflowProcessFunc, string eventMessage = null)
+    [HttpPut("cancelEvent")]
+    public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
+    {
+      return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponse, EventStatuses.Cancelled);
+    }
+
+    private IActionResult ProcessEvent(int eventId, Func<EventDto, SystemUserDto, EventStatuses, WorkflowFsmStateInfo> workflowProcessFunc, EventStatuses eventStatus, string eventMessage = null)
     {
       try
       {
@@ -244,7 +245,7 @@ namespace AdminCore.WebApi.Controllers
           }
 
           // Advance workflow.
-          var workflowResultState = workflowProcessFunc(leaveEvent, _employee);
+          var workflowResultState = workflowProcessFunc(leaveEvent, _employee, eventStatus);
           // Add message to event.
           _eventService.AddRejectMessageToEvent(eventId, eventMessage, _employee.EmployeeId);
 

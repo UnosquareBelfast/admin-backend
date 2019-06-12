@@ -73,7 +73,7 @@ namespace AdminCore.Services.Tests
         eventDto, workflowFsmHandlerMock, employeeDto.EmployeeId+1);
 
       // Act
-      var workflowFsmStateInfo = eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto);
+      var workflowFsmStateInfo = eventWorkflowService.WorkflowResponse(eventDto, employeeDto);
       
       // Assert
       Assert.NotNull(workflowFsmStateInfo);
@@ -146,7 +146,7 @@ namespace AdminCore.Services.Tests
 
       // Act
       // Assert
-      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto));
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponse(eventDto, employeeDto));
     }
 
     [Theory]
@@ -213,7 +213,7 @@ namespace AdminCore.Services.Tests
       
       // Act
       // Assert
-      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto));
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponse(eventDto, employeeDto));
     }
     
     [Theory]
@@ -267,7 +267,7 @@ namespace AdminCore.Services.Tests
 
       // Act
       // Assert
-      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponseApprove(eventDto, employeeDto));
+      Assert.Throws<ValidationException>(() => eventWorkflowService.WorkflowResponse(eventDto, employeeDto));
     }
   }
 }

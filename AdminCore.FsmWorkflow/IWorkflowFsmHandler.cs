@@ -1,6 +1,7 @@
 using AdminCore.Common;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL.Models;
+using AdminCore.DTOs;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
 
@@ -10,6 +11,6 @@ namespace AdminCore.FsmWorkflow
     {
         EventWorkflow CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext);
 
-        WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow);
+        WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, SystemUserDto respondeeSystemUser, EmployeeRoles employeeRole, EventStatuses eventStatus, EventWorkflow eventWorkflow);
     }
 }
