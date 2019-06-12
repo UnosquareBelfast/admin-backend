@@ -64,7 +64,7 @@ namespace AdminCore.DAL.Database
 
     public DbSet<EventTypeRequiredResponders> EventTypeRequiredResponders { get; set; }
 
-    public DbSet<EmployeeApprovalResponse> EmployeeApprovalResponses { get; set; }
+    public DbSet<SystemUserApprovalResponse> EmployeeApprovalResponses { get; set; }
 
     public DbSet<Project> Projects { get; set; }
 

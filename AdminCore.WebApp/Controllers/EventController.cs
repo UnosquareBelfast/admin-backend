@@ -211,14 +211,12 @@ namespace AdminCore.WebApi.Controllers
       }
     }
 
-    [Authorize("Admin")]
     [HttpPut("approveEvent")]
     public IActionResult ApproveEvent(ApproveEventViewModel approveEventViewModel)
     {
       return ProcessEvent(approveEventViewModel.EventId, _eventWorkflowService.WorkflowResponse, EventStatuses.Approved);
     }
 
-    [Authorize("Admin")]
     [HttpPut("rejectEvent")]
     public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
     {
@@ -231,7 +229,7 @@ namespace AdminCore.WebApi.Controllers
       return ProcessEvent(cancelEventViewModel.EventId, _eventWorkflowService.WorkflowResponse, EventStatuses.Cancelled);
     }
 
-    private IActionResult ProcessEvent(int eventId, Func<EventDto, SystemUserDto, EventStatuses, WorkflowFsmStateInfo> workflowProcessFunc, EventStatuses eventStatus, string eventMessage = null)
+    private IActionResult ProcessEvent(int eventId, Func<EventDto, int, EventStatuses, WorkflowFsmStateInfo> workflowProcessFunc, EventStatuses eventStatus, string eventMessage = null)
     {
       try
       {
@@ -245,7 +243,7 @@ namespace AdminCore.WebApi.Controllers
           }
 
           // Advance workflow.
-          var workflowResultState = workflowProcessFunc(leaveEvent, _employee, eventStatus);
+          var workflowResultState = workflowProcessFunc(leaveEvent, _employee.SystemUserId, eventStatus);
           // Add message to event.
           _eventService.AddRejectMessageToEvent(eventId, eventMessage, _employee.EmployeeId);
 

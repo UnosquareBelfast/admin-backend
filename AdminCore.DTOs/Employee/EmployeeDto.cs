@@ -21,5 +21,7 @@ namespace AdminCore.DTOs.Employee
     public string Surname { get; set; }
 
     public int TotalHolidays { get; set; }
+
+    public int SystemUserId { get; set; }
   }
 }

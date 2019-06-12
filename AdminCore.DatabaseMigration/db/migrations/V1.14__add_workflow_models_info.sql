@@ -101,37 +101,37 @@ ALTER SEQUENCE event_type_required_responders_event_type_required_responders_id_
 ----------------------------------------------------------------------------------------
 
 /*
-                                   EMPLOYEE APPROVAL RESPONSE TABLE
+                                   System USER APPROVAL RESPONSE TABLE
 */
 
 ----------------------------------------------------------------------------------------
-CREATE SEQUENCE IF NOT EXISTS public.employee_approval_response_employee_approval_response_id_seq;
-CREATE TABLE IF NOT EXISTS public.employee_approval_response
+CREATE SEQUENCE IF NOT EXISTS public.system_user_approval_response_system_user_approval_response_id_seq;
+CREATE TABLE IF NOT EXISTS public.system_user_approval_response
 (
-  employee_approval_response_id integer NOT NULL DEFAULT nextval('employee_approval_response_employee_approval_response_id_seq'::regclass),
+  system_user_approval_response_id integer NOT NULL DEFAULT nextval('system_user_approval_response_system_user_approval_response_id_seq'::regclass),
 
   employee_role_id integer NOT NULL,
   response_sent_date date NOT NULL,
   event_status_id integer NOT NULL,
   event_workflow_id integer NOT NULL,
-  employee_id integer NOT NULL,
+  system_user_id integer NOT NULL,
 
-  CONSTRAINT employee_approval_response_pkey PRIMARY KEY ("employee_approval_response_id"),
+  CONSTRAINT system_user_approval_response_pkey PRIMARY KEY ("system_user_approval_response_id"),
 
-  CONSTRAINT employee_approval_response_employee_role_id_fkey FOREIGN KEY (employee_role_id)
+  CONSTRAINT system_user_approval_response_employee_role_id_fkey FOREIGN KEY (employee_role_id)
     REFERENCES public.employee_role (employee_role_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
-  CONSTRAINT employee_approval_response_event_status_id_fkey FOREIGN KEY (event_status_id)
+  CONSTRAINT system_user_approval_response_event_status_id_fkey FOREIGN KEY (event_status_id)
     REFERENCES public.event_status (event_status_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
-  CONSTRAINT employee_approval_response_event_workflow_id_fkey FOREIGN KEY (event_workflow_id)
+  CONSTRAINT system_user_approval_response_event_workflow_id_fkey FOREIGN KEY (event_workflow_id)
     REFERENCES public.event_workflow (event_workflow_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
-  CONSTRAINT employee_approval_response_employee_id_fkey FOREIGN KEY (employee_id)
-    REFERENCES public.employee (employee_id) MATCH SIMPLE
+  CONSTRAINT system_user_approval_response_system_user_id_fkey FOREIGN KEY (system_user_id)
+    REFERENCES public.system_user (system_user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 )
@@ -140,10 +140,10 @@ CREATE TABLE IF NOT EXISTS public.employee_approval_response
   )
   TABLESPACE pg_default;
 
-CREATE INDEX employee_approval_response_event_workflow_id_idx ON public.employee_approval_response(event_workflow_id);
+CREATE INDEX system_user_approval_response_event_workflow_id_idx ON public.system_user_approval_response(event_workflow_id);
 
-ALTER SEQUENCE employee_approval_response_employee_approval_response_id_seq
-  OWNED BY employee_approval_response.employee_approval_response_id;
+ALTER SEQUENCE system_user_approval_response_system_user_approval_response_id_seq
+  OWNED BY system_user_approval_response.system_user_approval_response_id;
 
 -- Alter existing tables
 

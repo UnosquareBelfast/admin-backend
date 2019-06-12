@@ -125,11 +125,11 @@ namespace AdminCore.Services.Tests
       return databaseContext;
     }
 
-    protected virtual EntityFrameworkContext SetUpEmployeeApprovalResponseRepository(EntityFrameworkContext databaseContext, IList<EmployeeApprovalResponse> employeeApprovalResponseList)
+    protected virtual EntityFrameworkContext SetUpEmployeeApprovalResponseRepository(EntityFrameworkContext databaseContext, IList<SystemUserApprovalResponse> employeeApprovalResponseList)
     {
       var mockRepository = GetMockedRepository(employeeApprovalResponseList, databaseContext);
       databaseContext.Configure().EmployeeApprovalResponsesRepository.Returns(mockRepository);
-      databaseContext.When(x => x.RetrieveRepository<EmployeeApprovalResponse>()).DoNotCallBase();
+      databaseContext.When(x => x.RetrieveRepository<SystemUserApprovalResponse>()).DoNotCallBase();
 
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
 

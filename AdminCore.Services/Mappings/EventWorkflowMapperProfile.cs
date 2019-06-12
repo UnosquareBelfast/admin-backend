@@ -9,7 +9,7 @@ namespace AdminCore.Services.Mappings
         public EventWorkflowMapperProfile()
         {
             CreateMap<EventWorkflow, EventWorkflowDto>().ReverseMap();
-            CreateMap<EmployeeApprovalResponse, EmployeeApprovalResponseDto>().ReverseMap();
+            CreateMap<SystemUserApprovalResponse, SystemUserApprovalResponseDto>().ReverseMap();
         }
     }
 }

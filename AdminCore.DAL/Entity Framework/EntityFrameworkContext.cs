@@ -47,7 +47,7 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<EventTypeRequiredResponders> _eventTypeRequiredRespondersRepository;
 
-    private IRepository<EmployeeApprovalResponse> _employeeApprovalResponsesRepository;
+    private IRepository<SystemUserApprovalResponse> _employeeApprovalResponsesRepository;
 
     private IRepository<Project> _projectRepository;
     private IRepository<SystemUser> _systemUserRepository;
@@ -124,8 +124,8 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository =>
       _eventTypeRequiredRespondersRepository ?? (_eventTypeRequiredRespondersRepository = RetrieveRepository<EventTypeRequiredResponders>());
 
-    public virtual IRepository<EmployeeApprovalResponse> EmployeeApprovalResponsesRepository =>
-      _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<EmployeeApprovalResponse>());
+    public virtual IRepository<SystemUserApprovalResponse> EmployeeApprovalResponsesRepository =>
+      _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<SystemUserApprovalResponse>());
 
     public virtual IRepository<Project> ProjectRepository =>
       _projectRepository ?? (_projectRepository = RetrieveRepository<Project>());

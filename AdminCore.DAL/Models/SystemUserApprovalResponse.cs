@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdminCore.DAL.Models
 {
-  [Table("employee_approval_response")]
-  public class EmployeeApprovalResponse
+  [Table("system_user_approval_response")]
+  public class SystemUserApprovalResponse
   {
     [Key]
-    [Column("employee_approval_response_id")]
-    public int EmployeeApprovalResponseId { get; set; }
+    [Column("system_user_approval_response_id")]
+    public int SystemUserApprovalResponseId { get; set; }
 
     [Column("response_sent_date")]
     public DateTime ResonseSentDate { get; set; }
@@ -18,20 +18,20 @@ namespace AdminCore.DAL.Models
     public int EmployeeRoleId { get; set; }
     [ForeignKey("EmployeeRoleId")]
     public virtual EmployeeRole EmployeeRole { get; set; }
-    
+
     [Column("event_status_id")]
     public int EventStatusId { get; set; }
     [ForeignKey("EventStatusId")]
     public virtual EventStatus EventStatus { get; set; }
-    
+
     [Column("event_workflow_id")]
     public int EventWorkflowId { get; set; }
     [ForeignKey("EventWorkflowId")]
     public virtual EventWorkflow EventWorkflow { get; set; }
-    
-    [Column("employee_id")]
-    public virtual int EmployeeId { get; set; }
-    [ForeignKey("EmployeeId")]
-    public virtual Employee Employee { get; set; }
+
+    [Column("system_user_id")]
+    public virtual int SystemUserId { get; set; }
+    [ForeignKey("SystemUserId")]
+    public virtual SystemUser SystemUser { get; set; }
   }
 }

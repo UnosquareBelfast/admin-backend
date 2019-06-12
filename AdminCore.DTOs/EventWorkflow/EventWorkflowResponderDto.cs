@@ -1,7 +1,6 @@
 using AdminCore.DTOs.Employee;
-using AdminCore.DTOs.EventWorkflow;
 
-namespace AdminCore.DAL.Models
+namespace AdminCore.DTOs.EventWorkflow
 {
     public class EventWorkflowResponderDto
     {

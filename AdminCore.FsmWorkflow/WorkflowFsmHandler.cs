@@ -42,7 +42,7 @@ namespace AdminCore.FsmWorkflow
             return eventWorkflow;
         }
 
-        public WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, SystemUserDto respondeeSystemUser, EmployeeRoles employeeRole, EventStatuses eventStatus, EventWorkflow eventWorkflow)
+        public WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, SystemUser respondeeSystemUser, EmployeeRoles employeeRole, EventStatuses eventStatus, EventWorkflow eventWorkflow)
         {
             ILeaveWorkflow workflowFsm;
             var workflowStateData = RebuildWorkflowStateData(eventWorkflow);
@@ -60,7 +60,7 @@ namespace AdminCore.FsmWorkflow
             }
 
             var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, ((int)employeeRole).ToString());
-            eventWorkflow = UpdateEventAddApprovalResponse(respondeeSystemUser, eventWorkflow, workflowStateData, eventStatus);
+            eventWorkflow = UpdateEventAddApprovalResponse(respondeeSystemUser, employeeRole, eventWorkflow, workflowStateData, eventStatus);
 
             _dbContext.EventWorkflowRepository.Update(eventWorkflow);
             _dbContext.SaveChanges();
@@ -100,15 +100,15 @@ namespace AdminCore.FsmWorkflow
             };
         }
 
-        private EventWorkflow UpdateEventAddApprovalResponse(EmployeeDto respondeeEmployee,
+        private EventWorkflow UpdateEventAddApprovalResponse(SystemUser respondeeSystemUser, EmployeeRoles employeeRole,
             EventWorkflow eventWorkflow, WorkflowStateData workflowStateData, EventStatuses employeeResponseEventStatus)
         {
             eventWorkflow.WorkflowState = workflowStateData.CurrentState;
 
-            eventWorkflow.EventWorkflowApprovalResponses.Add(new EmployeeApprovalResponse
+            eventWorkflow.EventWorkflowApprovalResponses.Add(new SystemUserApprovalResponse
             {
-                EmployeeId = respondeeEmployee.EmployeeId,
-                EmployeeRoleId = respondeeEmployee.EmployeeRoleId,
+                SystemUserId = respondeeSystemUser.SystemUserId,
+                EmployeeRoleId = (int)employeeRole,
                 EventStatusId = (int)employeeResponseEventStatus,
                 EventWorkflowId = eventWorkflow.EventWorkflowId,
                 ResonseSentDate = DateTime.Now

@@ -51,20 +51,21 @@ namespace AdminCore.Services
             throw new System.NotImplementedException();
         }
 
-        public WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus)
-        {
-            var validationActionRole = GetRespondeeValidationActionAndRole(respondeeEmployee);
-            return ValidateAndFireLeaveResponse(validationActionRole.validationAction, employeeEvent, respondeeEmployee, (EmployeeRoles)respondeeEmployee.EmployeeRoleId, eventStatus);
-        }
+//        public WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus)
+//        {
+//            var systemUser = DatabaseContext.SystemUserRepository.GetSingle(x => x.SystemUserId == respondeeEmployee.SystemUserId);
+//            return ValidateAndFireLeaveResponse(EmployeeResponse, employeeEvent, systemUser, (EmployeeRoles)respondeeEmployee.EmployeeRoleId, eventStatus);
+//        }
 
-        public WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, SystemUserDto respondeeSystemUser, EventStatuses eventStatus)
+        public WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, int systemUserId, EventStatuses eventStatus)
         {
-            var validationActionRole = GetRespondeeValidationActionAndRole(respondeeSystemUser);
-            return ValidateAndFireLeaveResponse(validationActionRole.validationAction, employeeEvent, respondeeSystemUser, validationActionRole.employeeRole, eventStatus);
+            var systemUser = DatabaseContext.SystemUserRepository.GetSingle(x => x.SystemUserId == systemUserId);
+            var validationActionRole = GetRespondeeValidationActionAndRole(systemUser);
+            return ValidateAndFireLeaveResponse(validationActionRole.validationAction, employeeEvent, systemUser, validationActionRole.employeeRole, eventStatus);
         }
 
         private WorkflowFsmStateInfo ValidateAndFireLeaveResponse(Action<int, EventDto, EventWorkflow, EventStatuses> validationAction, EventDto employeeEvent,
-            SystemUserDto respondeeSystemUser, EmployeeRoles employeeRoles, EventStatuses eventStatus)
+            SystemUser respondeeSystemUser, EmployeeRoles employeeRoles, EventStatuses eventStatus)
         {
             var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
                 x => x.EventWorkflowId == employeeEvent.EventWorkflowId,
@@ -75,13 +76,13 @@ namespace AdminCore.Services
             return _workflowFsmHandler.FireLeaveResponse(employeeEvent, respondeeSystemUser, employeeRoles, eventStatus, eventWorkflow);
         }
 
-        private (EmployeeRoles employeeRole, Action<int, EventDto, EventWorkflow, EventStatuses> validationAction) GetRespondeeValidationActionAndRole(SystemUserDto respondeeSystemUser)
+        private (EmployeeRoles employeeRole, Action<int, EventDto, EventWorkflow, EventStatuses> validationAction) GetRespondeeValidationActionAndRole(SystemUser respondeeSystemUser)
         {
             switch ((SystemUserTypes)respondeeSystemUser.SystemUserTypeId)
             {
                 case SystemUserTypes.Employee:
-                    var respondeeEmployee = DatabaseContext.EmployeeRepository.GetSingle(x => x.SystemUserId == respondeeSystemUser.SystemUserId);
-                    return ((EmployeeRoles)respondeeEmployee.EmployeeRoleId, EmployeeResponse);
+                    var employeeRole = (EmployeeRoles)DatabaseContext.EmployeeRepository.GetSingle(x => x.SystemUserId == respondeeSystemUser.SystemUserId).EmployeeRoleId;
+                    return (employeeRole, EmployeeResponse);
                 case SystemUserTypes.Client:
                     return (EmployeeRoles.Client, ClientResponse);
                 default:

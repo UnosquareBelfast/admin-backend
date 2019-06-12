@@ -13,6 +13,6 @@ namespace AdminCore.Common.Interfaces
     EventWorkflowDto GetWorkflowByEventId(int eventId);
     IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId);
     IDictionary<EmployeeRoleDto, EventStatusDto> GetWorkflowApprovalStatusDictById(int eventId);
-    WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, SystemUserDto respondeeSystemUser, EventStatuses eventStatus);
+    WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, int systemUserId, EventStatuses eventStatus);
   }
 }
