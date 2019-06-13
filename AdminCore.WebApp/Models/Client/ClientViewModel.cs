@@ -6,6 +6,8 @@ namespace AdminCore.WebApi.Models.Client
   {
     public int ClientId { get; set; }
 
+    public int SystemUserId { get; set; }
+
     public string ClientName { get; set; }
   }
 }

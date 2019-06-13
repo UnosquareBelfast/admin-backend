@@ -14,10 +14,10 @@ namespace AdminCore.DAL.Models
     [Column("response_sent_date")]
     public DateTime ResonseSentDate { get; set; }
 
-    [Column("employee_role_id")]
-    public int EmployeeRoleId { get; set; }
-    [ForeignKey("EmployeeRoleId")]
-    public virtual EmployeeRole EmployeeRole { get; set; }
+    [Column("system_user_role_id")]
+    public int SystemUserRoleId { get; set; }
+    [ForeignKey("SystemUserRoleId")]
+    public virtual SystemUserRole SystemUserRole { get; set; }
 
     [Column("event_status_id")]
     public int EventStatusId { get; set; }

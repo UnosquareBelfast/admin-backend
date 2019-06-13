@@ -1,5 +1,6 @@
 using AdminCore.DTOs.Employee;
 using System;
+using AdminCore.DTOs.SystemUser;
 
 namespace AdminCore.DTOs.EventMessage
 {
@@ -9,7 +10,9 @@ namespace AdminCore.DTOs.EventMessage
 
     public int EventId { get; set; }
 
-    public EmployeeDto Employee { get; set; }
+    public int SystemUserId { get; set; }
+
+    public SystemUserDto SystemUser { get; set; }
 
     public string Message { get; set; }
 

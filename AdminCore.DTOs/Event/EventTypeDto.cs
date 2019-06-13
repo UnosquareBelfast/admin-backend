@@ -4,5 +4,6 @@ namespace AdminCore.DTOs.Event
   {
     public int EventTypeId { get; set; }
     public string Description { get; set; }
+    public int SystemUserRoleId { get; set; }
   }
 }

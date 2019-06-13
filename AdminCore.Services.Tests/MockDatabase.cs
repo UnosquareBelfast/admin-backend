@@ -11,7 +11,7 @@ namespace AdminCore.Services.Tests
     public List<Client> ClientRepository;
     public List<Project> ProjectRepository;
     public List<Employee> EmployeeRepository;
-    public List<EmployeeRole> EmployeeRoleRepository;
+    public List<SystemUserRole> EmployeeRoleRepository;
     public List<EmployeeStatus> EmployeeStatusRepository;
     public List<EventDate> EventDateRepository;
     public List<Event> EventRepository;
@@ -75,7 +75,7 @@ namespace AdminCore.Services.Tests
       var sysAdmin = BuildEmployeeRole(2, "System Administrator");
       var user = BuildEmployeeRole(3, "User");
 
-      EmployeeRoleRepository = new List<EmployeeRole>
+      EmployeeRoleRepository = new List<SystemUserRole>
       {
         teamLeader,
         sysAdmin,
@@ -473,11 +473,11 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    private static EmployeeRole BuildEmployeeRole(int employeeRoleId, string description)
+    private static SystemUserRole BuildEmployeeRole(int systemUserRoleId, string description)
     {
-      return new EmployeeRole
+      return new SystemUserRole
       {
-        EmployeeRoleId = employeeRoleId,
+        SystemUserRoleId = systemUserRoleId,
         Description = description
       };
     }
@@ -526,7 +526,7 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = eventTypeId,
         Description = eventTypeDescription,
-        EmployeeRoleId = employeeRoleId
+        SystemUserRoleId = employeeRoleId
       };
     }
 
@@ -586,7 +586,7 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    private static Employee BuildEmployee(int employeeId, string forename, string surname, string email, Country country, EmployeeRole role, EmployeeStatus status, int totalHolidays)
+    private static Employee BuildEmployee(int employeeId, string forename, string surname, string email, Country country, SystemUserRole role, EmployeeStatus status, int totalHolidays)
     {
       return new Employee
       {
@@ -596,8 +596,8 @@ namespace AdminCore.Services.Tests
         Country = country,
         CountryId = country.CountryId,
         Email = email,
-        EmployeeRoleId = role.EmployeeRoleId,
-        EmployeeRole = role,
+        SystemUserRoleId = role.SystemUserRoleId,
+        SystemUserRole = role,
         EmployeeStatus = status,
         EmployeeStatusId = status.EmployeeRoleId,
         TotalHolidays = totalHolidays

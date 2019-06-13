@@ -1,8 +1,8 @@
 ﻿namespace AdminCore.DTOs.SystemUser
 {
-  public class SystemUserTypeDto
+  public class SystemUserRoleDto
   {
-    public int SystemUserTypeId { get; set; }
+    public int SystemUserRoleId { get; set; }
 
     public string Description { get; set; }
   }

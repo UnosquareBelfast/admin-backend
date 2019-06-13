@@ -5,16 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AdminCore.DAL.Models
 {
   [Table("employee_role")]
-  public class EmployeeRole
+  public class SystemUserRole
   {
     [Key]
-    [Column("employee_role_id")]
-    public int EmployeeRoleId { get; set; }
+    [Column("system_user_role_id")]
+    public int SystemUserRoleId { get; set; }
 
     [StringLength(50)]
     [Column("description")]
     public string Description { get; set; }
-    
+
     public virtual ICollection<EventTypeRequiredResponders> EventTypeRequiredResponders { get; set; }
   }
 }

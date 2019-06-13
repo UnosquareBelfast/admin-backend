@@ -38,7 +38,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -83,7 +83,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -135,7 +135,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -180,7 +180,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -232,7 +232,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.ApprovedEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -284,7 +284,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -334,7 +334,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.ApprovedEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -381,7 +381,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -429,12 +429,12 @@ namespace AdminCore.Services.Tests
       var endDate = new DateTime(2018, 12, 05);
 
       var eventType = TestClassBuilder.BuildEventType((int)EventTypes.PaternityLeave,
-        "Paternal Leave", (int)EmployeeRoles.SystemAdministrator);
+        "Paternal Leave", (int)SystemUserRoles.SystemAdministrator);
       var eventTypesList = new List<EventType> { eventType };
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -479,7 +479,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -524,7 +524,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.AwaitingApprovalEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -569,7 +569,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.ApprovedEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -614,7 +614,7 @@ namespace AdminCore.Services.Tests
       var eventStatus = TestClassBuilder.ApprovedEventStatus();
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, null);
+        (int)SystemUserRoles.User, 40, null);
       var employeeList = new List<Employee> { employee };
 
       var eventDateDto = new EventDateDto
@@ -668,7 +668,7 @@ namespace AdminCore.Services.Tests
       var events = new List<Event> { newEvent };
 
       var employee = TestClassBuilder.BuildEmployee(employeeId,
-        (int)EmployeeRoles.User, 40, events);
+        (int)SystemUserRoles.User, 40, events);
       var employeeList = new List<Employee> { employee };
 
       var eventWithEmployee = newEvent;

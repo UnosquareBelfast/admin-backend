@@ -1,6 +1,7 @@
 ﻿using AdminCore.WebApi.Models.Employee;
 using System;
 using AdminCore.WebApi.Models.Base;
+using AdminCore.WebApi.Models.SystemUser;
 
 namespace AdminCore.WebApi.Models.EventMessage
 {
@@ -10,7 +11,9 @@ namespace AdminCore.WebApi.Models.EventMessage
 
     public int EventId { get; set; }
 
-    public EmployeeViewModel Employee { get; set; }
+    public int SystemUserId { get; set; }
+
+    public SystemUserViewModel SystemUser { get; set; }
 
     public string Message { get; set; }
 

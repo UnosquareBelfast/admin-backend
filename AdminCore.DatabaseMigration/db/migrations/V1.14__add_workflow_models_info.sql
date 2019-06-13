@@ -1,11 +1,3 @@
-/*
-Description:
-Adds new tables required by the new workflow logic.
-Adds new data to existing tables:
-- EmployeeRole
--
-*/
-
 -- Add new schema
 
 ----------------------------------------------------------------------------------------
@@ -77,16 +69,16 @@ CREATE TABLE IF NOT EXISTS public.event_type_required_responders
   -- Composite key declared in DBContext via fluent API.
 
   event_type_id integer NOT NULL,
-  employee_role_id integer NOT NULL,
+  system_user_role_id integer NOT NULL,
 
-  CONSTRAINT "event_type_required_responders_pkey" PRIMARY KEY (event_type_id, employee_role_id),
+  CONSTRAINT "event_type_required_responders_pkey" PRIMARY KEY (event_type_id, system_user_role_id),
 
   CONSTRAINT event_type_required_responders_event_type_id_fkey FOREIGN KEY (event_type_id)
     REFERENCES public.event_type (event_type_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
-  CONSTRAINT event_type_required_responders_employee_role_id_fkey FOREIGN KEY (employee_role_id)
-    REFERENCES public.employee_role (employee_role_id) MATCH SIMPLE
+  CONSTRAINT event_type_required_responders_system_user_role_id_fkey FOREIGN KEY (system_user_role_id)
+    REFERENCES public.system_user_role (system_user_role_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
 )
@@ -110,7 +102,7 @@ CREATE TABLE IF NOT EXISTS public.system_user_approval_response
 (
   system_user_approval_response_id integer NOT NULL DEFAULT nextval('system_user_approval_response_system_user_approval_response_id_seq'::regclass),
 
-  employee_role_id integer NOT NULL,
+  system_user_role_id integer NOT NULL,
   response_sent_date date NOT NULL,
   event_status_id integer NOT NULL,
   event_workflow_id integer NOT NULL,
@@ -118,8 +110,8 @@ CREATE TABLE IF NOT EXISTS public.system_user_approval_response
 
   CONSTRAINT system_user_approval_response_pkey PRIMARY KEY ("system_user_approval_response_id"),
 
-  CONSTRAINT system_user_approval_response_employee_role_id_fkey FOREIGN KEY (employee_role_id)
-    REFERENCES public.employee_role (employee_role_id) MATCH SIMPLE
+  CONSTRAINT system_user_approval_response_system_user_role_id_fkey FOREIGN KEY (system_user_role_id)
+    REFERENCES public.system_user_role (system_user_role_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION,
   CONSTRAINT system_user_approval_response_event_status_id_fkey FOREIGN KEY (event_status_id)
@@ -162,22 +154,6 @@ ALTER TABLE public.event
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
 
--- Add new data
-
-----------------------------------------------------------------------------------------
-
-/*
-                                   EMPLOYEE ROLE TABLE
-                                   Add new employee roles
-*/
-
-----------------------------------------------------------------------------------------
-INSERT INTO public.employee_role (employee_role_id, description)
-VALUES (4, 'Cse'),
-       (5, 'Client')
-ON CONFLICT (employee_role_id)
-             DO NOTHING;
-
 ----------------------------------------------------------------------------------------
 
 /*
@@ -186,7 +162,7 @@ ON CONFLICT (employee_role_id)
 */
 
 ----------------------------------------------------------------------------------------
-INSERT INTO public.event_type_required_responders (event_type_id, employee_role_id)
+INSERT INTO public.event_type_required_responders (event_type_id, system_user_role_id)
 VALUES  (1, 1),
         (1, 4),
         (1, 5),

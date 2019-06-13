@@ -1,4 +1,5 @@
 using AdminCore.DTOs.Employee;
+using AdminCore.DTOs.SystemUser;
 
 namespace AdminCore.DTOs.EventWorkflow
 {
@@ -10,6 +11,6 @@ namespace AdminCore.DTOs.EventWorkflow
         public EventWorkflowDto EventWorkflow { get; set; }
         
         public int EmployeeRoleId { get; set; }
-        public EmployeeRoleDto EmployeeRole { get; set; }
+        public SystemUserRoleDto SystemUserRole { get; set; }
     }
 }

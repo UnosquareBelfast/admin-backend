@@ -1,15 +1,11 @@
-﻿using AdminCore.DTOs.Team;
-using System;
-using AdminCore.DTOs.SystemUser;
-
-namespace AdminCore.DTOs
+﻿namespace AdminCore.DTOs.SystemUser
 {
   public class SystemUserDto
   {
     public int SystemUserId { get; set; }
 
-    public int SystemUserTypeId { get; set; }
+    public int SystemUserRoleId { get; set; }
 
-    public SystemUserTypeDto SystemUserType { get; set; }
+    public SystemUserRoleDto SystemUserRole { get; set; }
   }
 }

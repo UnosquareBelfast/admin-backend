@@ -32,7 +32,7 @@ namespace AdminCore.DAL.Database
 
     public DbSet<Country> Countries { get; set; }
 
-    public DbSet<EmployeeRole> EmployeeRoles { get; set; }
+    public DbSet<SystemUserRole> EmployeeRoles { get; set; }
 
     public DbSet<Employee> Employees { get; set; }
 
@@ -81,7 +81,7 @@ namespace AdminCore.DAL.Database
 
       // Must declare composite primary keys through fluent API.
       modelBuilder.Entity<EventTypeRequiredResponders>()
-        .HasKey(o => new { o.EventTypeId, o.EmployeeRoleId });
+        .HasKey(o => new { o.EventTypeId, o.SystemUserRoleId });
 
       foreach (var entityType in modelBuilder.Model.GetEntityTypes())
       {

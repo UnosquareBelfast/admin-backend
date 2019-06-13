@@ -14,9 +14,9 @@ namespace AdminCore.DAL.Models
     [Column("description")]
     public string Description { get; set; }
 
-    [Column("employee_role_id")]
-    public virtual int EmployeeRoleId { get; set; }
-    
+    [Column("system_user_role_id")]
+    public virtual int SystemUserRoleId { get; set; }
+
     public virtual ICollection<EventTypeRequiredResponders> EventTypeRequiredResponders { get; set; }
   }
 }

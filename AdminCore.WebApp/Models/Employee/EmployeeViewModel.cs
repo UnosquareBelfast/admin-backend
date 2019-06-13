@@ -5,17 +5,17 @@ namespace AdminCore.WebApi.Models.Employee
 {
   public class EmployeeViewModel : ViewModel
   {
+    public int EmployeeId { get; set; }
+
+    public int SystemUserId { get; set; }
+
     public string CountryDescription { get; set; }
 
     public int CountryId { get; set; }
 
     public string Email { get; set; }
 
-    public int EmployeeId { get; set; }
-
     public string EmployeeRoleDescription { get; set; }
-
-    public int EmployeeRoleId { get; set; }
 
     public int EmployeeStatusId { get; set; }
 

@@ -720,9 +720,9 @@ namespace AdminCore.Services
     {
       var eventTypeId = (int)eventTypes;
       var employeeRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
-                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
+                                                                           .Select(x => x.SystemUserRoleId).FirstOrDefault();
       var employeeRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
-                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
+                                                                           .Select(x => x.SystemUserRoleId).FirstOrDefault();
       if (UserDoesNotHaveCorrectPrivileges(employeeRoleLevelRequired, employeeRole))
       {
         throw new Exception("User does not have the correct privileges to book this type of event.");
@@ -731,7 +731,7 @@ namespace AdminCore.Services
 
     private static bool UserDoesNotHaveCorrectPrivileges(int employeeRoleLevelRequired, int employeeLevel)
     {
-      return employeeRoleLevelRequired == (int)EmployeeRoles.SystemAdministrator && employeeLevel == (int)EmployeeRoles.User;
+      return employeeRoleLevelRequired == (int)SystemUserRoles.SystemAdministrator && employeeLevel == (int)SystemUserRoles.User;
     }
 
     private void AddMandatoryEventToDb(DateTime date, int countryId)

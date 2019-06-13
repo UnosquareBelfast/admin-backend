@@ -1,6 +1,7 @@
 ﻿using AdminCore.DAL.Models;
 using AdminCore.DTOs;
 using AdminCore.DTOs.Employee;
+using AdminCore.DTOs.SystemUser;
 using AutoMapper;
 
 namespace AdminCore.Services.Mappings
@@ -12,7 +13,6 @@ namespace AdminCore.Services.Mappings
       CreateMap<CountryDto, Country>().ReverseMap();
       CreateMap<Employee, EmployeeDto>();
       CreateMap<EmployeeDto, Employee>();
-      CreateMap<EmployeeRoleDto, EmployeeRole>().ReverseMap();
       CreateMap<EmployeeStatusDto, EmployeeStatus>().ReverseMap();
     }
   }

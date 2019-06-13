@@ -12,7 +12,7 @@ namespace AdminCore.DAL
 
     IRepository<Employee> EmployeeRepository { get; }
 
-    IRepository<EmployeeRole> EmployeeRoleRepository { get; }
+    IRepository<SystemUserRole> EmployeeRoleRepository { get; }
 
     IRepository<EmployeeStatus> EmployeeStatusRepository { get; }
 

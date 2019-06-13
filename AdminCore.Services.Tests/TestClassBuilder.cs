@@ -49,7 +49,7 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = (int)EventTypes.AnnualLeave,
         Description = "Annual Leave",
-        EmployeeRoleId = (int)EmployeeRoles.User
+        SystemUserRoleId = (int)SystemUserRoles.User
       };
     }
 
@@ -59,17 +59,17 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = (int)EventTypes.WorkingFromHome,
         Description = "Working From Home",
-        EmployeeRoleId = (int)EmployeeRoles.User
+        SystemUserRoleId = (int)SystemUserRoles.User
       };
     }
-    
+
     internal static EventType SickLeaveEventType()
     {
       return new EventType
       {
         EventTypeId = (int)EventTypes.Sickness,
         Description = "Sick Leave",
-        EmployeeRoleId = (int)EmployeeRoles.User
+        SystemUserRoleId = (int)SystemUserRoles.User
       };
     }
 
@@ -79,7 +79,7 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = (int)EventTypes.PublicHoliday,
         Description = "Public Holiday",
-        EmployeeRoleId = (int)EmployeeRoles.SystemAdministrator
+        SystemUserRoleId = (int)SystemUserRoles.SystemAdministrator
       };
     }
 
@@ -116,17 +116,17 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = eventTypeId,
         Description = eventTypeDescription,
-        EmployeeRoleId = employeeRoleId
+        SystemUserRoleId = employeeRoleId
       };
     }
 
-    internal static Employee BuildEmployee(int employeeId, int employeeRoleId, int totalHolidays,
+    internal static Employee BuildEmployee(int employeeId, int systemUserRoleId, int totalHolidays,
       ICollection<Event> events)
     {
       return new Employee
       {
         EmployeeId = employeeId,
-        EmployeeRoleId = employeeRoleId,
+        SystemUserRoleId = systemUserRoleId,
         TotalHolidays = totalHolidays,
         Events = events
       };
@@ -137,7 +137,7 @@ namespace AdminCore.Services.Tests
       return new Employee
       {
         EmployeeId = 1,
-        EmployeeRoleId = (int)EmployeeRoles.User,
+        SystemUserRoleId = (int)SystemUserRoles.User,
         TotalHolidays = 40,
         Events = events
       };

@@ -11,6 +11,6 @@ namespace AdminCore.FsmWorkflow
     {
         EventWorkflow CreateEventWorkflow(int eventTypeId, bool saveChangesToDbContext);
 
-        WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, SystemUser respondeeSystemUser, EmployeeRoles employeeRole, EventStatuses eventStatus, EventWorkflow eventWorkflow);
+        WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, SystemUser respondeeSystemUser, SystemUserRoles systemUserRole, EventStatuses eventStatus, EventWorkflow eventWorkflow);
     }
 }
