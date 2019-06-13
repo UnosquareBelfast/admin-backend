@@ -585,7 +585,7 @@ namespace AdminCore.Services
       {
         EventId = eventToAddMessageTo.EventId,
         EventMessageTypeId = (int)eventMessageType,
-        EmployeeId = eventToAddMessageTo.EmployeeId,
+        SystemUserId = eventToAddMessageTo.EmployeeId,
         LastModified = _dateService.GetCurrentDateTime(),
         Message = message,
       };
@@ -615,7 +615,7 @@ namespace AdminCore.Services
       {
         EventId = eventToAddMessageTo.EventId,
         EventMessageTypeId = (int)eventMessageType,
-        EmployeeId = employeeId,
+        SystemUserId = employeeId,
         LastModified = _dateService.GetCurrentDateTime(),
         Message = message
       };

@@ -18,8 +18,8 @@ namespace AdminCore.FsmWorkflow
 {
     public class WorkflowFsmHandler : IWorkflowFsmHandler
     {
-        private IDatabaseContext _dbContext;
-        private IWorkflowFsmFactory<ILeaveWorkflow> _workflowFsmFactory;
+        private readonly IDatabaseContext _dbContext;
+        private readonly IWorkflowFsmFactory<ILeaveWorkflow> _workflowFsmFactory;
         public WorkflowFsmHandler(IDatabaseContext dbContext, IWorkflowFsmFactory<ILeaveWorkflow> workflowFsmFactory)
         {
             _dbContext = dbContext;

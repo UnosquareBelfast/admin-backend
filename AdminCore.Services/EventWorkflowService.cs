@@ -51,12 +51,6 @@ namespace AdminCore.Services
             throw new System.NotImplementedException();
         }
 
-//        public WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus)
-//        {
-//            var systemUser = DatabaseContext.SystemUserRepository.GetSingle(x => x.SystemUserId == respondeeEmployee.SystemUserId);
-//            return ValidateAndFireLeaveResponse(EmployeeResponse, employeeEvent, systemUser, (EmployeeRoles)respondeeEmployee.EmployeeRoleId, eventStatus);
-//        }
-
         public WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, int systemUserId, EventStatuses eventStatus)
         {
             var systemUser = DatabaseContext.SystemUserRepository.GetSingle(x => x.SystemUserId == systemUserId);

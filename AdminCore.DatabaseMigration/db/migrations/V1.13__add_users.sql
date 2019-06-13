@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.system_user
   system_user_type_id integer NOT NULL,
   deleted        boolean NOT NULL,
 
-  system_user_temporary_id_store integer NOT NULL,
+  temporary_id_store integer NOT NULL,
 
   CONSTRAINT system_user_pkey PRIMARY KEY (system_user_id),
 
@@ -61,7 +61,7 @@ ALTER SEQUENCE system_user_system_user_id_seq
 ----------------------------------------------------------------------------------------
 
 /*
-                                   ALTER EMPLOYEE TABLE
+                                   EMPLOYEE TABLE
 */
 
 ----------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ ALTER TABLE public.employee
 ----------------------------------------------------------------------------------------
 
 /*
-                                   ALTER CLIENT TABLE
+                                   CLIENT TABLE
 */
 
 ----------------------------------------------------------------------------------------
@@ -89,6 +89,20 @@ ALTER TABLE public.client
     ON UPDATE NO ACTION
     ON DELETE NO ACTION;
 
+----------------------------------------------------------------------------------------
+
+/*
+                                   EVENT MESSAGE TABLE
+*/
+
+----------------------------------------------------------------------------------------
+ALTER TABLE public.event_message
+  ADD system_user_id integer,
+
+  ADD CONSTRAINT event_message_system_user_id_fkey FOREIGN KEY (system_user_id)
+    REFERENCES public.system_user (system_user_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
 
 -- Add new data
 ----------------------------------------------------------------------------------------
@@ -106,19 +120,19 @@ INSERT INTO public.system_user_type (system_user_type_id, description)
     DO NOTHING;
 
 
--- Alter tables
-
+-- Perform data update on tables
 ----------------------------------------------------------------------------------------
 
 /*
-                                   SYSTEM USER TABLE
-                                   Add new users for every employee/client and update foreign keys on respective parent tables.
+                                   EMPLOYEE/CLIENT TABLE
+    Add new users for every employee/client and update foreign keys on respective parent tables.
 */
 
 ----------------------------------------------------------------------------------------
+-- Employee
 with new_rows as
        (
-         INSERT INTO public.system_user (system_user_type_id, deleted, system_user_temporary_id_store)
+         INSERT INTO public.system_user (system_user_type_id, deleted, temporary_id_store)
            SELECT 1, false, employee_id FROM public.employee
            RETURNING *
        )
@@ -128,11 +142,12 @@ SET
 FROM
   new_rows
 WHERE
-    new_rows.system_user_temporary_id_store = employee.employee_id;
+  new_rows.temporary_id_store = employee.employee_id;
 
+-- Client
 with new_rows as
        (
-         INSERT INTO public.system_user (system_user_type_id, deleted, system_user_temporary_id_store)
+         INSERT INTO public.system_user (system_user_type_id, deleted, temporary_id_store)
            SELECT 2, false, client_id FROM public.client
            RETURNING *
        )
@@ -142,8 +157,24 @@ SET
 FROM
   new_rows
 WHERE
-    new_rows.system_user_temporary_id_store = client.client_id;
+  new_rows.temporary_id_store = client.client_id;
 
+----------------------------------------------------------------------------------------
+
+/*
+                                   EVENT MESSAGE TABLE
+*/
+
+----------------------------------------------------------------------------------------
+UPDATE public.event_message
+SET
+  system_user_id = employee.system_user_id
+FROM
+  employee
+WHERE
+  employee.employee_id = event_message.employee_id;
+
+-- Drop redundant columns/foreign keys
 ----------------------------------------------------------------------------------------
 
 /*
@@ -153,7 +184,7 @@ WHERE
 
 ----------------------------------------------------------------------------------------
 ALTER TABLE public.system_user
-  DROP COLUMN system_user_temporary_id_store;
+  DROP COLUMN temporary_id_store;
 
 ----------------------------------------------------------------------------------------
 
@@ -176,3 +207,14 @@ ALTER TABLE public.employee
 ----------------------------------------------------------------------------------------
 ALTER TABLE public.client
   ADD CONSTRAINT client_system_user_id_constr UNIQUE (system_user_id);
+
+----------------------------------------------------------------------------------------
+
+/*
+                                   EVENT MESSAGE TABLE
+*/
+
+----------------------------------------------------------------------------------------
+ALTER TABLE public.event_message
+  DROP CONSTRAINT event_message_employee_id_fkey,
+  DROP COLUMN employee_id;
