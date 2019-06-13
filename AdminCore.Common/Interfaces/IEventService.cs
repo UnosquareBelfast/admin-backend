@@ -24,11 +24,13 @@ namespace AdminCore.Common.Interfaces
 
     HolidayStatsDto GetHolidayStatsForUser(int employeeId);
 
+    void CreateEventRequest(EventRequestDto eventRequest);
+
     EventRequestDto GetEventRequest(string hashId);
 
     EventRequestTypeDto GetEventRequestType(int requestTypeId);
 
-    void EvaluateRequest(EventRequestDto eventRequest);
+    void EvaluateEventRequest(EventRequestDto eventRequest);
 
     void CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId);
 

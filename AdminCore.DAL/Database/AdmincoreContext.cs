@@ -40,6 +40,8 @@ namespace AdminCore.DAL.Database
 
     public DbSet<Event> Events { get; set; }
 
+    public DbSet<EventRequest> EventRequests { get; set; }
+
     public DbSet<EventDate> EventsDates { get; set; }
 
     public DbSet<EventMessage> EventMessages { get; set; }

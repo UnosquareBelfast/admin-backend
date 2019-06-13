@@ -119,7 +119,14 @@ namespace AdminCore.Services
         throw new Exception($"Event {eventId} doesn't exist or is already rejected");
       }
     }
-    
+
+    public void CreateEventRequest(EventRequestDto eventRequestDto)
+    {
+      var eventRequest = _mapper.Map<EventRequest>(eventRequestDto);
+      DatabaseContext.EventRequestRepository.Insert(eventRequest);
+      DatabaseContext.SaveChanges();
+    }
+
     public EventRequestDto GetEventRequest(string hashId)
     {
       var eventRequest = GetEventRequestByHashId(hashId);
@@ -133,7 +140,7 @@ namespace AdminCore.Services
     }
 
     // TODO
-    public void EvaluateRequest(EventRequestDto eventRequest)
+    public void EvaluateEventRequest(EventRequestDto eventRequest)
     {
       throw new NotImplementedException();
     }
@@ -364,14 +371,7 @@ namespace AdminCore.Services
 
     private EventRequest GetEventRequestByHashId(string hashId)
     {
-      return DatabaseContext.EventRequestRepository.GetSingle(eventRequest => eventRequest.Hash == hashId,
-        eventRequest => eventRequest.RequestTypeId,
-        eventRequest => eventRequest.EventDateId,
-        eventRequest => eventRequest.Salt,
-        eventRequest => eventRequest.TimeCreated,
-        eventRequest => eventRequest.TimeExpires,
-        eventRequest => eventRequest.Approved,
-        eventRequest => eventRequest.AutoApproved);
+      return DatabaseContext.EventRequestRepository.GetSingle(eventRequest => eventRequest.Hash == hashId);
     }
 
     private EventRequestType GetEventRequestTypeByRequestTypeId(int requestTypeId)
