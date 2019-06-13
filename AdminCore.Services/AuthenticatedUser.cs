@@ -43,11 +43,11 @@ namespace AdminCore.Services
     {
       if (UserIsAdmin(userDetails))
       {
-        employee.EmployeeRoleId = (int) SystemUserRoles.SystemAdministrator;
+        employee.SystemUser.SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator;
       }
       else
       {
-        employee.EmployeeRoleId = (int) SystemUserRoles.User;
+        employee.SystemUser.SystemUserRoleId = (int) SystemUserRoles.User;
       }
     }
 

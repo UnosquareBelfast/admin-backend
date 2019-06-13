@@ -11,7 +11,7 @@ namespace AdminCore.Services.Tests
     public List<Client> ClientRepository;
     public List<Project> ProjectRepository;
     public List<Employee> EmployeeRepository;
-    public List<SystemUserRole> EmployeeRoleRepository;
+    public List<SystemUserRole> SystemUserRoleRepository;
     public List<EmployeeStatus> EmployeeStatusRepository;
     public List<EventDate> EventDateRepository;
     public List<Event> EventRepository;
@@ -71,11 +71,11 @@ namespace AdminCore.Services.Tests
       };
 
       // Employee Roles
-      var teamLeader = BuildEmployeeRole(1, "Team Leader");
-      var sysAdmin = BuildEmployeeRole(2, "System Administrator");
-      var user = BuildEmployeeRole(3, "User");
+      var teamLeader = BuildSystemUserRole(1, "Team Leader");
+      var sysAdmin = BuildSystemUserRole(2, "System Administrator");
+      var user = BuildSystemUserRole(3, "User");
 
-      EmployeeRoleRepository = new List<SystemUserRole>
+      SystemUserRoleRepository = new List<SystemUserRole>
       {
         teamLeader,
         sysAdmin,
@@ -473,7 +473,7 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    private static SystemUserRole BuildEmployeeRole(int systemUserRoleId, string description)
+    private static SystemUserRole BuildSystemUserRole(int systemUserRoleId, string description)
     {
       return new SystemUserRole
       {
@@ -520,13 +520,13 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    private static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int employeeRoleId)
+    private static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int systemUserRoleId)
     {
       return new EventType
       {
         EventTypeId = eventTypeId,
         Description = eventTypeDescription,
-        SystemUserRoleId = employeeRoleId
+        SystemUserRoleId = systemUserRoleId
       };
     }
 
@@ -543,7 +543,7 @@ namespace AdminCore.Services.Tests
     {
       return new EmployeeStatus
       {
-        EmployeeRoleId = id,
+        EmployeeStatusId = id,
         Description = description
       };
     }
@@ -596,11 +596,14 @@ namespace AdminCore.Services.Tests
         Country = country,
         CountryId = country.CountryId,
         Email = email,
-        SystemUserRoleId = role.SystemUserRoleId,
-        SystemUserRole = role,
         EmployeeStatus = status,
-        EmployeeStatusId = status.EmployeeRoleId,
-        TotalHolidays = totalHolidays
+        EmployeeStatusId = status.EmployeeStatusId,
+        TotalHolidays = totalHolidays,
+        SystemUser = new SystemUser
+        {
+          SystemUserRole = role,
+          SystemUserRoleId = role.SystemUserRoleId
+        }
       };
     }
 

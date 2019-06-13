@@ -8,7 +8,7 @@ namespace AdminCore.DTOs.EventWorkflow
   {
     public int SystemUserApprovalResponseId { get; set; }
 
-    public int EmployeeRoleId { get; set; }
+    public int SystemUserRoleId { get; set; }
 
     public virtual SystemUserRoleDto SystemUserRole { get; set; }
 

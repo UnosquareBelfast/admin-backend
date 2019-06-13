@@ -1,5 +1,6 @@
 ﻿using System;
 using AdminCore.WebApi.Models.Base;
+using AdminCore.WebApi.Models.SystemUser;
 
 namespace AdminCore.WebApi.Models.Employee
 {
@@ -7,7 +8,9 @@ namespace AdminCore.WebApi.Models.Employee
   {
     public int CountryId { get; set; }
 
-    public int EmployeeRoleId { get; set; }
+    public int SystemUserId { get; set; }
+
+    public SystemUserViewModel SystemUser { get; set; }
 
     public int EmployeeStatusId { get; set; }
 

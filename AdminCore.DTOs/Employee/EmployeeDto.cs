@@ -1,4 +1,5 @@
 ﻿using System;
+using AdminCore.DTOs.SystemUser;
 
 namespace AdminCore.DTOs.Employee
 {
@@ -19,6 +20,8 @@ namespace AdminCore.DTOs.Employee
     public int EmployeeStatusId { get; set; }
 
     public string Surname { get; set; }
+
+    public SystemUserDto SystemUser { get; set; }
 
     public int TotalHolidays { get; set; }
   }

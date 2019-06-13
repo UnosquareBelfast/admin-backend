@@ -10,7 +10,7 @@ namespace AdminCore.DTOs.EventWorkflow
         public int EventWorkflowId { get; set; }
         public EventWorkflowDto EventWorkflow { get; set; }
         
-        public int EmployeeRoleId { get; set; }
+        public int SystemUserRoleId { get; set; }
         public SystemUserRoleDto SystemUserRole { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<Employee> _employeeRepository;
 
-    private IRepository<SystemUserRole> _employeeRoleRepository;
+    private IRepository<SystemUserRole> _systemUserRoleRepository;
 
     private IRepository<EmployeeStatus> _employeeStatusRepository;
 
@@ -81,8 +81,8 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<Employee> EmployeeRepository =>
       _employeeRepository ?? (_employeeRepository = RetrieveRepository<Employee>());
 
-    public virtual IRepository<SystemUserRole> EmployeeRoleRepository =>
-      _employeeRoleRepository ?? (_employeeRoleRepository = RetrieveRepository<SystemUserRole>());
+    public virtual IRepository<SystemUserRole> SystemUserRoleRepository =>
+      _systemUserRoleRepository ?? (_systemUserRoleRepository = RetrieveRepository<SystemUserRole>());
 
     public virtual IRepository<EmployeeStatus> EmployeeStatusRepository =>
       _employeeStatusRepository ?? (_employeeStatusRepository = RetrieveRepository<EmployeeStatus>());

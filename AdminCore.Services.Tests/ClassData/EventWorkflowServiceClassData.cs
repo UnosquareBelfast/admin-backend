@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Employee;
+using AdminCore.DTOs.SystemUser;
 
 namespace AdminCore.Services.Tests.ClassData
 {
@@ -18,7 +19,10 @@ namespace AdminCore.Services.Tests.ClassData
                     new EmployeeDto
                     {
                         EmployeeId = 1,
-                        EmployeeRoleId = (int) SystemUserRoles.User
+                        SystemUser = new SystemUserDto
+                        {
+                            SystemUserRoleId = (int) SystemUserRoles.User
+                        }
                     },
                     new List<EventTypeRequiredResponders>
                     {
@@ -30,7 +34,10 @@ namespace AdminCore.Services.Tests.ClassData
                     new EmployeeDto
                     {
                         EmployeeId = 1,
-                        EmployeeRoleId = (int) SystemUserRoles.User
+                        SystemUser = new SystemUserDto
+                        {
+                            SystemUserRoleId = (int) SystemUserRoles.User
+                        }
                     },
                     new List<EventTypeRequiredResponders>
                     {
@@ -53,7 +60,10 @@ namespace AdminCore.Services.Tests.ClassData
                     new EmployeeDto
                     {
                         EmployeeId = 1,
-                        EmployeeRoleId = (int) SystemUserRoles.SystemAdministrator
+                        SystemUser = new SystemUserDto
+                        {
+                            SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
+                        }
                     },
                     new List<EventTypeRequiredResponders>
                     {
@@ -65,7 +75,10 @@ namespace AdminCore.Services.Tests.ClassData
                     new EmployeeDto
                     {
                         EmployeeId = 1,
-                        EmployeeRoleId = (int) SystemUserRoles.SystemAdministrator
+                        SystemUser = new SystemUserDto
+                        {
+                            SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
+                        }
                     },
                     new List<EventTypeRequiredResponders>
                     {

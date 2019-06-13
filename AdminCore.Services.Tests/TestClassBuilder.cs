@@ -110,13 +110,13 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    internal static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int employeeRoleId)
+    internal static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int systemUserRoleId)
     {
       return new EventType
       {
         EventTypeId = eventTypeId,
         Description = eventTypeDescription,
-        SystemUserRoleId = employeeRoleId
+        SystemUserRoleId = systemUserRoleId
       };
     }
 
@@ -126,9 +126,12 @@ namespace AdminCore.Services.Tests
       return new Employee
       {
         EmployeeId = employeeId,
-        SystemUserRoleId = systemUserRoleId,
         TotalHolidays = totalHolidays,
-        Events = events
+        Events = events,
+        SystemUser = new SystemUser
+        {
+          SystemUserRoleId = systemUserRoleId
+        }
       };
     }
 
@@ -137,9 +140,12 @@ namespace AdminCore.Services.Tests
       return new Employee
       {
         EmployeeId = 1,
-        SystemUserRoleId = (int)SystemUserRoles.User,
         TotalHolidays = 40,
-        Events = events
+        Events = events,
+        SystemUser = new SystemUser
+        {
+          SystemUserRoleId = (int)SystemUserRoles.User
+        }
       };
     }
 

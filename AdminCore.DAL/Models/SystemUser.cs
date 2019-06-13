@@ -12,8 +12,8 @@ namespace AdminCore.DAL.Models
         [Column("system_user_id")]
         public int SystemUserId { get; set; }
 
-        [Column("system_user_type_id")]
-        public int SystemUserTypeId { get; set; }
-        public virtual SystemUserType SystemUserType { get; set; }
+        [Column("system_user_role_id")]
+        public int SystemUserRoleId { get; set; }
+        public virtual SystemUserRole SystemUserRole { get; set; }
     }
 }
