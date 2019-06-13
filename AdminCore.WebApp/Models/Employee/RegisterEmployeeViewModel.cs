@@ -8,9 +8,7 @@ namespace AdminCore.WebApi.Models.Employee
   {
     public int CountryId { get; set; }
 
-    public int SystemUserId { get; set; }
-
-    public SystemUserViewModel SystemUser { get; set; }
+    public CreateSystemUserViewModel SystemUser { get; set; }
 
     public int EmployeeStatusId { get; set; }
 

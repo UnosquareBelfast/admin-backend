@@ -12,9 +12,7 @@ namespace AdminCore.WebApi.Models.Employee
 
     public int EmployeeId { get; set; }
 
-    public int SystemUserId { get; set; }
-
-    public SystemUserViewModel SystemUser { get; set; }
+    public CreateSystemUserViewModel SystemUser { get; set; }
 
     public int EmployeeStatusId { get; set; }
 

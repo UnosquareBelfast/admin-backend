@@ -9,6 +9,8 @@ namespace AdminCore.WebApi.Mappings
         public SystemUserMappingProfile()
         {
             CreateMap<SystemUserDto, SystemUserViewModel>().ReverseMap();
+            CreateMap<SystemUserDto, CreateSystemUserViewModel>().ReverseMap();
+
             CreateMap<SystemUserRoleDto, SystemUserRoleViewModel>().ReverseMap();
         }
     }

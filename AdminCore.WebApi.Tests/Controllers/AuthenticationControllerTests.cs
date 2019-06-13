@@ -30,7 +30,11 @@ namespace AdminCore.WebApi.Tests.Controllers
       _authenticatedUser = Substitute.For<IAuthenticatedUser>();
       _authenticatedUser.RetrieveLoggedInUser().Returns(testEmployee);
       _employeeService = Substitute.For<IEmployeeService>();
-      var mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new WebMappingProfile())));
+      var mapper = new Mapper(new MapperConfiguration(cfg =>
+      {
+        cfg.AddProfile(new WebMappingProfile());
+        cfg.AddProfile(new SystemUserMappingProfile());
+      }));
       _authenticationController = new AuthenticationController(_authenticatedUser, _employeeService, mapper);
     }
 
