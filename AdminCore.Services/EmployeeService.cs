@@ -101,7 +101,7 @@ namespace AdminCore.Services
 
     public EmployeeDto GetEmployeeByEmail(string email)
     {
-      var result = DatabaseContext.EmployeeRepository.GetSingle(employee => employee.Email == email);
+      var result = DatabaseContext.EmployeeRepository.GetSingle(employee => employee.Email == email, employee => employee.SystemUser);
       return _mapper.Map<EmployeeDto>(result);
     }
 
@@ -116,7 +116,7 @@ namespace AdminCore.Services
       var eventService = new EventService(DatabaseContext, _mapper, new DateService());
       foreach (var holiday in publicHolidays)
       {
-        eventService.CreateEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,
+        eventService.CreateAutoApprovedEvent(ConvertHolidayToEventDate(holiday), EventTypes.PublicHoliday,
           employee);
       }
     }
@@ -170,7 +170,7 @@ namespace AdminCore.Services
       if (startDate.Year == DateTime.Now.Year)
       {
         var northernIrishHolidays = DatabaseContext.EntitledHolidayRepository
-          .GetSingle(x => x.Month == startDate.Month, null).EntitledHolidays;
+          .GetSingle(x => x.Month == startDate.Month).EntitledHolidays;
         return (short)(northernIrishHolidays + 3); //TODO Add public holidays from DB
       }
       holidays += 3; //TODO Add public holidays from DB

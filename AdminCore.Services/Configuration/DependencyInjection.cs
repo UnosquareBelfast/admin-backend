@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using AdminCore.FsmWorkflow;
+using AdminCore.FsmWorkflow.Factory;
+using AdminCore.FsmWorkflow.FsmMachines;
 using AdminCore.DataETL;
 using AdminCore.LinkGenerator.Interfaces;
 using AdminCore.LinkGenerator.LinkGenerators;
@@ -45,6 +48,7 @@ namespace AdminCore.Services.Configuration
         services.AddTransient<IClientService, ClientService>();
         services.AddTransient<ITeamService, TeamService>();
         services.AddTransient<IEventService, EventService>();
+        services.AddTransient<IEventWorkflowService, EventWorkflowService>();
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IContractService, ContractService>();
         services.AddTransient<IProjectService, ProjectService>();
@@ -58,6 +62,8 @@ namespace AdminCore.Services.Configuration
         services.AddSingleton<IMailServerConfiguration, SmtpServerConfiguration>();
 
         services.AddScoped<ILinkGeneratorFactory, EventRequestFactory>();
+        services.AddTransient<IWorkflowFsmHandler, WorkflowFsmHandler>();
+        services.AddScoped<IWorkflowFsmFactory<ILeaveWorkflow>, WorkflowFsmFactory>();
 
         ServiceLocator.Instance = new DependencyInjectionContainer(services.BuildServiceProvider());
 

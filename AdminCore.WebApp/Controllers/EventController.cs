@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using AdminCore.Common;
 using System.Net.Mime;
 using AdminCore.WebApi.Models.DataTransform;
 
@@ -27,10 +28,11 @@ namespace AdminCore.WebApi.Controllers
     private readonly IMapper _mapper;
     private readonly EmployeeDto _employee;
     private readonly IEventMessageService _eventMessageService;
+    private readonly IEventWorkflowService _eventWorkflowService;
     private readonly ICsvService _csvService;
     private readonly IDateService _dateService;
 
-    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser,
+    public EventController(IEventService wfhEventService, IEventMessageService eventMessageService, IMapper mapper, IAuthenticatedUser authenticatedUser, IEventWorkflowService eventWorkflowService,
       ICsvService csvService, IDateService dateService)
       : base(mapper)
     {
@@ -40,6 +42,7 @@ namespace AdminCore.WebApi.Controllers
       _employee = authenticatedUser.RetrieveLoggedInUser();
       _csvService = csvService;
       _dateService = dateService;
+      _eventWorkflowService = eventWorkflowService;
     }
 
     [HttpGet]
@@ -165,8 +168,13 @@ namespace AdminCore.WebApi.Controllers
       try
       {
         ValidateIfHolidayEvent(createEventViewModel, eventDates);
-        _eventService.CreateEvent(eventDates, (EventTypes)createEventViewModel.EventTypeId, _employee.EmployeeId);
+        var eventWorkflowDto = _eventWorkflowService.CreateEventWorkflow(createEventViewModel.EventTypeId, false);
+        _eventService.CreateEvent(eventDates, (EventTypes) createEventViewModel.EventTypeId, _employee.EmployeeId, eventWorkflowDto.EventWorkflowId);
         return Ok($"Event has been created successfully");
+      }
+      catch (ValidationException ex)
+      {
+        return Conflict(ex.Message);
       }
       catch (Exception ex)
       {
@@ -201,50 +209,66 @@ namespace AdminCore.WebApi.Controllers
       }
     }
 
-    [Authorize("Admin")]
     [HttpPut("approveEvent")]
     public IActionResult ApproveEvent(ApproveEventViewModel approveEventViewModel)
     {
-      try
-      {
-        var eventToApprove = _eventService.GetEvent(approveEventViewModel.EventId);
-        return ApproveIfEventDoesNotBelongToTheAdmin(approveEventViewModel, eventToApprove);
-      }
-      catch (Exception ex)
-      {
-        Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong approving event");
-      }
+      return ProcessEvent(approveEventViewModel.EventId, _employee.SystemUserId, _eventWorkflowService.WorkflowResponse, EventStatuses.Approved);
+    }
+
+    [HttpPut("rejectEvent")]
+    public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
+    {
+      return ProcessEvent(rejectEventViewModel.EventId, _employee.SystemUserId, _eventWorkflowService.WorkflowResponse, EventStatuses.Rejected, rejectEventViewModel.Message);
     }
 
     [HttpPut("cancelEvent")]
     public IActionResult CancelEvent(CancelEventViewModel cancelEventViewModel)
     {
-      try
-      {
-        _eventService.UpdateEventStatus(cancelEventViewModel.EventId, EventStatuses.Cancelled);
-        return Ok("Successfully Cancelled");
-      }
-      catch (Exception ex)
-      {
-        Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong cancelling event");
-      }
+      return ProcessEvent(cancelEventViewModel.EventId, _employee.SystemUserId, _eventWorkflowService.WorkflowResponse, EventStatuses.Cancelled);
     }
 
-    [Authorize("Admin")]
-    [HttpPut("rejectEvent")]
-    public IActionResult RejectEvent(RejectEventViewModel rejectEventViewModel)
+    private IActionResult ProcessEvent(int eventId, int systemUserId, Func<EventDto, int, EventStatuses, WorkflowFsmStateInfo> workflowProcessFunc, EventStatuses eventStatus, string eventMessage = null)
     {
       try
       {
-        _eventService.RejectEvent(rejectEventViewModel.EventId, rejectEventViewModel.Message, _employee.EmployeeId);
-        return Ok("Successfully Rejected");
+        var leaveEvent = _eventService.GetEvent(eventId);
+
+        try
+        {
+          if (leaveEvent.EventStatusId != (int) EventStatuses.AwaitingApproval)
+          {
+            return StatusCode((int) HttpStatusCode.OK, "Event is not awaiting any approval response.");
+          }
+
+          // Advance workflow.
+          var workflowResultState = workflowProcessFunc(leaveEvent, systemUserId, eventStatus);
+          // Add message to event.
+          _eventService.AddRejectMessageToEvent(eventId, eventMessage, systemUserId);
+
+          UpdateEventStatus(workflowResultState, eventId);
+
+          return Ok("Leave response sent successfully.\n" +
+                    $"Current event state: {workflowResultState.CurrentEventStatuses}\n" +
+                    $"Event workflow message: {workflowResultState.Message}");
+
+        }
+        catch (ValidationException e)
+        {
+          return StatusCode((int)HttpStatusCode.Forbidden, e.Message);
+        }
       }
       catch (Exception ex)
       {
         Logger.LogError(ex.Message);
-        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong rejecting event");
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Something went wrong sending leave response for event.");
+      }
+    }
+
+    private void UpdateEventStatus(WorkflowFsmStateInfo workflowResultState, int eventId)
+    {
+      if (workflowResultState.CurrentEventStatuses != EventStatuses.AwaitingApproval && workflowResultState.Completed)
+      {
+        _eventService.UpdateEventStatus(eventId, workflowResultState.CurrentEventStatuses);
       }
     }
 
@@ -354,19 +378,7 @@ namespace AdminCore.WebApi.Controllers
       return eventTypeId != (int)EventTypes.WorkingFromHome;
     }
 
-    private IActionResult ApproveIfEventDoesNotBelongToTheAdmin(ApproveEventViewModel approveEventViewModel,
-      EventDto eventToApprove)
-    {
-      if (!EventIsBookedByCurrentAdmin(eventToApprove))
-      {
-        _eventService.UpdateEventStatus(approveEventViewModel.EventId, EventStatuses.Approved);
-        return Ok("Successfully Approved");
-      }
-
-      return StatusCode((int)HttpStatusCode.Forbidden, "You may not approve your own Events");
-    }
-
-    private bool EventIsBookedByCurrentAdmin(EventDto eventToApprove)
+    private bool EventIsBookedByCurrentUser(EventDto eventToApprove)
     {
       return eventToApprove.EmployeeId == _employee.EmployeeId;
     }

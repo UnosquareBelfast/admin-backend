@@ -20,6 +20,7 @@
     <ProjectReference Include="..\AdminCore.DTOs\AdminCore.DTOs.csproj" />
     <ProjectReference Include="..\AdminCore.Extensions\AdminCore.Extensions.csproj" />
     <ProjectReference Include="..\AdminCore.LinkGenerator\AdminCore.LinkGenerator.csproj" />
+    <ProjectReference Include="..\AdminCore.FsmWorkflow\AdminCore.FsmWorkflow.csproj" />
     <ProjectReference Include="..\AdminCore.MailClients\AdminCore.MailClients.csproj" />
   </ItemGroup>
 

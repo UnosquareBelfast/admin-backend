@@ -32,7 +32,7 @@ namespace AdminCore.DAL.Database
 
     public DbSet<Country> Countries { get; set; }
 
-    public DbSet<EmployeeRole> EmployeeRoles { get; set; }
+    public DbSet<SystemUserRole> SystemUserRoles { get; set; }
 
     public DbSet<Employee> Employees { get; set; }
 
@@ -52,6 +52,8 @@ namespace AdminCore.DAL.Database
 
     public DbSet<EventType> EventTypes { get; set; }
 
+    public DbSet<EventTypeDaysNotice> EventTypeDaysNotice { get; set; }
+
     public DbSet<MandatoryEvent> MandatoryEvents { get; set; }
 
     public DbSet<EntitledHoliday> EntitledHolidayRepository { get; set; }
@@ -60,7 +62,15 @@ namespace AdminCore.DAL.Database
 
     public DbSet<Team> Teams { get; set; }
 
+    public DbSet<EventWorkflow> EventWorkflows { get; set; }
+
+    public DbSet<EventTypeRequiredResponders> EventTypeRequiredResponders { get; set; }
+
+    public DbSet<SystemUserApprovalResponse> EmployeeApprovalResponses { get; set; }
+
     public DbSet<Project> Projects { get; set; }
+
+    public DbSet<SystemUser> SystemUsers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -70,6 +80,11 @@ namespace AdminCore.DAL.Database
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
+
+      // Must declare composite primary keys through fluent API.
+      modelBuilder.Entity<EventTypeRequiredResponders>()
+        .HasKey(o => new { o.EventTypeId, o.SystemUserRoleId });
+
       foreach (var entityType in modelBuilder.Model.GetEntityTypes())
       {
         if (EntityIsSoftDeletable(entityType.ClrType))

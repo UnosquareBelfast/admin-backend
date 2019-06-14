@@ -26,7 +26,11 @@ namespace AdminCore.WebApi.Tests.Controllers
     public EmployeeControllerTests()
     {
       _employeeService = Substitute.For<IEmployeeService>();
-      IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new WebMappingProfile())));
+      IMapper mapper = new Mapper(new MapperConfiguration(cfg =>
+      {
+        cfg.AddProfile(new WebMappingProfile());
+        cfg.AddProfile(new SystemUserMappingProfile());
+      }));
       _fixture = new Fixture();
       var authenticatedUser = Substitute.For<IAuthenticatedUser>();
       authenticatedUser.RetrieveLoggedInUser().Returns(Builder.BuildTestEmployee(TestEmployeeId));
@@ -43,7 +47,7 @@ namespace AdminCore.WebApi.Tests.Controllers
 
       _employeeService.GetAll().Returns(employeeDtos);
 
-      
+
 
       // Act
       var result = _employeeController.GetAllEmployees();
@@ -94,7 +98,7 @@ namespace AdminCore.WebApi.Tests.Controllers
     public void TestGetEmployeeByIdReturnsOkObjectResultWithViewModelWhenGivenValidId()
     {
       var employeeDtoReturnedFromService = Builder.BuildTestEmployee(TestEmployeeId);
-      
+
       _employeeService.Get(TestEmployeeId).Returns(employeeDtoReturnedFromService);
 
       var result = _employeeController.GetEmployeeById(TestEmployeeId);
@@ -202,4 +206,4 @@ namespace AdminCore.WebApi.Tests.Controllers
     }
 
   }
-} 
+}

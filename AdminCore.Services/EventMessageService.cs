@@ -26,8 +26,8 @@ namespace AdminCore.Services
 
     public IList<EventMessageDto> GetAllEventMessagesForEvent(int eventId)
     {
-      var eventMessages = DatabaseContext.EventMessageRepository.GetAsQueryable(x => x.EventId == eventId, null,
-                                                                                x => x.Employee)
+      var eventMessages = DatabaseContext.EventMessageRepository.Get(x => x.EventId == eventId, null,
+                                                                                x => x.SystemUser)
                                                                                 .OrderByDescending(x => x.LastModified).ToList();
       return _mapper.Map<IList<EventMessageDto>>(eventMessages);
     }
@@ -55,7 +55,7 @@ namespace AdminCore.Services
         EventId = returnedEvent.EventId,
         Message = message,
         LastModified = _dateService.GetCurrentDateTime(),
-        EmployeeId = employeeId,
+        SystemUserId = employeeId,
         EventMessageTypeId = (int)EventMessageTypes.General,
       };
       return eventMessage;

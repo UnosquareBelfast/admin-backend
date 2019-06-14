@@ -19,7 +19,7 @@ namespace AdminCore.Common.Interfaces
     EventDto GetEvent(int id);
 
     IList<EventDto> GetEventByStatus(EventStatuses eventStatus, EventTypes eventType);
-    
+
     IList<EventDto> GetEventByType(EventTypes eventType);
 
     HolidayStatsDto GetHolidayStatsForUser(int employeeId);
@@ -32,13 +32,13 @@ namespace AdminCore.Common.Interfaces
 
     void EvaluateEventRequest(EventRequestDto eventRequest);
 
-    void CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId);
+    EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId, int eventWorkflowId);
 
     void UpdateEvent(EventDateDto eventDateDto, string message, int employeeId);
 
     void UpdateEventStatus(int eventId, EventStatuses status);
 
-    void RejectEvent(int eventId, string message, int employeeId);
+    void AddRejectMessageToEvent(int eventId, string message, int employeeId);
 
     void IsEventValid(EventDateDto eventDates, int employeeId);
 

@@ -17,7 +17,7 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<Employee> _employeeRepository;
 
-    private IRepository<EmployeeRole> _employeeRoleRepository;
+    private IRepository<SystemUserRole> _systemUserRoleRepository;
 
     private IRepository<EmployeeStatus> _employeeStatusRepository;
 
@@ -37,6 +37,8 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<EventType> _eventTypeRepository;
 
+    private IRepository<EventTypeDaysNotice> _eventTypeDaysNoticeRepository;
+
     private IRepository<EntitledHoliday> _entitledHolidayRepository;
 
     private IRepository<MandatoryEvent> _mandatoryEventRepository;
@@ -45,7 +47,14 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<Team> _teamRepository;
 
+    private IRepository<EventWorkflow> _eventWorkflowRepository;
+
+    private IRepository<EventTypeRequiredResponders> _eventTypeRequiredRespondersRepository;
+
+    private IRepository<SystemUserApprovalResponse> _employeeApprovalResponsesRepository;
+
     private IRepository<Project> _projectRepository;
+    private IRepository<SystemUser> _systemUserRepository;
 
     public EntityFrameworkContext() {}
 
@@ -74,8 +83,8 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<Employee> EmployeeRepository =>
       _employeeRepository ?? (_employeeRepository = RetrieveRepository<Employee>());
 
-    public virtual IRepository<EmployeeRole> EmployeeRoleRepository =>
-      _employeeRoleRepository ?? (_employeeRoleRepository = RetrieveRepository<EmployeeRole>());
+    public virtual IRepository<SystemUserRole> SystemUserRoleRepository =>
+      _systemUserRoleRepository ?? (_systemUserRoleRepository = RetrieveRepository<SystemUserRole>());
 
     public virtual IRepository<EmployeeStatus> EmployeeStatusRepository =>
       _employeeStatusRepository ?? (_employeeStatusRepository = RetrieveRepository<EmployeeStatus>());
@@ -102,6 +111,9 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<EventType> EventTypeRepository =>
       _eventTypeRepository ?? (_eventTypeRepository = RetrieveRepository<EventType>());
 
+    public virtual IRepository<EventTypeDaysNotice> EventTypeDaysNoticeRepository =>
+      _eventTypeDaysNoticeRepository ?? (_eventTypeDaysNoticeRepository = RetrieveRepository<EventTypeDaysNotice>());
+
     public virtual IRepository<MandatoryEvent> MandatoryEventRepository =>
       _mandatoryEventRepository ?? (_mandatoryEventRepository = RetrieveRepository<MandatoryEvent>());
 
@@ -114,8 +126,20 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<Team> TeamRepository =>
       _teamRepository ?? (_teamRepository = RetrieveRepository<Team>());
 
+    public virtual IRepository<EventWorkflow> EventWorkflowRepository =>
+      _eventWorkflowRepository ?? (_eventWorkflowRepository = RetrieveRepository<EventWorkflow>());
+
+    public virtual IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository =>
+      _eventTypeRequiredRespondersRepository ?? (_eventTypeRequiredRespondersRepository = RetrieveRepository<EventTypeRequiredResponders>());
+
+    public virtual IRepository<SystemUserApprovalResponse> EmployeeApprovalResponsesRepository =>
+      _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<SystemUserApprovalResponse>());
+
     public virtual IRepository<Project> ProjectRepository =>
       _projectRepository ?? (_projectRepository = RetrieveRepository<Project>());
+
+    public virtual IRepository<SystemUser> SystemUserRepository =>
+      _systemUserRepository ?? (_systemUserRepository = RetrieveRepository<SystemUser>());
 
     public virtual void SaveChanges()
     {

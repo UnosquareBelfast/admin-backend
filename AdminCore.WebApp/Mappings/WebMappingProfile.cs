@@ -24,19 +24,17 @@ namespace AdminCore.WebApi.Mappings
       CreateMap<ClientDto, ClientViewModel>();
       CreateMap<ClientDto, CreateClientViewModel>();
 
-      CreateMap<RegisterEmployeeViewModel, EmployeeDto>();
 
       CreateMap<ClientDto, ClientViewModel>().ReverseMap();
       CreateMap<ClientDto, CreateClientViewModel>().ReverseMap();
-      CreateMap<EmployeeViewModel, EmployeeDto>().ReverseMap();
 
+      CreateMap<EmployeeViewModel, EmployeeDto>().ReverseMap();
       CreateMap<EmployeeViewModel, EmployeeDto>().ReverseMap();
       CreateMap<UpdateEmployeeViewModel, EmployeeDto>();
       CreateMap<UpdateEmployeeViewModel, EmployeeDto>().ReverseMap();
+      CreateMap<RegisterEmployeeViewModel, EmployeeDto>();
 
       CreateMap<JwtAuthDto, JwtAuthViewModel>();
-
-      CreateMap<RegisterEmployeeViewModel, EmployeeDto>();
 
       CreateMap<TeamDto, TeamViewModel>();
       CreateMap<TeamDto, UpdateTeamViewModel>();

@@ -10,15 +10,17 @@ using AdminCore.DAL.Entity_Framework;
 using AdminCore.DAL.Models;
 using AdminCore.DTOs.Client;
 using AdminCore.DTOs.Dashboard;
+using AdminCore.Services.Mappings;
 using AdminCore.Services.Tests.ClassData;
 using AutoMapper;
 using FluentAssertions;
 using NSubstitute;
+using NSubstitute.Extensions;
 using Xunit;
 
 namespace AdminCore.Services.Tests
 {
-  public class DashboardServiceLogicTests
+  public class DashboardServiceLogicTests : BaseMockedDatabaseSetUp
   {
 
     private readonly MockDatabase _mockDatabase;
@@ -83,27 +85,22 @@ namespace AdminCore.Services.Tests
 
     [Theory]
     [ClassData(typeof(DashboardServiceClassData.DashboardEventsClassData))]
-    public void GetTeamDashboardEvents_ReposReturnEvents_ValidSnapshotReturned(int employeeId, DateTime dateToGet, IList<Team> teamRepoOut, IQueryable<Client> clientRepoOut,
-      ClientSnapshotDto clientSnapshotMapOut, ProjectSnapshotDto projectSnapshotMapOut, TeamSnapshotDto teamSnapshotMapOut, EmployeeSnapshotDto employeeSnapshotMapOut)
+    public void GetTeamDashboardEvents_ReposReturnEvents_ValidSnapshotReturned(int employeeId, DateTime dateToGet, IList<Team> teamRepoOut, IList<Client> clientRepoOut,
+      ClientSnapshotDto clientSnapshotMapOut)
     {
       // Arrange
-      GetMockedResourcesGetTeamDashboardEvents(teamRepoOut, clientRepoOut, clientSnapshotMapOut, projectSnapshotMapOut,
-        teamSnapshotMapOut, employeeSnapshotMapOut, out var mapper, out var dashboardService, out var ormContext);
+      GetMockedResourcesGetTeamDashboardEvents(teamRepoOut, clientRepoOut, out var mapper, out var dashboardService, out var ormContext);
 
       // Act
       var clientSnapShotActual = dashboardService.GetTeamDashboardEvents(employeeId, dateToGet);
 
       // Assert
-      ormContext.TeamRepository.Received(1).Get(Arg.Any<Expression<Func<Team, bool>>>(),
+      ormContext.Received(1).TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
         Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
         Arg.Any<Expression<Func<Team, object>>[]>());
-      ormContext.ClientRepository.Received(1).GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
+      ormContext.Received(1).ClientRepository.GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
         Arg.Any<Func<IQueryable<Client>, IOrderedQueryable<Client>>>(),
-        Arg.Any<Expression<Func<Client, object>>[]>());
-      mapper.Received(1).Map<ClientSnapshotDto>(Arg.Any<Client>());
-      mapper.Received(1).Map<ProjectSnapshotDto>(Arg.Any<Project>());
-      mapper.Received(1).Map<TeamSnapshotDto>(Arg.Any<Team>());
-      mapper.Received(1).Map<EmployeeSnapshotDto>(Arg.Any<Employee>());
+        Arg.Any<(Expression<Func<Client, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[]>());
 
       clientSnapShotActual[0].Should().BeEquivalentTo(clientSnapshotMapOut);
     }
@@ -112,65 +109,39 @@ namespace AdminCore.Services.Tests
     public void GetTeamDashboardEvents_ReposReturnEmptyList_EmptySnapShotReturned()
     {
       // Arrange
-      GetMockedResourcesGetTeamDashboardEvents(new List<Team>(), new EnumerableQuery<Client>(new List<Client>()), new ClientSnapshotDto(), new ProjectSnapshotDto(),
-        new TeamSnapshotDto(), new EmployeeSnapshotDto(), out var mapper, out var dashboardService, out var ormContext);
+      GetMockedResourcesGetTeamDashboardEvents(new List<Team>(), new List<Client>(), out var mapper, out var dashboardService, out var ormContext);
 
       // Act
       var clientSnapShotActual = dashboardService.GetTeamDashboardEvents(6, new DateTime(2019, 5, 6));
 
       // Assert
-      ormContext.TeamRepository.Received(1).Get(Arg.Any<Expression<Func<Team, bool>>>(),
+      ormContext.Received(1).TeamRepository.Get(Arg.Any<Expression<Func<Team, bool>>>(),
         Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
         Arg.Any<Expression<Func<Team, object>>[]>());
-      ormContext.ClientRepository.Received(1).GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
+      ormContext.Received(1).ClientRepository.GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
         Arg.Any<Func<IQueryable<Client>, IOrderedQueryable<Client>>>(),
-        Arg.Any<Expression<Func<Client, object>>[]>());
+        Arg.Any<(Expression<Func<Client, object>> includeProperty, Expression<Func<object, object>>[] thenIncludes)[]>());
 
       clientSnapShotActual.Should().BeEmpty();
     }
 
-    private void GetMockedResourcesGetTeamDashboardEvents(IList<Team> teamRepoOut, IQueryable<Client> clientRepoOut,
-      ClientSnapshotDto clientSnapshotMapOut, ProjectSnapshotDto projectSnapshotMapOut, TeamSnapshotDto teamSnapshotMapOut, EmployeeSnapshotDto employeeSnapshotMapOut,
+    private void GetMockedResourcesGetTeamDashboardEvents(IList<Team> teamRepoOut, IList<Client> clientRepoOut,
       out IMapper mapper, out DashboardService dashboardService, out EntityFrameworkContext ormContext)
     {
-      ormContext = GetMockedOrmContext();
-      ormContext = GetMockedTeamRepoGet(ormContext, teamRepoOut);
-      ormContext = GetMockedClientRepoGetQueryable(ormContext, clientRepoOut);
+      var databaseContext = SetupMockedOrmContext(out var dbContext);
+      ormContext = SetUpGenericRepository(databaseContext, teamRepoOut,
+        repository => { databaseContext.Configure().TeamRepository.Returns(repository); }, dbContext);
+      ormContext = SetUpGenericRepository(databaseContext, clientRepoOut,
+        repository => { databaseContext.Configure().ClientRepository.Returns(repository); }, dbContext);
 
-      mapper = Substitute.For<IMapper>();
-      mapper.Map<ClientSnapshotDto>(Arg.Any<Client>()).Returns(clientSnapshotMapOut);
-      mapper.Map<ProjectSnapshotDto>(Arg.Any<Project>()).Returns(projectSnapshotMapOut);
-      mapper.Map<TeamSnapshotDto>(Arg.Any<Team>()).Returns(teamSnapshotMapOut);
-      mapper.Map<EmployeeSnapshotDto>(Arg.Any<Employee>()).Returns(employeeSnapshotMapOut);
+      mapper = Substitute.ForPartsOf<Mapper>(new MapperConfiguration(cfg =>
+      {
+        cfg.AddProfile(new ClientMapperProfile());
+        cfg.AddProfile(new TeamMapperProfile());
+        cfg.AddProfile(new DashboardMapperProfile());
+      })).Configure();
 
       dashboardService = new DashboardService(ormContext, mapper);
-    }
-
-    private EntityFrameworkContext GetMockedOrmContext()
-    {
-      return Substitute.For<EntityFrameworkContext>(Substitute.For<AdminCoreContext>(Substitute.For<IConfiguration>()));
-    }
-
-    private EntityFrameworkContext GetMockedTeamRepoGet(EntityFrameworkContext ormContext, IList<Team> dbReturns)
-    {
-      var teamRepoMock = Substitute.For<IRepository<Team>>();
-      teamRepoMock.Get(Arg.Any<Expression<Func<Team, bool>>>(),
-        Arg.Any<Func<IQueryable<Team>, IOrderedQueryable<Team>>>(),
-        Arg.Any<Expression<Func<Team, object>>[]>()).Returns(dbReturns);
-
-      ormContext.TeamRepository.Returns(teamRepoMock);
-      return ormContext;
-    }
-
-    private EntityFrameworkContext GetMockedClientRepoGetQueryable(EntityFrameworkContext ormContext, IQueryable<Client> dbReturns)
-    {
-      var clientRepoMock = Substitute.For<IRepository<Client>>();
-      clientRepoMock.GetAsQueryable(Arg.Any<Expression<Func<Client, bool>>>(),
-        Arg.Any<Func<IQueryable<Client>, IOrderedQueryable<Client>>>(),
-        Arg.Any<Expression<Func<Client, object>>[]>()).Returns(dbReturns);
-
-      ormContext.ClientRepository.Returns(clientRepoMock);
-      return ormContext;
     }
   }
 }

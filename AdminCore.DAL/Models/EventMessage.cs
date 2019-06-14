@@ -26,10 +26,10 @@ namespace AdminCore.DAL.Models
     [Column("last_modified")]
     public DateTime LastModified { get; set; }
 
-    [Column("employee_id")]
-    public int EmployeeId { get; set; }
+    [Column("system_user_id")]
+    public int SystemUserId { get; set; }
 
-    [ForeignKey("EmployeeId")]
-    public Employee Employee { get; set; }
+    [ForeignKey("SystemUserId")]
+    public SystemUser SystemUser { get; set; }
   }
 }

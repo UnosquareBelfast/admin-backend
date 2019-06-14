@@ -4,20 +4,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdminCore.DAL.Models
 {
+    [Table("event_request")]
     public class EventRequest
     {
         [Key]
         [Column("event_request_id")]
         public int EventRequestId { get; set; }
 
-        [ForeignKey("request_type_id")]
+        [Column("request_type_id")]
         public int RequestTypeId { get; set; }
 
-        [ForeignKey("event_id")]
-        public int EventId { get; set; }
+        [ForeignKey("RequestTypeId")]
+        public EventRequestType RequestType { get; set; }
 
-        [ForeignKey("event_date_id")]
+        [Column("event_date_id")]
         public int EventDateId { get; set; }
+
+        [ForeignKey("EventDateId")]
+        public EventDate EventDate { get; set; }
 
         [Column("salt")]
         public string Salt { get; set; }

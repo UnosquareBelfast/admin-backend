@@ -12,7 +12,7 @@ namespace AdminCore.DAL
 
     IRepository<Employee> EmployeeRepository { get; }
 
-    IRepository<EmployeeRole> EmployeeRoleRepository { get; }
+    IRepository<SystemUserRole> SystemUserRoleRepository { get; }
 
     IRepository<EmployeeStatus> EmployeeStatusRepository { get; }
 
@@ -32,6 +32,8 @@ namespace AdminCore.DAL
 
     IRepository<EventType> EventTypeRepository { get; }
 
+    IRepository<EventTypeDaysNotice> EventTypeDaysNoticeRepository { get; }
+
     IRepository<EntitledHoliday> EntitledHolidayRepository { get; }
 
     IRepository<MandatoryEvent> MandatoryEventRepository { get; }
@@ -40,7 +42,12 @@ namespace AdminCore.DAL
 
     IRepository<Team> TeamRepository { get; }
 
+    IRepository<EventWorkflow> EventWorkflowRepository { get; }
+    IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository { get; }
+    IRepository<SystemUserApprovalResponse> EmployeeApprovalResponsesRepository { get; }
+
     IRepository<Project> ProjectRepository { get; }
+    IRepository<SystemUser> SystemUserRepository { get; }
 
     void SaveChanges();
   }

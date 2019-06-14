@@ -18,21 +18,22 @@ namespace AdminCore.Services.Tests
     private static readonly AdminCoreContext AdminCoreContext = Substitute.For<AdminCoreContext>(Configuration);
     private static readonly EntityFrameworkContext DatabaseContext = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
 
+
     protected virtual EntityFrameworkContext SetupMockedOrmContext(out AdminCoreContext dbContext)
     {
       dbContext = Substitute.For<AdminCoreContext>(Substitute.For<IConfiguration>());
       return Substitute.ForPartsOf<EntityFrameworkContext>(dbContext);
     }
 
-    protected virtual EntityFrameworkContext SetUpEventRepository(EntityFrameworkContext databaseContext, IList<Event> eventList)
+    protected virtual EntityFrameworkContext SetUpEventRepository(EntityFrameworkContext ormContext, IList<Event> eventList)
     {
-      var mockEventRepository = GetMockedRepository(eventList, databaseContext);
-      databaseContext.Configure().EventRepository.Returns(mockEventRepository);
-      databaseContext.When(x => x.RetrieveRepository<Event>()).DoNotCallBase();
+      var mockEventRepository = GetMockedRepository(eventList, ormContext);
+      ormContext.Configure().EventRepository.Returns(mockEventRepository);
+      ormContext.When(x => x.RetrieveRepository<Event>()).DoNotCallBase();
 
       AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
 
-      return databaseContext;
+      return ormContext;
     }
 
     protected virtual EntityFrameworkContext SetUpMandatoryEventRepository(EntityFrameworkContext databaseContext, IList<MandatoryEvent> mandatoryEventList)
@@ -91,6 +92,17 @@ namespace AdminCore.Services.Tests
       return ormContext;
     }
 
+    protected virtual EntityFrameworkContext SetUpEventTypeDaysNoticeRepository(EntityFrameworkContext databaseContext, IList<EventTypeDaysNotice> eventTypeDaysNoticeList)
+    {
+      var mockEventTypeDaysNoticeRepository = GetMockedRepository(eventTypeDaysNoticeList, databaseContext);
+      databaseContext.Configure().EventTypeDaysNoticeRepository.Returns(mockEventTypeDaysNoticeRepository);
+      databaseContext.When(x => x.RetrieveRepository<EventTypeDaysNotice>()).DoNotCallBase();
+
+      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
+
+      return databaseContext;
+    }
+
     protected virtual DbSet<T> GetQueryableMockDbSet<T>(IList<T> sourceList) where T : class
     {
       var queryable = sourceList.AsQueryable();
@@ -117,7 +129,6 @@ namespace AdminCore.Services.Tests
       mockedRepository.When(x => x.Update(Arg.Any<T>())).DoNotCallBase();
       mockedRepository.When(x => x.Delete(Arg.Any<T>())).DoNotCallBase();
       mockedRepository.When(x => x.Delete(Arg.Any<object>())).DoNotCallBase();
-      mockedRepository.When(x => x.Insert(Arg.Any<T>())).DoNotCallBase();
 
       return mockedRepository;
     }

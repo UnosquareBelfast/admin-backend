@@ -12,6 +12,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AdminCore.DTOs.LinkGenerator;
+using AdminCore.Common.Exceptions;
+using AdminCore.Common.Extensions;
+using AdminCore.DAL.Models.EventRequest;
+using MoreLinq.Extensions;
 
 namespace AdminCore.Services
 {
@@ -89,7 +93,7 @@ namespace AdminCore.Services
         x => x.EventMessages);
       return _mapper.Map<IList<EventDto>>(events);
     }
-    
+
     public IList<EventDto> GetEventByType(EventTypes eventType)
     {
       var eventTypeId = (int)eventType;
@@ -104,13 +108,12 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(events);
     }
 
-    public void RejectEvent(int eventId, string message, int employeeId)
+    public void AddRejectMessageToEvent(int eventId, string message, int employeeId)
     {
       var eventToReject = GetEventById(eventId);
       if (eventToReject != null && eventToReject.EventStatusId == (int)EventStatuses.AwaitingApproval
                                 && !IsPublicHoliday(eventToReject))
       {
-        eventToReject.EventStatusId = (int)EventStatuses.Rejected;
         AddEventMessageToReject(eventToReject, EventMessageTypes.Reject, message, employeeId);
         DatabaseContext.SaveChanges();
       }
@@ -155,21 +158,70 @@ namespace AdminCore.Services
       }
     }
 
-    public void CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId)
+    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId, int eventWorkflowId)
     {
       CheckEventTypeAdminLevel(eventTypes, employeeId);
-      var newEvent = BuildNewEvent(employeeId, eventTypes);
+      var newEvent = BuildNewEvent(employeeId, eventTypes, eventWorkflowId);
       UpdateEventDates(dates, newEvent);
-      ValidateRemainingHolidaysAndCreate(newEvent, dates);
+      ThrowIfDaysNoticeValidationFail((int)eventTypes, newEvent.EventDates);
+      return ValidateRemainingHolidaysAndCreate(newEvent, dates);
     }
 
-    public void CreateEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
+    /// <summary>
+    /// Throws exception if the leave is requested outside of the required notice period.
+    /// Notice period definitions stored in database.
+    /// Example:
+    /// Today: 20/01/2000, LeaveStart: 21/01/2000, LeaveEnd: 21/01/2000
+    /// leaveLengthDays = 1
+    /// Doesn't take into account weekends.
+    /// </summary>
+    /// <param name="eventTypeId"></param>
+    /// <param name="eventDates"></param>
+    /// <exception cref="ValidationException"></exception>
+    private void ThrowIfDaysNoticeValidationFail(int eventTypeId, ICollection<EventDate> eventDates)
     {
-      var newEvent = BuildNewEvent(employee, eventTypes);
+      var currDate = _dateService.GetCurrentDateTime();
+
+      if (eventDates == null || !eventDates.Any())
+      {
+        return;
+      }
+
+      // sum difference between start and end dates in eventDates Collection.
+      int leaveLengthDays = eventDates.Sum(eventDate => eventDate.StartDate.BusinessDaysUntil(eventDate.EndDate));
+
+      var eventTypeDaysNotice = DatabaseContext.EventTypeDaysNoticeRepository.Get(x => x.EventTypeId == eventTypeId && leaveLengthDays >= x.LeaveLengthDays)
+        .MaxBy(x => x.LeaveLengthDays).FirstOrDefault();
+
+      // If no notice period definition exists for this event type, then just return.
+      if (eventTypeDaysNotice == null)
+      {
+        return;
+      }
+
+      // Latest date to book a day is the leave start date minus the notice period days plus the time of day to book by.
+      var latestDateTimeEventTypeBookable = eventDates.FirstOrDefault().StartDate.Date.AddDays(-eventTypeDaysNotice.DaysNotice)
+                                            + (eventTypeDaysNotice.TimeNotice ?? new TimeSpan(0, 0, 0));
+
+      // If the current time is after the latest date to book then throw a validation exception.
+      if (currDate > latestDateTimeEventTypeBookable)
+      {
+        throw new ValidationException($"Event not inside required notice period.{Environment.NewLine}" +
+                            $"Days Notice Required: {eventTypeDaysNotice.DaysNotice}.{Environment.NewLine}" +
+                            $"Latest date to book by: {latestDateTimeEventTypeBookable}.{Environment.NewLine}" +
+                            $"Current date: {currDate.ToLongDateString()}.");
+      }
+    }
+
+    public EventDto CreateAutoApprovedEvent(EventDateDto dates, EventTypes eventTypes, Employee employee)
+    {
+      var newEvent = BuildNewAutoApprovedEvent(employee, eventTypes);
 
       UpdateEventDates(dates, newEvent);
 
-      DatabaseContext.EventRepository.Insert(newEvent);
+      var insertedEvent = DatabaseContext.EventRepository.Insert(newEvent);
+
+      return _mapper.Map<EventDto>(insertedEvent);
     }
 
     public void UpdateEvent(EventDateDto dates, string message, int employeeId)
@@ -520,23 +572,23 @@ namespace AdminCore.Services
       throw new Exception(NotEnoughHolidaysToBookExceptMsg);
     }
 
-    private Event BuildNewEvent(int employeeId, EventTypes eventTypes)
+    private Event BuildNewEvent(int employeeId, EventTypes eventTypes, int eventWorkflowId)
     {
-      var eventStatusId = AutoApproveEventsNotNeedingAdminApproval(eventTypes);
-
       var newEvent = new Event
       {
         DateCreated = DateTime.Now,
         EmployeeId = employeeId,
-        EventStatusId = eventStatusId,
+        EventStatusId = (int)EventStatuses.AwaitingApproval,
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
+        EventWorkflowId = eventWorkflowId,
         LastModified = _dateService.GetCurrentDateTime()
       };
+
       return newEvent;
     }
 
-    private Event BuildNewEvent(Employee employee, EventTypes eventTypes)
+    private Event BuildNewAutoApprovedEvent(Employee employee, EventTypes eventTypes)
     {
       var newEvent = new Event
       {
@@ -572,7 +624,7 @@ namespace AdminCore.Services
       {
         EventId = eventToAddMessageTo.EventId,
         EventMessageTypeId = (int)eventMessageType,
-        EmployeeId = eventToAddMessageTo.EmployeeId,
+        SystemUserId = eventToAddMessageTo.EmployeeId,
         LastModified = _dateService.GetCurrentDateTime(),
         Message = message,
       };
@@ -602,9 +654,9 @@ namespace AdminCore.Services
       {
         EventId = eventToAddMessageTo.EventId,
         EventMessageTypeId = (int)eventMessageType,
-        EmployeeId = employeeId,
+        SystemUserId = employeeId,
         LastModified = _dateService.GetCurrentDateTime(),
-        Message = message,
+        Message = message
       };
 
       return eventMessage;
@@ -703,33 +755,22 @@ namespace AdminCore.Services
       return eventToUpdate.EventTypeId == (int)EventTypes.PublicHoliday;
     }
 
-    private static int AutoApproveEventsNotNeedingAdminApproval(EventTypes eventTypes)
-    {
-      var eventStatusId = (int)EventStatuses.AwaitingApproval;
-      if (eventTypes == EventTypes.WorkingFromHome || eventTypes == EventTypes.Sickness)
-      {
-        eventStatusId = (int)EventStatuses.Approved;
-      }
-
-      return eventStatusId;
-    }
-
     private void CheckEventTypeAdminLevel(EventTypes eventTypes, int employeeId)
     {
       var eventTypeId = (int)eventTypes;
-      var employeeRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
-                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
-      var employeeRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
-                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
-      if (UserDoesNotHaveCorrectPrivileges(employeeRoleLevelRequired, employeeRole))
+      var systemUserRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
+                                                                           .Select(x => x.SystemUserRoleId).FirstOrDefault();
+      var systemUserRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
+                                                                           .Select(x => x.SystemUser.SystemUserRoleId).FirstOrDefault();
+      if (UserDoesNotHaveCorrectPrivileges(systemUserRoleLevelRequired, systemUserRole))
       {
         throw new Exception("User does not have the correct privileges to book this type of event.");
       }
     }
 
-    private static bool UserDoesNotHaveCorrectPrivileges(int employeeRoleLevelRequired, int employeeLevel)
+    private static bool UserDoesNotHaveCorrectPrivileges(int systemUserRoleLevelRequired, int employeeLevel)
     {
-      return employeeRoleLevelRequired == (int)EmployeeRoles.SystemAdministrator && employeeLevel == (int)EmployeeRoles.User;
+      return systemUserRoleLevelRequired == (int)SystemUserRoles.SystemAdministrator && employeeLevel == (int)SystemUserRoles.User;
     }
 
     private void AddMandatoryEventToDb(DateTime date, int countryId)
@@ -773,7 +814,7 @@ namespace AdminCore.Services
       DatabaseContext.MandatoryEventRepository.Delete(mandatoryEvent);
       DatabaseContext.SaveChanges();
     }
-    
+
     // Exception Messages
     private const string UpdateEventIdenticalAttributesExceptMsg = "Proposed changes are identical to attributes of the current event";
     private const string MandatoryEventExceptMsg = "Mandatory Event does not exist";
