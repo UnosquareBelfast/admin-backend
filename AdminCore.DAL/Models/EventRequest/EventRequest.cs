@@ -1,8 +1,7 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AdminCore.DAL.Models
+namespace AdminCore.DAL.Models.EventRequest
 {
     [Table("event_request")]
     public class EventRequest
@@ -11,34 +10,28 @@ namespace AdminCore.DAL.Models
         [Column("event_request_id")]
         public int EventRequestId { get; set; }
 
+        [Column("request_response_type_id")]
+        public int RequestResponseTypeId { get; set; }
+
+        [ForeignKey("RequestResponseTypeId")]
+        public EventRequestResponseType RequestResponseType { get; set; }
+
         [Column("request_type_id")]
         public int RequestTypeId { get; set; }
 
         [ForeignKey("RequestTypeId")]
         public EventRequestType RequestType { get; set; }
 
-        [Column("event_date_id")]
-        public int EventDateId { get; set; }
+        [Column("request_status_id")]
+        public int RequestStatusId { get; set; }
 
-        [ForeignKey("EventDateId")]
-        public EventDate EventDate { get; set; }
+        [ForeignKey("RequestStatusId")]
+        public EventRequestStatus RequestStatus { get; set; }
 
         [Column("salt")]
         public string Salt { get; set; }
 
         [Column("hash")]
         public string Hash { get; set; }
-
-        [Column("time_created")]
-        public DateTime TimeCreated { get; set; }
-
-        [Column("time_expires")]
-        public DateTime TimeExpires { get; set; }
-
-        [Column("approved")]
-        public bool Approved { get; set; }
-
-        [Column("auto_approved")]
-        public bool AutoApproved { get; set; }
     }
 }

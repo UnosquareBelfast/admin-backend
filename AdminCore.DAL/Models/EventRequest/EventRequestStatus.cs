@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AdminCore.DAL.Models.EventRequest
 {
-    [Table("event_request_response_type")]
-    public class EventRequestResponseType
+    [Table("event_request_status")]
+    public class EventRequestStatus
     {
         [Key]
-        [Column("request_response_type_id")]
-        public int RequestResponseTypeId { get; set; }
+        [Column("request_status_id")]
+        public int RequestStatusId { get; set; }
 
         [Column("type_value")]
         public string Type { get; set; }
