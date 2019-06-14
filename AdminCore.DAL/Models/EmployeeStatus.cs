@@ -7,8 +7,8 @@ namespace AdminCore.DAL.Models
   public class EmployeeStatus
   {
     [Key]
-    [Column("employee_role_id")]
-    public int EmployeeRoleId { get; set; }
+    [Column("employee_status_id")]
+    public int EmployeeStatusId { get; set; }
 
     [StringLength(50)]
     [Column("description")]

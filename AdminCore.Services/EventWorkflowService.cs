@@ -1,14 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AdminCore.Common;
 using AdminCore.Common.Exceptions;
 using AdminCore.Common.Interfaces;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL;
+using AdminCore.DAL.Models;
+using AdminCore.DTOs;
 using AdminCore.DTOs.EventWorkflow;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
+using AdminCore.DTOs.SystemUser;
 using AdminCore.FsmWorkflow;
 using AdminCore.Services.Base;
 using AutoMapper;
@@ -19,7 +23,7 @@ namespace AdminCore.Services
     {
         private readonly IMapper _mapper;
         private readonly IWorkflowFsmHandler _workflowFsmHandler;
-        
+
         public EventWorkflowService(IDatabaseContext databaseContext, IMapper mapper, IWorkflowFsmHandler workflowFsmHandler) : base(databaseContext)
         {
             _mapper = mapper;
@@ -32,42 +36,56 @@ namespace AdminCore.Services
 
             return _mapper.Map<EventWorkflowDto>(newEventWorkflow);
         }
-        
+
         public EventWorkflowDto GetWorkflowByEventId(int eventId)
         {
             throw new System.NotImplementedException();
         }
 
-        public IList<EmployeeRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId)
+        public IList<SystemUserRoleDto> GetWorkflowApproversEmployeeRoleListById(int eventId)
         {
             throw new System.NotImplementedException();
         }
 
-        public IDictionary<EmployeeRoleDto, EventStatusDto> GetWorkflowApprovalStatusDictById(int eventId)
+        public IDictionary<SystemUserRoleDto, EventStatusDto> GetWorkflowApprovalStatusDictById(int eventId)
         {
             throw new System.NotImplementedException();
         }
 
-        public WorkflowFsmStateInfo WorkflowResponseApprove(EventDto employeeEvent, EmployeeDto respondeeEmployee)
+        public WorkflowFsmStateInfo WorkflowResponse(EventDto employeeEvent, int systemUserId, EventStatuses eventStatus)
         {
-            return FireWorkflowTrigger(employeeEvent, respondeeEmployee, EventStatuses.Approved);
+            var systemUser = DatabaseContext.SystemUserRepository.GetSingle(x => x.SystemUserId == systemUserId);
+            var validationAction = GetRespondeeValidationActionAndRole(systemUser);
+            return ValidateAndFireLeaveResponse(validationAction, employeeEvent, systemUser, (SystemUserRoles)systemUser.SystemUserRoleId, eventStatus);
         }
 
-        public WorkflowFsmStateInfo WorkflowResponseReject(EventDto employeeEvent, EmployeeDto respondeeEmployee)
-        {
-            return FireWorkflowTrigger(employeeEvent, respondeeEmployee, EventStatuses.Rejected);
-        }
-
-        public WorkflowFsmStateInfo WorkflowResponseCancel(EventDto employeeEvent, EmployeeDto respondeeEmployee)
-        {
-            return FireWorkflowTrigger(employeeEvent, respondeeEmployee, EventStatuses.Cancelled);
-        }
-
-        private WorkflowFsmStateInfo FireWorkflowTrigger(EventDto leaveEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatuses)
+        private WorkflowFsmStateInfo ValidateAndFireLeaveResponse(Action<SystemUser, EventDto, EventWorkflow, EventStatuses> validationAction, EventDto employeeEvent,
+            SystemUser respondeeSystemUser, SystemUserRoles systemUserRoles, EventStatuses eventStatus)
         {
             var eventWorkflow = DatabaseContext.EventWorkflowRepository.GetSingle(
-                x => x.EventWorkflowId == leaveEvent.EventWorkflowId,
+                x => x.EventWorkflowId == employeeEvent.EventWorkflowId,
                 x => x.EventWorkflowApprovalResponses);
+
+            validationAction(respondeeSystemUser, employeeEvent, eventWorkflow, eventStatus);
+
+            return _workflowFsmHandler.FireLeaveResponse(employeeEvent, respondeeSystemUser, systemUserRoles, eventStatus, eventWorkflow);
+        }
+
+        private Action<SystemUser, EventDto, EventWorkflow, EventStatuses> GetRespondeeValidationActionAndRole(SystemUser respondeeSystemUser)
+        {
+            switch ((SystemUserRoles)respondeeSystemUser.SystemUserRoleId)
+            {
+                case SystemUserRoles.Client:
+                    return ClientResponse;
+                default:
+                    return EmployeeResponse;
+            }
+        }
+
+        private void EmployeeResponse(SystemUser systemUser, EventDto leaveEvent, EventWorkflow eventWorkflow, EventStatuses eventStatus)
+        {
+            var respondeeEmployee = DatabaseContext.EmployeeRepository.GetSingle(
+                x => x.SystemUserId == systemUser.SystemUserId);
 
             if (eventWorkflow == null)
             {
@@ -75,29 +93,34 @@ namespace AdminCore.Services
             }
 
             var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == leaveEvent.EventTypeId)
-                .Select(x => x.EmployeeRoleId);
-            
-            eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.EmployeeApprovalResponsesRepository.Get(
+                .Select(x => x.SystemUserRoleId);
+
+            eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.SystemUserApprovalResponsesRepository.Get(
                 x => x.EventWorkflowId == eventWorkflow.EventWorkflowId);
 
-            if (respondeeEmployee.EmployeeId == leaveEvent.EmployeeId && eventStatuses == EventStatuses.Cancelled)
+            if (respondeeEmployee.EmployeeId == leaveEvent.EmployeeId && eventStatus == EventStatuses.Cancelled)
             {
-                return _workflowFsmHandler.FireLeaveResponse(leaveEvent, respondeeEmployee, eventStatuses, eventWorkflow); 
+                return;
             }
-            else if (respondeeEmployee.EmployeeId != leaveEvent.EmployeeId && eventStatuses != EventStatuses.Cancelled)
+            else if (respondeeEmployee.EmployeeId != leaveEvent.EmployeeId && eventStatus != EventStatuses.Cancelled)
             {
-                if (requiredResponders.Contains(respondeeEmployee.EmployeeRoleId) || (EmployeeRoles)respondeeEmployee.EmployeeRoleId == EmployeeRoles.SystemAdministrator)
+                if (requiredResponders.Contains(systemUser.SystemUserRoleId) || (SystemUserRoles)systemUser.SystemUserRoleId == SystemUserRoles.SystemAdministrator)
                 {
-                    return _workflowFsmHandler.FireLeaveResponse(leaveEvent, respondeeEmployee, eventStatuses, eventWorkflow); 
+                    return;
                 }
             }
             throw new ValidationException(
                 $"Current user does not have the required role or employee id is incorrect to send workflow response.{Environment.NewLine}" +
-                $"Employee Role: {respondeeEmployee.EmployeeRoleId}{Environment.NewLine}" +
+                $"System User Role: {systemUser.SystemUserRoleId}{Environment.NewLine}" +
                 $"Required Roles: {string.Join(", ", requiredResponders)}{Environment.NewLine}" +
                 $"Event Type: {leaveEvent.EventTypeId}{Environment.NewLine}" +
                 $"Employee Id: {respondeeEmployee.EmployeeId}{Environment.NewLine}" +
                 $"Event Employee Id: {leaveEvent.EmployeeId}");
+        }
+
+        private void ClientResponse(SystemUser systemUser, EventDto leaveEvent, EventWorkflow eventWorkflow, EventStatuses eventStatus)
+        {
+
         }
     }
 }

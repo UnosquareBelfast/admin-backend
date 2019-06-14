@@ -4,6 +4,8 @@ namespace AdminCore.DTOs.Client
   {
     public int ClientId { get; set; }
 
+    public int SystemUserId { get; set; }
+
     public string ClientName { get; set; }
   }
 }

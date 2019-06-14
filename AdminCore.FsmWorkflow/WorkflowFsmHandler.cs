@@ -6,6 +6,7 @@ using AdminCore.Common.Exceptions;
 using AdminCore.Constants.Enums;
 using AdminCore.DAL;
 using AdminCore.DAL.Models;
+using AdminCore.DTOs;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
 using AdminCore.FsmWorkflow.Factory;
@@ -17,8 +18,8 @@ namespace AdminCore.FsmWorkflow
 {
     public class WorkflowFsmHandler : IWorkflowFsmHandler
     {
-        private IDatabaseContext _dbContext;
-        private IWorkflowFsmFactory<ILeaveWorkflow> _workflowFsmFactory;
+        private readonly IDatabaseContext _dbContext;
+        private readonly IWorkflowFsmFactory<ILeaveWorkflow> _workflowFsmFactory;
         public WorkflowFsmHandler(IDatabaseContext dbContext, IWorkflowFsmFactory<ILeaveWorkflow> workflowFsmFactory)
         {
             _dbContext = dbContext;
@@ -41,7 +42,7 @@ namespace AdminCore.FsmWorkflow
             return eventWorkflow;
         }
 
-        public WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, EmployeeDto respondeeEmployee, EventStatuses eventStatus, EventWorkflow eventWorkflow)
+        public WorkflowFsmStateInfo FireLeaveResponse(EventDto employeeEvent, SystemUser respondeeSystemUser, SystemUserRoles systemUserRole, EventStatuses eventStatus, EventWorkflow eventWorkflow)
         {
             ILeaveWorkflow workflowFsm;
             var workflowStateData = RebuildWorkflowStateData(eventWorkflow);
@@ -58,8 +59,8 @@ namespace AdminCore.FsmWorkflow
                     throw new WorkflowException($"No workflow FSM exists for {((EventTypes)employeeEvent.EventTypeId).ToString()}");
             }
 
-            var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, respondeeEmployee.EmployeeRoleId.ToString());
-            eventWorkflow = UpdateEventAddApprovalResponse(respondeeEmployee, eventWorkflow, workflowStateData, eventStatus);
+            var workflowFsmStateInfo = workflowFsm.FireLeaveResponded(eventStatus, ((int)systemUserRole).ToString());
+            eventWorkflow = UpdateEventAddApprovalResponse(respondeeSystemUser, systemUserRole, eventWorkflow, workflowStateData, eventStatus);
 
             _dbContext.EventWorkflowRepository.Update(eventWorkflow);
             _dbContext.SaveChanges();
@@ -72,42 +73,42 @@ namespace AdminCore.FsmWorkflow
             var approvalDict = RebuildApprovalDict(eventWorkflow);
 
             return new WorkflowStateData(eventWorkflow.WorkflowState,
-                ((int)EmployeeRoles.TeamLeader).ToString(),
-                ((int)EmployeeRoles.Client).ToString(),
-                ((int)EmployeeRoles.Cse).ToString(),
-                ((int)EmployeeRoles.SystemAdministrator).ToString(),
+                ((int)SystemUserRoles.TeamLeader).ToString(),
+                ((int)SystemUserRoles.Client).ToString(),
+                ((int)SystemUserRoles.Cse).ToString(),
+                ((int)SystemUserRoles.SystemAdministrator).ToString(),
                 approvalDict);
         }
 
         private Dictionary<string, EventStatuses> RebuildApprovalDict(EventWorkflow eventWorkflow)
         {
-            var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.TeamLeader)?.EventStatusId
+            var teamLeadLastResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.SystemUserRoleId == (int)SystemUserRoles.TeamLeader)?.EventStatusId
                                        ?? (int)EventStatuses.AwaitingApproval;
-            var clientResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Client)?.EventStatusId
+            var clientResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.SystemUserRoleId == (int)SystemUserRoles.Client)?.EventStatusId
                                      ?? (int)EventStatuses.AwaitingApproval;
-            var cseResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.Cse)?.EventStatusId
+            var cseResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.SystemUserRoleId == (int)SystemUserRoles.Cse)?.EventStatusId
                                   ?? (int)EventStatuses.AwaitingApproval;
-            var adminResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.EmployeeRoleId == (int)EmployeeRoles.SystemAdministrator)?.EventStatusId
+            var adminResponse = eventWorkflow.EventWorkflowApprovalResponses.LastOrDefault(x => x.SystemUserRoleId == (int)SystemUserRoles.SystemAdministrator)?.EventStatusId
                                   ?? (int)EventStatuses.AwaitingApproval;
 
             return new Dictionary<string, EventStatuses>
             {
-                {((int) EmployeeRoles.TeamLeader).ToString(), (EventStatuses) teamLeadLastResponse},
-                {((int) EmployeeRoles.Client).ToString(), (EventStatuses) clientResponse},
-                {((int) EmployeeRoles.Cse).ToString(), (EventStatuses) cseResponse},
-                {((int) EmployeeRoles.SystemAdministrator).ToString(), (EventStatuses) adminResponse}
+                {((int) SystemUserRoles.TeamLeader).ToString(), (EventStatuses) teamLeadLastResponse},
+                {((int) SystemUserRoles.Client).ToString(), (EventStatuses) clientResponse},
+                {((int) SystemUserRoles.Cse).ToString(), (EventStatuses) cseResponse},
+                {((int) SystemUserRoles.SystemAdministrator).ToString(), (EventStatuses) adminResponse}
             };
         }
 
-        private EventWorkflow UpdateEventAddApprovalResponse(EmployeeDto respondeeEmployee,
+        private EventWorkflow UpdateEventAddApprovalResponse(SystemUser respondeeSystemUser, SystemUserRoles systemUserRole,
             EventWorkflow eventWorkflow, WorkflowStateData workflowStateData, EventStatuses employeeResponseEventStatus)
         {
             eventWorkflow.WorkflowState = workflowStateData.CurrentState;
 
-            eventWorkflow.EventWorkflowApprovalResponses.Add(new EmployeeApprovalResponse
+            eventWorkflow.EventWorkflowApprovalResponses.Add(new SystemUserApprovalResponse
             {
-                EmployeeId = respondeeEmployee.EmployeeId,
-                EmployeeRoleId = respondeeEmployee.EmployeeRoleId,
+                SystemUserId = respondeeSystemUser.SystemUserId,
+                SystemUserRoleId = (int)systemUserRole,
                 EventStatusId = (int)employeeResponseEventStatus,
                 EventWorkflowId = eventWorkflow.EventWorkflowId,
                 ResonseSentDate = DateTime.Now

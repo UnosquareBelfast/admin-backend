@@ -103,39 +103,6 @@ namespace AdminCore.Services.Tests
       return databaseContext;
     }
 
-    protected virtual EntityFrameworkContext SetUpEventWorkflowRepository(EntityFrameworkContext databaseContext, IList<EventWorkflow> eventWorkflowList)
-    {
-      var mockEventWorkflowRepository = GetMockedRepository(eventWorkflowList, databaseContext);
-      databaseContext.Configure().EventWorkflowRepository.Returns(mockEventWorkflowRepository);
-      databaseContext.When(x => x.RetrieveRepository<EventWorkflow>()).DoNotCallBase();
-
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-
-      return databaseContext;
-    }
-
-    protected virtual EntityFrameworkContext SetUpEventTypeRequiredRespondersRepository(EntityFrameworkContext databaseContext, IList<EventTypeRequiredResponders> eventTypeRequiredRespondersList)
-    {
-      var mockRepository = GetMockedRepository(eventTypeRequiredRespondersList, databaseContext);
-      databaseContext.Configure().EventTypeRequiredRespondersRepository.Returns(mockRepository);
-      databaseContext.When(x => x.RetrieveRepository<EventTypeRequiredResponders>()).DoNotCallBase();
-
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-
-      return databaseContext;
-    }
-
-    protected virtual EntityFrameworkContext SetUpEmployeeApprovalResponseRepository(EntityFrameworkContext databaseContext, IList<EmployeeApprovalResponse> employeeApprovalResponseList)
-    {
-      var mockRepository = GetMockedRepository(employeeApprovalResponseList, databaseContext);
-      databaseContext.Configure().EmployeeApprovalResponsesRepository.Returns(mockRepository);
-      databaseContext.When(x => x.RetrieveRepository<EmployeeApprovalResponse>()).DoNotCallBase();
-
-      AdminCoreContext.When(x => x.SaveChanges()).DoNotCallBase();
-
-      return databaseContext;
-    }
-
     protected virtual DbSet<T> GetQueryableMockDbSet<T>(IList<T> sourceList) where T : class
     {
       var queryable = sourceList.AsQueryable();

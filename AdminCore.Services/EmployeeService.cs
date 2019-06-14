@@ -101,7 +101,7 @@ namespace AdminCore.Services
 
     public EmployeeDto GetEmployeeByEmail(string email)
     {
-      var result = DatabaseContext.EmployeeRepository.GetSingle(employee => employee.Email == email);
+      var result = DatabaseContext.EmployeeRepository.GetSingle(employee => employee.Email == email, employee => employee.SystemUser);
       return _mapper.Map<EmployeeDto>(result);
     }
 

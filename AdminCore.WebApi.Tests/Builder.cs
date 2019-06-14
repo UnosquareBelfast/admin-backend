@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using AdminCore.Common;
 using AdminCore.Constants;
+using AdminCore.Constants.Enums;
 using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.Event;
+using AdminCore.DTOs.SystemUser;
 using AdminCore.WebApi.Models.Employee;
+using AdminCore.WebApi.Models.SystemUser;
 
 namespace AdminCore.WebApi.Tests
 {
@@ -24,7 +27,7 @@ namespace AdminCore.WebApi.Tests
 
     public static EventDto BuildTestEvent(int eventId, DateTime dateCreated, int employeeId)
     {
-      return new EventDto()
+      return new EventDto
       {
         EventId = eventId,
         DateCreated = dateCreated,
@@ -34,14 +37,17 @@ namespace AdminCore.WebApi.Tests
 
     public static UpdateEmployeeViewModel BuildUpdateEmployeeViewModel(int employeeId)
     {
-      return new UpdateEmployeeViewModel()
+      return new UpdateEmployeeViewModel
       {
         EmployeeId = employeeId,
         Forename = "Test",
         Surname = "Employee",
         Email = "test@employee.com",
         CountryId = 1,
-        EmployeeRoleId = 1,
+        SystemUser = new CreateSystemUserViewModel
+        {
+          SystemUserRoleId = (int) SystemUserRoles.TeamLeader
+        },
         EmployeeStatusId = 1,
         StartDate = new DateTime()
       };
@@ -49,25 +55,31 @@ namespace AdminCore.WebApi.Tests
 
     public static EmployeeDto BuildTestEmployee(int employeeId)
     {
-      return new EmployeeDto()
+      return new EmployeeDto
       {
         EmployeeId = employeeId,
         Forename = "Test",
         Surname = "Employee",
         Email = "test@employee.com",
         CountryId = 1,
-        EmployeeRoleId = 1,
+        SystemUser = new SystemUserDto
+        {
+          SystemUserRoleId = (int) SystemUserRoles.TeamLeader
+        },
         EmployeeStatusId = 1,
-        StartDate = new DateTime(),
+        StartDate = new DateTime()
       };
     }
 
     public static RegisterEmployeeViewModel BuildRegisterEmployeeViewModel(DateTime startDate)
     {
-      return new RegisterEmployeeViewModel()
+      return new RegisterEmployeeViewModel
       {
         CountryId = 1,
-        EmployeeRoleId = 3,
+        SystemUser = new CreateSystemUserViewModel
+        {
+          SystemUserRoleId = (int) SystemUserRoles.User
+        },
         EmployeeStatusId = 1,
         StartDate = startDate
       };
@@ -75,7 +87,7 @@ namespace AdminCore.WebApi.Tests
 
     public static UserDetailsHelper BuildUserDetails()
     {
-      var claims = new List<Claim>()
+      var claims = new List<Claim>
       {
         new Claim(UserDetailsConstants.UserEmail, "test@employee.com"),
         new Claim(UserDetailsConstants.Name, "Test Employee"),

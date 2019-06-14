@@ -1,7 +1,7 @@
 using AdminCore.DTOs.Employee;
-using AdminCore.DTOs.EventWorkflow;
+using AdminCore.DTOs.SystemUser;
 
-namespace AdminCore.DAL.Models
+namespace AdminCore.DTOs.EventWorkflow
 {
     public class EventWorkflowResponderDto
     {
@@ -10,7 +10,7 @@ namespace AdminCore.DAL.Models
         public int EventWorkflowId { get; set; }
         public EventWorkflowDto EventWorkflow { get; set; }
         
-        public int EmployeeRoleId { get; set; }
-        public EmployeeRoleDto EmployeeRole { get; set; }
+        public int SystemUserRoleId { get; set; }
+        public SystemUserRoleDto SystemUserRole { get; set; }
     }
 }

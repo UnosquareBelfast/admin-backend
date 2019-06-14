@@ -1,5 +1,6 @@
 ﻿
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdminCore.Common;
@@ -17,7 +18,9 @@ using AdminCore.FsmWorkflow.FsmMachines;
 using AdminCore.FsmWorkflow.FsmMachines.FsmWorkflowState;
 using AdminCore.Services.Tests.ClassData;
 using AutoFixture;
+using FluentAssertions;
 using NSubstitute;
+using NSubstitute.Extensions;
 using Xunit;
 
 namespace AdminCore.Services.Tests
@@ -44,7 +47,8 @@ namespace AdminCore.Services.Tests
     {
       // Arrange
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow>());
+      databaseContextMock = SetUpGenericRepository(databaseContextMock, new List<EventWorkflow>(),
+        repository => { databaseContextMock.Configure().EventWorkflowRepository.Returns(repository); }, AdminCoreContext);
 
       var fsmWorkflowHandler = new WorkflowFsmHandler(databaseContextMock, null);
 
@@ -62,7 +66,8 @@ namespace AdminCore.Services.Tests
     {
       // Arrange
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow>());
+      databaseContextMock = SetUpGenericRepository(databaseContextMock, new List<EventWorkflow>(),
+        repository => { databaseContextMock.Configure().EventWorkflowRepository.Returns(repository); }, AdminCoreContext);
 
       var fsmWorkflowHandler = new WorkflowFsmHandler(databaseContextMock, null);
 
@@ -80,7 +85,8 @@ namespace AdminCore.Services.Tests
     {
       // Arrange
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow>());
+      databaseContextMock = SetUpGenericRepository(databaseContextMock, new List<EventWorkflow>(),
+        repository => { databaseContextMock.Configure().EventWorkflowRepository.Returns(repository); }, AdminCoreContext);
 
       var fsmWorkflowHandler = new WorkflowFsmHandler(databaseContextMock, null);
 
@@ -90,13 +96,14 @@ namespace AdminCore.Services.Tests
     }
 
     [Theory]
-    [InlineData((int)EventTypes.AnnualLeave)]
-    [InlineData((int)EventTypes.WorkingFromHome)]
+    [InlineData((int) EventTypes.AnnualLeave)]
+    [InlineData((int) EventTypes.WorkingFromHome)]
     public void FireLeaveResponse_ValidEventIdApprove_EventApproved(int eventTypeId)
     {
       // Arrange
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow>());
+      databaseContextMock = SetUpGenericRepository(databaseContextMock, new List<EventWorkflow>(),
+        repository => { databaseContextMock.Configure().EventWorkflowRepository.Returns(repository); }, AdminCoreContext);
 
       var leaveWorkflow = Substitute.For<ILeaveWorkflow>();
       leaveWorkflow.FireLeaveResponded(Arg.Any<EventStatuses>(), Arg.Any<string>()).Returns(_fixture.Create<WorkflowFsmStateInfo>());
@@ -107,15 +114,15 @@ namespace AdminCore.Services.Tests
 
       var employeeEvent = _fixture.Create<EventDto>();
       employeeEvent.EventTypeId = eventTypeId;
-      var employeeDto = _fixture.Create<EmployeeDto>();
+      var systemUser = _fixture.Create<SystemUser>();
       var eventStatus = _fixture.Create<EventStatuses>();
       var eventWorkflow = _fixture.Create<EventWorkflow>();
-      eventWorkflow.EventWorkflowApprovalResponses = new List<EmployeeApprovalResponse>();
+      eventWorkflow.EventWorkflowApprovalResponses = new List<SystemUserApprovalResponse>();
 
       var fsmWorkflowHandler = new WorkflowFsmHandler(databaseContextMock, workflowFsmFactoryMock);
 
       // Act
-      var workflowFsmStateinfo = fsmWorkflowHandler.FireLeaveResponse(employeeEvent, employeeDto, eventStatus, eventWorkflow);
+      var workflowFsmStateinfo = fsmWorkflowHandler.FireLeaveResponse(employeeEvent, systemUser, (SystemUserRoles)systemUser.SystemUserRoleId, eventStatus, eventWorkflow);
 
       // Assert
       databaseContextMock.Received(1).EventWorkflowRepository.Update(Arg.Any<EventWorkflow>());
@@ -131,19 +138,21 @@ namespace AdminCore.Services.Tests
     {
       // Arrange
       var databaseContextMock = Substitute.ForPartsOf<EntityFrameworkContext>(AdminCoreContext);
-      databaseContextMock = SetUpEventWorkflowRepository(databaseContextMock, new List<EventWorkflow>());
+      databaseContextMock = SetUpGenericRepository(databaseContextMock, new List<EventWorkflow>(),
+        repository => { databaseContextMock.Configure().EventWorkflowRepository.Returns(repository); }, AdminCoreContext);
 
       var fsmWorkflowHandler = new WorkflowFsmHandler(databaseContextMock, null);
 
       var employeeEvent = _fixture.Create<EventDto>();
       employeeEvent.EventTypeId = eventTypeId;
-      var employeeDto = _fixture.Create<EmployeeDto>();
+      var systemUser = _fixture.Create<SystemUser>();
       var eventStatus = _fixture.Create<EventStatuses>();
       var eventWorkflow = _fixture.Create<EventWorkflow>();
 
       // Act
       // Assert
-      Assert.Throws<WorkflowException>(() => fsmWorkflowHandler.FireLeaveResponse(employeeEvent, employeeDto, eventStatus, eventWorkflow));
+      Action fireLeaveResponseAction = () => fsmWorkflowHandler.FireLeaveResponse(employeeEvent, systemUser, (SystemUserRoles)systemUser.SystemUserRoleId, eventStatus, eventWorkflow);
+      fireLeaveResponseAction.Should().Throw<WorkflowException>();
     }
   }
 }

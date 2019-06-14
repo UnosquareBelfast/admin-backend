@@ -49,7 +49,7 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = (int)EventTypes.AnnualLeave,
         Description = "Annual Leave",
-        EmployeeRoleId = (int)EmployeeRoles.User
+        SystemUserRoleId = (int)SystemUserRoles.User
       };
     }
 
@@ -59,17 +59,17 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = (int)EventTypes.WorkingFromHome,
         Description = "Working From Home",
-        EmployeeRoleId = (int)EmployeeRoles.User
+        SystemUserRoleId = (int)SystemUserRoles.User
       };
     }
-    
+
     internal static EventType SickLeaveEventType()
     {
       return new EventType
       {
         EventTypeId = (int)EventTypes.Sickness,
         Description = "Sick Leave",
-        EmployeeRoleId = (int)EmployeeRoles.User
+        SystemUserRoleId = (int)SystemUserRoles.User
       };
     }
 
@@ -79,7 +79,7 @@ namespace AdminCore.Services.Tests
       {
         EventTypeId = (int)EventTypes.PublicHoliday,
         Description = "Public Holiday",
-        EmployeeRoleId = (int)EmployeeRoles.SystemAdministrator
+        SystemUserRoleId = (int)SystemUserRoles.SystemAdministrator
       };
     }
 
@@ -110,25 +110,28 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    internal static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int employeeRoleId)
+    internal static EventType BuildEventType(int eventTypeId, string eventTypeDescription, int systemUserRoleId)
     {
       return new EventType
       {
         EventTypeId = eventTypeId,
         Description = eventTypeDescription,
-        EmployeeRoleId = employeeRoleId
+        SystemUserRoleId = systemUserRoleId
       };
     }
 
-    internal static Employee BuildEmployee(int employeeId, int employeeRoleId, int totalHolidays,
+    internal static Employee BuildEmployee(int employeeId, int systemUserRoleId, int totalHolidays,
       ICollection<Event> events)
     {
       return new Employee
       {
         EmployeeId = employeeId,
-        EmployeeRoleId = employeeRoleId,
         TotalHolidays = totalHolidays,
-        Events = events
+        Events = events,
+        SystemUser = new SystemUser
+        {
+          SystemUserRoleId = systemUserRoleId
+        }
       };
     }
 
@@ -137,9 +140,12 @@ namespace AdminCore.Services.Tests
       return new Employee
       {
         EmployeeId = 1,
-        EmployeeRoleId = (int)EmployeeRoles.User,
         TotalHolidays = 40,
-        Events = events
+        Events = events,
+        SystemUser = new SystemUser
+        {
+          SystemUserRoleId = (int)SystemUserRoles.User
+        }
       };
     }
 

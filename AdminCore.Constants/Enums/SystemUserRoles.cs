@@ -1,6 +1,6 @@
 ﻿namespace AdminCore.Constants.Enums
 {
-  public enum EmployeeRoles
+  public enum SystemUserRoles
   {
     TeamLeader = 1,
     SystemAdministrator = 2,

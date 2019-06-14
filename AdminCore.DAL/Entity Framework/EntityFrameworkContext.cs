@@ -17,7 +17,7 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<Employee> _employeeRepository;
 
-    private IRepository<EmployeeRole> _employeeRoleRepository;
+    private IRepository<SystemUserRole> _systemUserRoleRepository;
 
     private IRepository<EmployeeStatus> _employeeStatusRepository;
 
@@ -47,9 +47,10 @@ namespace AdminCore.DAL.Entity_Framework
 
     private IRepository<EventTypeRequiredResponders> _eventTypeRequiredRespondersRepository;
 
-    private IRepository<EmployeeApprovalResponse> _employeeApprovalResponsesRepository;
+    private IRepository<SystemUserApprovalResponse> _employeeApprovalResponsesRepository;
 
     private IRepository<Project> _projectRepository;
+    private IRepository<SystemUser> _systemUserRepository;
 
     public EntityFrameworkContext()
     {
@@ -80,8 +81,8 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<Employee> EmployeeRepository =>
       _employeeRepository ?? (_employeeRepository = RetrieveRepository<Employee>());
 
-    public virtual IRepository<EmployeeRole> EmployeeRoleRepository =>
-      _employeeRoleRepository ?? (_employeeRoleRepository = RetrieveRepository<EmployeeRole>());
+    public virtual IRepository<SystemUserRole> SystemUserRoleRepository =>
+      _systemUserRoleRepository ?? (_systemUserRoleRepository = RetrieveRepository<SystemUserRole>());
 
     public virtual IRepository<EmployeeStatus> EmployeeStatusRepository =>
       _employeeStatusRepository ?? (_employeeStatusRepository = RetrieveRepository<EmployeeStatus>());
@@ -123,11 +124,14 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository =>
       _eventTypeRequiredRespondersRepository ?? (_eventTypeRequiredRespondersRepository = RetrieveRepository<EventTypeRequiredResponders>());
 
-    public virtual IRepository<EmployeeApprovalResponse> EmployeeApprovalResponsesRepository =>
-      _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<EmployeeApprovalResponse>());
+    public virtual IRepository<SystemUserApprovalResponse> SystemUserApprovalResponsesRepository =>
+      _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<SystemUserApprovalResponse>());
 
     public virtual IRepository<Project> ProjectRepository =>
       _projectRepository ?? (_projectRepository = RetrieveRepository<Project>());
+
+    public virtual IRepository<SystemUser> SystemUserRepository =>
+      _systemUserRepository ?? (_systemUserRepository = RetrieveRepository<SystemUser>());
 
     public virtual void SaveChanges()
     {

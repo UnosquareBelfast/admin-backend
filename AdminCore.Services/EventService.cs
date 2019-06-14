@@ -585,7 +585,7 @@ namespace AdminCore.Services
       {
         EventId = eventToAddMessageTo.EventId,
         EventMessageTypeId = (int)eventMessageType,
-        EmployeeId = eventToAddMessageTo.EmployeeId,
+        SystemUserId = eventToAddMessageTo.EmployeeId,
         LastModified = _dateService.GetCurrentDateTime(),
         Message = message,
       };
@@ -615,7 +615,7 @@ namespace AdminCore.Services
       {
         EventId = eventToAddMessageTo.EventId,
         EventMessageTypeId = (int)eventMessageType,
-        EmployeeId = employeeId,
+        SystemUserId = employeeId,
         LastModified = _dateService.GetCurrentDateTime(),
         Message = message
       };
@@ -719,19 +719,19 @@ namespace AdminCore.Services
     private void CheckEventTypeAdminLevel(EventTypes eventTypes, int employeeId)
     {
       var eventTypeId = (int)eventTypes;
-      var employeeRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
-                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
-      var employeeRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
-                                                                           .Select(x => x.EmployeeRoleId).FirstOrDefault();
-      if (UserDoesNotHaveCorrectPrivileges(employeeRoleLevelRequired, employeeRole))
+      var systemUserRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
+                                                                           .Select(x => x.SystemUserRoleId).FirstOrDefault();
+      var systemUserRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
+                                                                           .Select(x => x.SystemUser.SystemUserRoleId).FirstOrDefault();
+      if (UserDoesNotHaveCorrectPrivileges(systemUserRoleLevelRequired, systemUserRole))
       {
         throw new Exception("User does not have the correct privileges to book this type of event.");
       }
     }
 
-    private static bool UserDoesNotHaveCorrectPrivileges(int employeeRoleLevelRequired, int employeeLevel)
+    private static bool UserDoesNotHaveCorrectPrivileges(int systemUserRoleLevelRequired, int employeeLevel)
     {
-      return employeeRoleLevelRequired == (int)EmployeeRoles.SystemAdministrator && employeeLevel == (int)EmployeeRoles.User;
+      return systemUserRoleLevelRequired == (int)SystemUserRoles.SystemAdministrator && employeeLevel == (int)SystemUserRoles.User;
     }
 
     private void AddMandatoryEventToDb(DateTime date, int countryId)
