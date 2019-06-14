@@ -124,7 +124,7 @@ namespace AdminCore.DAL.Entity_Framework
     public virtual IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository =>
       _eventTypeRequiredRespondersRepository ?? (_eventTypeRequiredRespondersRepository = RetrieveRepository<EventTypeRequiredResponders>());
 
-    public virtual IRepository<SystemUserApprovalResponse> EmployeeApprovalResponsesRepository =>
+    public virtual IRepository<SystemUserApprovalResponse> SystemUserApprovalResponsesRepository =>
       _employeeApprovalResponsesRepository ?? (_employeeApprovalResponsesRepository = RetrieveRepository<SystemUserApprovalResponse>());
 
     public virtual IRepository<Project> ProjectRepository =>

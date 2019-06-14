@@ -95,7 +95,7 @@ namespace AdminCore.Services
             var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == leaveEvent.EventTypeId)
                 .Select(x => x.SystemUserRoleId);
 
-            eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.EmployeeApprovalResponsesRepository.Get(
+            eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.SystemUserApprovalResponsesRepository.Get(
                 x => x.EventWorkflowId == eventWorkflow.EventWorkflowId);
 
             if (respondeeEmployee.EmployeeId == leaveEvent.EmployeeId && eventStatus == EventStatuses.Cancelled)

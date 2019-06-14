@@ -40,7 +40,7 @@ namespace AdminCore.DAL
 
     IRepository<EventWorkflow> EventWorkflowRepository { get; }
     IRepository<EventTypeRequiredResponders> EventTypeRequiredRespondersRepository { get; }
-    IRepository<SystemUserApprovalResponse> EmployeeApprovalResponsesRepository { get; }
+    IRepository<SystemUserApprovalResponse> SystemUserApprovalResponsesRepository { get; }
 
     IRepository<Project> ProjectRepository { get; }
     IRepository<SystemUser> SystemUserRepository { get; }
