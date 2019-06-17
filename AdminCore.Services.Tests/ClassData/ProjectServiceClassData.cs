@@ -259,10 +259,8 @@ namespace AdminCore.Services.Tests.ClassData
                         ProjectId = 25,
                         ClientId = 20,
                         ProjectName = "Unique Project",
-                        ProjectParentId = null,
                         Teams = new List<Team>{new Team{TeamId = 86}},
-                        Client = new Client{ClientId = 20, ClientName = "Unique Client"},
-                        ParentProject = null
+                        Client = new Client{ClientId = 20, ClientName = "Unique Client"}
                     }
                 };
             }

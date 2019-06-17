@@ -1,5 +1,6 @@
 ﻿using AdminCore.DTOs.Team;
 using System;
+using AdminCore.DTOs.Employee;
 using AdminCore.DTOs.SystemUser;
 
 namespace AdminCore.DTOs
@@ -24,6 +25,6 @@ namespace AdminCore.DTOs
 
     public int SystemUserRoleId { get; set; }
 
-    public SystemUserRoleDto SystemUserRole { get; set; }
+    public EmployeeRoleDto SystemUserRole { get; set; }
   }
 }

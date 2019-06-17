@@ -171,8 +171,8 @@ namespace AdminCore.WebApi.Controllers
       {
         ValidateIfHolidayEvent(createEventViewModel, eventDates);
         var eventWorkflowDto = _eventWorkflowService.CreateEventWorkflow(createEventViewModel.EventTypeId, false);
-        _eventService.CreateEvent(eventDates, (EventTypes) createEventViewModel.EventTypeId, _employee.EmployeeId, eventWorkflowDto.EventWorkflowId);
-        return Ok($"Event has been created successfully");
+        _eventService.CreateEvent(eventDates, (EventTypes) createEventViewModel.EventTypeId, _employee.EmployeeId, eventWorkflowDto.EventWorkflowId, createEventViewModel.TeamId);
+        return Ok("Event has been created successfully");
       }
       catch (ValidationException ex)
       {

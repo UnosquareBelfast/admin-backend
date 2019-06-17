@@ -56,7 +56,7 @@ namespace AdminCore.Services
       return _mapper.Map<IList<EventDto>>(QueryEventsByEmployeeId(eventTypeId, eventIds));
     }
 
-    public bool IsEventAlreadyBooked(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses)
+    public bool IsEventAlreadyBooked(DateTime startDate, DateTime endDate, int employeeId, EventStatuses eventStatuses, int teamId)
     {
       var eventStatus = (int)eventStatuses;
       return DatabaseContext.EventDatesRepository.Exists(
@@ -67,7 +67,8 @@ namespace AdminCore.Services
            (current.StartDate.Date == startDate.Date && current.EndDate.Date == endDate.Date) ||
            (current.StartDate.Date > startDate.Date && current.EndDate.Date < endDate.Date)) &&
           current.Event.EmployeeId == employeeId &&
-          current.Event.EventStatusId == eventStatus,
+          current.Event.EventStatusId == eventStatus &&
+        current.Event.TeamId == teamId,
         null, x => x.Event);
     }
 
@@ -131,13 +132,26 @@ namespace AdminCore.Services
       }
     }
 
-    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId, int eventWorkflowId)
+    public EventDto CreateEvent(EventDateDto dates, EventTypes eventTypes, int employeeId, int eventWorkflowId, int teamId)
     {
       CheckEventTypeAdminLevel(eventTypes, employeeId);
-      var newEvent = BuildNewEvent(employeeId, eventTypes, eventWorkflowId);
+      var newEvent = BuildNewEvent(employeeId, eventTypes, eventWorkflowId, teamId);
       UpdateEventDates(dates, newEvent);
       ThrowIfDaysNoticeValidationFail((int)eventTypes, newEvent.EventDates);
       return ValidateRemainingHolidaysAndCreate(newEvent, dates);
+    }
+
+    private void CheckEventTypeAdminLevel(EventTypes eventTypes, int employeeId)
+    {
+      var eventTypeId = (int)eventTypes;
+      var systemUserRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
+        .Select(x => x.SystemUserRoleId).FirstOrDefault();
+      var systemUserRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
+        .Select(x => x.SystemUser.SystemUserRoleId).FirstOrDefault();
+      if (UserDoesNotHaveCorrectPrivileges(systemUserRoleLevelRequired, systemUserRole))
+      {
+        throw new Exception("User does not have the correct privileges to book this type of event.");
+      }
     }
 
     /// <summary>
@@ -399,19 +413,21 @@ namespace AdminCore.Services
       return !(GetHolidayStatsForUser(employeeId).AvailableHolidays < ((eventDates.EndDate - eventDates.StartDate).TotalDays) + 1);
     }
 
-    private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId)
+    private bool IsEventDatesAlreadyBooked(EventDateDto eventDates, int employeeId, int teamId)
     {
       var approvedEmployeeEvent = IsEventAlreadyBooked(
         eventDates.StartDate,
         eventDates.EndDate,
         employeeId,
-        EventStatuses.Approved);
+        EventStatuses.Approved,
+        teamId);
 
       var awaitEmployeeEvent = IsEventAlreadyBooked(
         eventDates.StartDate,
         eventDates.EndDate,
         employeeId,
-        EventStatuses.AwaitingApproval);
+        EventStatuses.AwaitingApproval,
+        teamId);
 
       if (approvedEmployeeEvent || awaitEmployeeEvent)
       {
@@ -523,7 +539,7 @@ namespace AdminCore.Services
 
     private EventDto ValidateRemainingHolidaysAndCreate(Event newEvent, EventDateDto dates)
     {
-      if (EmployeeHasEnoughHolidays(newEvent) && !IsEventDatesAlreadyBooked(dates, newEvent.EmployeeId))
+      if (EmployeeHasEnoughHolidays(newEvent) && !IsEventDatesAlreadyBooked(dates, newEvent.EmployeeId, newEvent.TeamId ?? throw new Exception("Cannot create an event with a null Team Id.")))
       {
         var insertedEvent = DatabaseContext.EventRepository.Insert(newEvent);
         DatabaseContext.SaveChanges();
@@ -533,7 +549,7 @@ namespace AdminCore.Services
       throw new Exception(NotEnoughHolidaysToBookExceptMsg);
     }
 
-    private Event BuildNewEvent(int employeeId, EventTypes eventTypes, int eventWorkflowId)
+    private Event BuildNewEvent(int employeeId, EventTypes eventTypes, int eventWorkflowId, int teamId)
     {
       var newEvent = new Event
       {
@@ -543,7 +559,8 @@ namespace AdminCore.Services
         EventTypeId = (int)eventTypes,
         EventDates = new List<EventDate>(),
         EventWorkflowId = eventWorkflowId,
-        LastModified = _dateService.GetCurrentDateTime()
+        LastModified = _dateService.GetCurrentDateTime(),
+        TeamId = teamId
       };
 
       return newEvent;
@@ -714,19 +731,6 @@ namespace AdminCore.Services
     private static bool IsPublicHoliday(Event eventToUpdate)
     {
       return eventToUpdate.EventTypeId == (int)EventTypes.PublicHoliday;
-    }
-
-    private void CheckEventTypeAdminLevel(EventTypes eventTypes, int employeeId)
-    {
-      var eventTypeId = (int)eventTypes;
-      var systemUserRoleLevelRequired = DatabaseContext.EventTypeRepository.GetAsQueryable(x => x.EventTypeId == eventTypeId)
-                                                                           .Select(x => x.SystemUserRoleId).FirstOrDefault();
-      var systemUserRole = DatabaseContext.EmployeeRepository.GetAsQueryable(x => x.EmployeeId == employeeId)
-                                                                           .Select(x => x.SystemUser.SystemUserRoleId).FirstOrDefault();
-      if (UserDoesNotHaveCorrectPrivileges(systemUserRoleLevelRequired, systemUserRole))
-      {
-        throw new Exception("User does not have the correct privileges to book this type of event.");
-      }
     }
 
     private static bool UserDoesNotHaveCorrectPrivileges(int systemUserRoleLevelRequired, int employeeLevel)

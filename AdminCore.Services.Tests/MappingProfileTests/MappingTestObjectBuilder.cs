@@ -29,7 +29,6 @@ namespace AdminCore.Services.Tests.MappingProfileTests
                         ProjectId = 15,
                         ProjectName = ProjectName,
                         ClientId = 16,
-                        ProjectParentId = 2,
                         Client = new Client
                         {
                             ClientId = 16,
@@ -76,8 +75,7 @@ namespace AdminCore.Services.Tests.MappingProfileTests
             {
                 ProjectId = ProjectId,
                 ClientId = ClientId,
-                ProjectName = ProjectName2,
-                ProjectParentId = ProjectParentId
+                ProjectName = ProjectName2
             };
         }
 
@@ -98,8 +96,7 @@ namespace AdminCore.Services.Tests.MappingProfileTests
             {
                 ProjectId = ProjectId,
                 ClientId = ClientId,
-                ProjectName = ProjectName2,
-                ProjectParentId = null
+                ProjectName = ProjectName2
             };
         }
 

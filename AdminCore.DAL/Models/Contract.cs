@@ -18,10 +18,10 @@ namespace AdminCore.DAL.Models
     [Column("employee_id")]
     public int EmployeeId { get; set; }
 
-    [Column("system_user_role_id")]
-    public int SystemUserRoleId { get; set; }
-    [ForeignKey("SystemUserRoleId")]
-    public SystemUserRole SystemUserRole { get; set; }
+    [Column("employee_role_id")]
+    public int EmployeeRoleId { get; set; }
+    [ForeignKey("EmployeeRoleId")]
+    public EmployeeRole EmployeeRole { get; set; }
 
     [Column("start_date")]
     public DateTime StartDate { get; set; }

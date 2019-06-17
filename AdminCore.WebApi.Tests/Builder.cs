@@ -44,10 +44,6 @@ namespace AdminCore.WebApi.Tests
         Surname = "Employee",
         Email = "test@employee.com",
         CountryId = 1,
-        SystemUser = new CreateSystemUserViewModel
-        {
-          SystemUserRoleId = (int) SystemUserRoles.TeamLeader
-        },
         EmployeeStatusId = 1,
         StartDate = new DateTime()
       };
@@ -62,10 +58,7 @@ namespace AdminCore.WebApi.Tests
         Surname = "Employee",
         Email = "test@employee.com",
         CountryId = 1,
-        SystemUser = new SystemUserDto
-        {
-          SystemUserRoleId = (int) SystemUserRoles.TeamLeader
-        },
+        SystemUser = new SystemUserDto(),
         EmployeeStatusId = 1,
         StartDate = new DateTime()
       };
@@ -76,10 +69,6 @@ namespace AdminCore.WebApi.Tests
       return new RegisterEmployeeViewModel
       {
         CountryId = 1,
-        SystemUser = new CreateSystemUserViewModel
-        {
-          SystemUserRoleId = (int) SystemUserRoles.User
-        },
         EmployeeStatusId = 1,
         StartDate = startDate
       };

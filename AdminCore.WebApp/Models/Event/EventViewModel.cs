@@ -25,5 +25,7 @@ namespace AdminCore.WebApi.Models.Event
     public DateTime LastModified { get; set; }
 
     public DateTime DateCreated { get; set; }
+
+    public int TeamId { get; set; }
   }
 }

@@ -33,13 +33,13 @@ namespace AdminCore.Services.Tests.ClassData
                 var systemUserUser = new SystemUser
                 {
                     SystemUserId = systemUserId,
-                    SystemUserRoleId = (int) SystemUserRoles.User
+//                    SystemUserRoleId = (int) SystemUserRoles.User
                 };
 
                 var systemUserTeamLead = new SystemUser
                 {
                     SystemUserId = systemUserId,
-                    SystemUserRoleId = (int) SystemUserRoles.TeamLeader
+//                    SystemUserRoleId = (int) SystemUserRoles.TeamLeader
                 };
 
                 // Responding employee is user, approving event required SystemAdmin.
@@ -66,7 +66,7 @@ namespace AdminCore.Services.Tests.ClassData
                         new EventTypeRequiredResponders
                         {
                             EventTypeId = (int) EventTypes.AnnualLeave,
-                            SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
+                            EmployeeRoleId = (int) EmployeeRoles.TeamLeader
                         }
                     },
                     new List<EventWorkflow>
@@ -99,12 +99,12 @@ namespace AdminCore.Services.Tests.ClassData
                         new EventTypeRequiredResponders
                         {
                             EventTypeId = (int) EventTypes.AnnualLeave,
-                            SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
+                            EmployeeRoleId = (int) EmployeeRoles.TeamLeader
                         },
                         new EventTypeRequiredResponders
                         {
                             EventTypeId = (int) EventTypes.AnnualLeave,
-                            SystemUserRoleId = (int) SystemUserRoles.Cse
+                            EmployeeRoleId = (int) EmployeeRoles.Cse
                         }
                     },
                     new List<EventWorkflow>
@@ -141,13 +141,13 @@ namespace AdminCore.Services.Tests.ClassData
                var systemUserAdmin = new SystemUser
                {
                    SystemUserId = systemUserId,
-                   SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
+//                   SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
                };
 
                var systemUserTeamLead = new SystemUser
                {
                    SystemUserId = systemUserId,
-                   SystemUserRoleId = (int) SystemUserRoles.TeamLeader
+//                   SystemUserRoleId = (int) SystemUserRoles.TeamLeader
                };
 
                 // Responding employee is SystemAdmin, approving event required SystemAdmin.
@@ -174,7 +174,7 @@ namespace AdminCore.Services.Tests.ClassData
                         new EventTypeRequiredResponders
                         {
                             EventTypeId = (int) EventTypes.AnnualLeave,
-                            SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
+                            EmployeeRoleId = (int) EmployeeRoles.TeamLeader
                         }
                     },
                     new List<EventWorkflow>
@@ -207,17 +207,12 @@ namespace AdminCore.Services.Tests.ClassData
                        new EventTypeRequiredResponders
                        {
                            EventTypeId = (int) EventTypes.AnnualLeave,
-                           SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator
+                           EmployeeRoleId = (int) EmployeeRoles.TeamLeader
                        },
                        new EventTypeRequiredResponders
                        {
                            EventTypeId = (int) EventTypes.AnnualLeave,
-                           SystemUserRoleId = (int) SystemUserRoles.TeamLeader
-                       },
-                       new EventTypeRequiredResponders
-                       {
-                           EventTypeId = (int) EventTypes.AnnualLeave,
-                           SystemUserRoleId = (int) SystemUserRoles.Cse
+                           EmployeeRoleId = (int) EmployeeRoles.Cse
                        }
                     },
                     new List<EventWorkflow>

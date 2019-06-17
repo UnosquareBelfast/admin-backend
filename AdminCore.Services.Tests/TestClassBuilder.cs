@@ -128,10 +128,7 @@ namespace AdminCore.Services.Tests
         EmployeeId = employeeId,
         TotalHolidays = totalHolidays,
         Events = events,
-        SystemUser = new SystemUser
-        {
-          SystemUserRoleId = systemUserRoleId
-        }
+        SystemUser = new SystemUser()
       };
     }
 
@@ -142,10 +139,7 @@ namespace AdminCore.Services.Tests
         EmployeeId = 1,
         TotalHolidays = 40,
         Events = events,
-        SystemUser = new SystemUser
-        {
-          SystemUserRoleId = (int)SystemUserRoles.User
-        }
+        SystemUser = new SystemUser()
       };
     }
 

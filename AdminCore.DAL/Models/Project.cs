@@ -12,11 +12,6 @@ namespace AdminCore.DAL.Models
     [Column("project_id")]
     public int ProjectId { get; set; }
 
-    [Column("project_parent_id")]
-    public int? ProjectParentId { get; set; }
-    [ForeignKey("ProjectParentId")]
-    public virtual Project ParentProject { get; set; }
-
     [StringLength(50)]
     [Column("project_name")]
     public string ProjectName { get; set; }

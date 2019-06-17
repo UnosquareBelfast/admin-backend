@@ -206,7 +206,7 @@ namespace AdminCore.Services.Tests
 
     #region MockCreation
 
-        private EventWorkflowService GetMockedResourcesCreateWorkflow(EventWorkflow eventWorkflow, out EntityFrameworkContext ormContext, out IMapper mapper,
+    private IEventWorkflowService GetMockedResourcesCreateWorkflow(EventWorkflow eventWorkflow, out EntityFrameworkContext ormContext, out IMapper mapper,
       out IWorkflowFsmHandler workflowFsmHandler)
     {
       var efContext = SetupMockedOrmContext(out var dbContext);
@@ -223,7 +223,7 @@ namespace AdminCore.Services.Tests
       return new EventWorkflowService(ormContext, mapper, workflowFsmHandler);
     }
 
-    private EventWorkflowService GetMockedResourcesWorkflowResponse(IList<SystemUser> systemUserReturns, IList<Employee> employeeReturns,
+    private IEventWorkflowService GetMockedResourcesWorkflowResponse(IList<SystemUser> systemUserReturns, IList<Employee> employeeReturns,
       IList<EventTypeRequiredResponders> eventTypeRequiredRespondersReturns, IList<EventWorkflow> eventWorkflowReturns,
       IList<SystemUserApprovalResponse> systemUserApprovalResponseReturns, out EntityFrameworkContext ormContext, out IMapper mapper,
       out IWorkflowFsmHandler workflowFsmHandler)

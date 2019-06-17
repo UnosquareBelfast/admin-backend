@@ -117,11 +117,11 @@ namespace AdminCore.Services.Tests
       };
 
       // Employees
-      var employeeNiall = BuildEmployee(1, "Niall", "McMahon", "niall@test.com", northernIreland, user, active, 40);
-      var employeeJamie = BuildEmployee(2, "Jamie", "Higgins", "jamie@test.com", northernIreland, user, active, 50);
-      var employeeEoin = BuildEmployee(3, "Eoin", "McAfee", "eoin@test.com", northernIreland, user, active, 23);
-      var employeeKurtis = BuildEmployee(4, "Kurtis", "Moore", "kurtis@test.com", northernIreland, user, active, 5);
-      var employeeLee = BuildEmployee(4, "Lee", "McKay", "lee@test.com", northernIreland, user, active, 25);
+      var employeeNiall = BuildEmployee(1, "Niall", "McMahon", "niall@test.com", northernIreland, active, 40);
+      var employeeJamie = BuildEmployee(2, "Jamie", "Higgins", "jamie@test.com", northernIreland, active, 50);
+      var employeeEoin = BuildEmployee(3, "Eoin", "McAfee", "eoin@test.com", northernIreland, active, 23);
+      var employeeKurtis = BuildEmployee(4, "Kurtis", "Moore", "kurtis@test.com", northernIreland, active, 5);
+      var employeeLee = BuildEmployee(4, "Lee", "McKay", "lee@test.com", northernIreland, active, 25);
 
       EmployeeRepository = new List<Employee>
       {
@@ -586,7 +586,7 @@ namespace AdminCore.Services.Tests
       };
     }
 
-    private static Employee BuildEmployee(int employeeId, string forename, string surname, string email, Country country, SystemUserRole role, EmployeeStatus status, int totalHolidays)
+    private static Employee BuildEmployee(int employeeId, string forename, string surname, string email, Country country, EmployeeStatus status, int totalHolidays)
     {
       return new Employee
       {
@@ -598,12 +598,7 @@ namespace AdminCore.Services.Tests
         Email = email,
         EmployeeStatus = status,
         EmployeeStatusId = status.EmployeeStatusId,
-        TotalHolidays = totalHolidays,
-        SystemUser = new SystemUser
-        {
-          SystemUserRole = role,
-          SystemUserRoleId = role.SystemUserRoleId
-        }
+        TotalHolidays = totalHolidays
       };
     }
 

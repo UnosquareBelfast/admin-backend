@@ -3,6 +3,7 @@ using AdminCore.DTOs.EventMessage;
 using System;
 using System.Collections.Generic;
 using AdminCore.DTOs.EventWorkflow;
+using AdminCore.DTOs.Team;
 
 namespace AdminCore.DTOs.Event
 {
@@ -22,7 +23,7 @@ namespace AdminCore.DTOs.Event
 
     public int EventWorkflowId { get; set; }
     public virtual EventWorkflowDto EventWorkflow { get; set; }
-    
+
     public int EventTypeId { get; set; }
 
     public EventTypeDto EventType { get; set; }
@@ -34,5 +35,8 @@ namespace AdminCore.DTOs.Event
     public IList<EventDateDto> EventDates { get; set; }
 
     public DateTime LastModified { get; set; }
+
+    public int TeamId { get; set;}
+    public TeamDto Team { get; set; }
   }
 }

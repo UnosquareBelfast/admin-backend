@@ -76,24 +76,28 @@ namespace AdminCore.Services
             switch ((SystemUserRoles)respondeeSystemUser.SystemUserRoleId)
             {
                 case SystemUserRoles.Client:
-                    return ClientResponse;
+                    return ClientResponseValidation;
                 default:
-                    return EmployeeResponse;
+                    return EmployeeResponseValidation;
             }
         }
 
-        private void EmployeeResponse(SystemUser systemUser, EventDto leaveEvent, EventWorkflow eventWorkflow, EventStatuses eventStatus)
+        private void EmployeeResponseValidation(SystemUser systemUser, EventDto leaveEvent, EventWorkflow eventWorkflow, EventStatuses eventStatus)
         {
-            var respondeeEmployee = DatabaseContext.EmployeeRepository.GetSingle(
-                x => x.SystemUserId == systemUser.SystemUserId);
-
             if (eventWorkflow == null)
             {
                 throw new ValidationException($"EventWorkflow with id {leaveEvent.EventWorkflowId} does not exist.");
             }
 
+            var respondeeEmployee = DatabaseContext.EmployeeRepository.GetSingle(
+                x => x.SystemUserId == systemUser.SystemUserId);
+
+            var eventTeamContract = DatabaseContext.ContractRepository.GetSingle(
+                contract => contract.TeamId == leaveEvent.TeamId)
+                                    ?? throw new ValidationException($"Employee {respondeeEmployee.EmployeeId} is not part of Team {leaveEvent.TeamId}.");
+
             var requiredResponders = DatabaseContext.EventTypeRequiredRespondersRepository.Get(x => x.EventTypeId == leaveEvent.EventTypeId)
-                .Select(x => x.SystemUserRoleId);
+                .Select(x => x.EmployeeRoleId);
 
             eventWorkflow.EventWorkflowApprovalResponses = DatabaseContext.SystemUserApprovalResponsesRepository.Get(
                 x => x.EventWorkflowId == eventWorkflow.EventWorkflowId);
@@ -104,7 +108,7 @@ namespace AdminCore.Services
             }
             else if (respondeeEmployee.EmployeeId != leaveEvent.EmployeeId && eventStatus != EventStatuses.Cancelled)
             {
-                if (requiredResponders.Contains(systemUser.SystemUserRoleId) || (SystemUserRoles)systemUser.SystemUserRoleId == SystemUserRoles.SystemAdministrator)
+                if (requiredResponders.Contains(eventTeamContract.EmployeeId))
                 {
                     return;
                 }
@@ -118,9 +122,24 @@ namespace AdminCore.Services
                 $"Event Employee Id: {leaveEvent.EmployeeId}");
         }
 
-        private void ClientResponse(SystemUser systemUser, EventDto leaveEvent, EventWorkflow eventWorkflow, EventStatuses eventStatus)
+        private void ClientResponseValidation(SystemUser systemUser, EventDto leaveEvent, EventWorkflow eventWorkflow, EventStatuses eventStatus)
         {
+            // Validation to check if client is related to employee who booked this event
+            if (eventWorkflow == null)
+            {
+                throw new ValidationException($"EventWorkflow with id {leaveEvent.EventWorkflowId} does not exist.");
+            }
 
+            var respondeeClient = DatabaseContext.ClientRepository.GetSingle(
+                x => x.SystemUserId == systemUser.SystemUserId);
+
+            var teamProject = DatabaseContext.TeamRepository.GetSingle(team => team.TeamId == leaveEvent.TeamId,
+                team => team.Project);
+
+            if (teamProject.Project.ClientId != respondeeClient.ClientId)
+            {
+                throw new ValidationException($"Client {leaveEvent.EventWorkflowId} does not exist.");
+            }
         }
     }
 }

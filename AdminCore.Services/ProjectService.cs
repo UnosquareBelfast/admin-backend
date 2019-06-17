@@ -52,8 +52,7 @@ namespace AdminCore.Services
 
             var projectList = DatabaseContext.ProjectRepository.Get(filterExpression, null,
                 project => project.Client,
-                project => project.Teams,
-                project => project.ParentProject);
+                project => project.Teams);
             return _mapper.Map<IList<ProjectDto>>(projectList) ?? new List<ProjectDto>();
         }
     }
