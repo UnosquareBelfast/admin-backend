@@ -18,12 +18,6 @@ namespace AdminCore.DAL.Models
     [Column("team_name")]
     public string TeamName { get; set; }
 
-    [Column("contact_email")]
-    public string ContactEmail { get; set; }
-
-    [Column("contact_name")]
-    public string ContactName { get; set; }
-
     [ForeignKey("ProjectId")]
     public virtual Project Project { get; set; }
 

@@ -33,8 +33,6 @@ namespace AdminCore.Services
       {
         client = _mapper.Map<Client>(clientDto);
 
-        client.SystemUser = new SystemUser {SystemUserRoleId = (int)SystemUserRoles.Client};
-
         DatabaseContext.ClientRepository.Insert(client);
       }
       else

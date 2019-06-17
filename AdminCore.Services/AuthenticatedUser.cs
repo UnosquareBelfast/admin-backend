@@ -27,28 +27,8 @@ namespace AdminCore.Services
     {
       var userDetails = GetLoggedInUserDetails();
       var employee = _employeeService.GetEmployeeByEmail(userDetails[UserDetailsConstants.UserEmail]);
-//      GetRoleFromAzure(employee, userDetails);
+
       return employee ?? throw new UserNotRegisteredException($"User with email {userDetails[UserDetailsConstants.UserEmail]} is not registered. Log in first.");
-    }
-
-    private static void GetRoleFromAzure(EmployeeDto employee, UserDetailsHelper userDetails)
-    {
-      if (employee != null)
-      {
-        AddRoleToEmployee(employee, userDetails);
-      }
-    }
-
-    private static void AddRoleToEmployee(EmployeeDto employee, UserDetailsHelper userDetails)
-    {
-      if (UserIsAdmin(userDetails))
-      {
-        employee.SystemUser.SystemUserRoleId = (int) SystemUserRoles.SystemAdministrator;
-      }
-      else
-      {
-        employee.SystemUser.SystemUserRoleId = (int) SystemUserRoles.User;
-      }
     }
 
     private static bool UserIsAdmin(UserDetailsHelper userDetails)

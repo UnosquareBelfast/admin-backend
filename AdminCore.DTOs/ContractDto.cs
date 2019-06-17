@@ -1,5 +1,6 @@
 ﻿using AdminCore.DTOs.Team;
 using System;
+using AdminCore.DTOs.SystemUser;
 
 namespace AdminCore.DTOs
 {
@@ -20,5 +21,9 @@ namespace AdminCore.DTOs
     public DateTime StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
+
+    public int SystemUserRoleId { get; set; }
+
+    public SystemUserRoleDto SystemUserRole { get; set; }
   }
 }

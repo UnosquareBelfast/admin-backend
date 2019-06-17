@@ -22,8 +22,8 @@ namespace AdminCore.Services.Tests.MappingProfileTests
                     TeamId = 6,
                     TeamName = TeamName,
                     ProjectId = 15,
-                    ContactName = ContactName,
-                    ContactEmail = ContactEmail,
+//                    ContactName = ContactName,
+//                    ContactEmail = ContactEmail,
                     Project = new Project
                     {
                         ProjectId = 15,
@@ -67,8 +67,8 @@ namespace AdminCore.Services.Tests.MappingProfileTests
         private const string ClientName = "Client Name";
         private const string ProjectName = "Project Name";
         private const string TeamName = "Team Name";
-        private const string ContactName = "Contact Name";
-        private const string ContactEmail = "Contact Email";
+//        private const string ContactName = "Contact Name";
+//        private const string ContactEmail = "Contact Email";
 
         public static Project GetDefaultProject()
         {

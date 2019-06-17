@@ -16,9 +16,6 @@ namespace AdminCore.DAL.Models
     [Column("country_id")]
     public int CountryId { get; set; }
 
-    [Column("system_user_id")]
-    public int SystemUserId { get; set; }
-
     [Column("email")]
     public string Email { get; set; }
 
@@ -44,6 +41,9 @@ namespace AdminCore.DAL.Models
 
     [ForeignKey("EmployeeStatusId")]
     public virtual EmployeeStatus EmployeeStatus { get; set; }
+
+    [Column("system_user_id")]
+    public int SystemUserId { get; set; }
 
     [ForeignKey("SystemUserId")]
     public virtual SystemUser SystemUser { get; set; }

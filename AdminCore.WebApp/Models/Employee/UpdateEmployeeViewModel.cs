@@ -12,8 +12,6 @@ namespace AdminCore.WebApi.Models.Employee
 
     public int EmployeeId { get; set; }
 
-    public CreateSystemUserViewModel SystemUser { get; set; }
-
     public int EmployeeStatusId { get; set; }
 
     public string Forename { get; set; }
